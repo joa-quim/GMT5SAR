@@ -11,7 +11,9 @@ include_directories (include ../../gmtsar ../S1A_preproc/include ${HDF5_INCLUDE_
 
 set (LINK_LIBS ${LINK_LIBS} ${HDF5_LIBRARY} gmtsar xmlC)
 
+if (WIN32)
 add_definitions(/DH5_BUILT_AS_DYNAMIC_LIB)
+endif (WIN32)
 
 add_executable (make_raw_csk src_raw/make_raw_csk.c)
 target_link_libraries (make_raw_csk ${LINK_LIBS})
