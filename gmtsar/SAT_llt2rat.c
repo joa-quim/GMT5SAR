@@ -119,7 +119,7 @@ int main (int argc, char **argv) {
 		else if (!strcmp(argv[3],"-bod"))
 			otype=3;
 		else {
-			printf(stderr," %s *** option not recognized ***\n\n",argv[2]);
+			fprintf(stderr," %s *** option not recognized ***\n\n",argv[2]);
 			fprintf(stderr,"%s",USAGE);
 			exit(1);
 		}
