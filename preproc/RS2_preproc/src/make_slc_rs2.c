@@ -22,6 +22,10 @@
 #include "xmlC.h"
 #include "lib_defs.h"
 
+int write_slc(TIFF *tif, FILE *slc, char *orbdir);
+int write_orb_local(state_vector *sv, FILE *fp, int n);
+int pop_led(tree *xml_tree,state_vector *sv);
+int pop_prm(struct PRM *prm,tree *xml_tree,char *file_name);
 
 char *USAGE = "\n\nUsage: make_slc_rs2 name_of_xml_file name_of_tiff_file name_output\n"
 "\nExample: make_slc_rs2 product.xml imagery_HH.tif RS220110515\n"

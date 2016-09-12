@@ -54,6 +54,11 @@ static inline unsigned int bswap_32(unsigned int x) {
 }*/
 #endif
 
+int pop_prm(struct PRM *prm,tree *xml_tree,char *file_name);
+int pop_led(tree *xml_tree,state_vector *sv);
+int write_orb_local(state_vector *sv, FILE *fp, int n);
+int write_slc(FILE *input, FILE *slc, int rows, int cols);
+
 char *USAGE = "\n\nUsage: make_slc_tsx name_of_xml_file name_of_image_file name_output\n"
 "\nExample: make_slc_s1a TSX1_SAR__SSC______SM_S_SRA_20120615T162057_20120615T162105.xml IMAGE_HH_SRA_strip_007.cos TSX_HH_20120615\n"
 "\nOutput: TSX_HH_20120615.SLC TSX_HH_20120615.PRM TSX_HH_20120615.LED\n";
