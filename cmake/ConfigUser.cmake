@@ -156,7 +156,7 @@ if (WIN32)
 	set (LAPACK_LIB "C:/programs/compa_libs/lapack-3.5.0/compileds/lib/liblapack.lib")
 	set (LAPACK_DIR C:/programs/compa_libs/lapack-3.5.0/compileds/lib/cmake/lapack-3.4.2)
 	set (LAPACK_ROOT C:/programs/compa_libs/lapack-3.5.0/compileds/lib)
-else
+else ()
 	# Installation path
 	set(CMAKE_INSTALL_PREFIX "~/programs/bin2")
 endif ()
