@@ -166,10 +166,10 @@ int main(int argc, char **argv){
 	
 
 	// malloc memory for images
-	mf = (short *)calloc(nlm*splm*2,sizeof(short));
-	mb = (short *)calloc(nlm*splm*2,sizeof(short));
-	sf = (short *)calloc(nls*spls*2,sizeof(short));
-	sb = (short *)calloc(nls*spls*2,sizeof(short));
+	mf = (short *)malloc(nlm*splm*2*sizeof(short));
+	mb = (short *)malloc(nlm*splm*2*sizeof(short));
+	sf = (short *)malloc(nls*spls*2*sizeof(short));
+	sb = (short *)malloc(nls*spls*2*sizeof(short));
 	fread(mf,nlm*splm*2,sizeof(short),MF);
 	fread(mb,nlm*splm*2,sizeof(short),MB);
 	fread(sf,nls*spls*2,sizeof(short),SF);
@@ -181,19 +181,15 @@ int main(int argc, char **argv){
 	if (ntl>=ntls) ntl = ntls;
 	spl = splm;
 	if (spl>=spls) spl = spls;
-	real = (float *)calloc(ntl*spl,sizeof(float));
-	imag = (float *)calloc(ntl*spl,sizeof(float));
-	freal = (float *)calloc(ntl*spl,sizeof(float));
-	fimag = (float *)calloc(ntl*spl,sizeof(float));
-	zz_r = (int *)calloc(ntl,sizeof(int));
-	amp1 = (float *)calloc(ntl*spl,sizeof(float));
-	amp2 = (float *)calloc(ntl*spl,sizeof(float));
+	real = (float *)malloc(ntl*spl*sizeof(float));
+	imag = (float *)malloc(ntl*spl*sizeof(float));
+	freal = (float *)malloc(ntl*spl*sizeof(float));
+	fimag = (float *)malloc(ntl*spl*sizeof(float));
+	zz_r = (int *)malloc(ntl*sizeof(int));
+	amp1 = (float *)malloc(ntl*spl*sizeof(float));
+	amp2 = (float *)malloc(ntl*spl*sizeof(float));
 	
-	//real1 = (float *)malloc(ntl*spl*sizeof(float));
-	//real2 = (float *)malloc(ntl*spl*sizeof(float));
-	//imag1 = (float *)malloc(ntl*spl*sizeof(float));
-	//imag2 = (float *)malloc(ntl*spl*sizeof(float));
-	corr = (float *)calloc(ntl*spl,sizeof(float));
+	corr = (float *)malloc(ntl*spl*sizeof(float));
 	// compute sum real and sum imagenary
 	//fprintf(stderr,"Some pars: ntl: %d %d %d, spl: %d %d %d\n",ntlm,ntls,ntl,splm,spls,spl);
 	zz = 0;
@@ -227,19 +223,10 @@ int main(int argc, char **argv){
 				amp1[zz*spl+jj] = r1*r1+i1*i1;
 				amp2[zz*spl+jj] = r2*r2+i2*i2;
 				 
-				//real1[zz*spl+jj] = r1;
-				//real2[zz*spl+jj] = r2;
-				//imag1[zz*spl+jj] = i1;
-				//imag2[zz*spl+jj] = i2;
-
 				real[zz*spl+jj] = r1*r2+i1*i2;
 				imag[zz*spl+jj] = i1*r2-r1*i2;
 				//phase = sqrt(real*real+imag*imag)/sqrt((r1*r1+i1*i1)*(r2*r2+i2*i2));
 				//phase = atan2(imag[zz*spl+jj],real[zz*spl+jj]);
-				//fwrite(&phase,1,sizeof(double),OUTP);
-
-				//rsum += real/1e10;
-				//isum += imag/1e10;
 			}
 			zz_r[zz] = ii;
 			zz++;
@@ -268,19 +255,17 @@ int main(int argc, char **argv){
 			fimag[ii*spl+jj]=filtdat;
 			conv2d(amp1,&zz,&spl,filter,&xarr,&yarr,&filtdat,&ii,&jj,&fsum);
 			famp1 = filtdat;
-			//conv2d(real1,&zz,&spl,filter,&xarr,&yarr,&r1,&ii,&jj,&fsum);
-			//conv2d(real2,&zz,&spl,filter,&xarr,&yarr,&r2,&ii,&jj,&fsum);
+			
 			conv2d(amp2,&zz,&spl,filter,&xarr,&yarr,&filtdat,&ii,&jj,&fsum);
 			famp2 = filtdat;
-			//conv2d(imag1,&zz,&spl,filter,&xarr,&yarr,&i1,&ii,&jj,&fsum);
-			//conv2d(imag2,&zz,&spl,filter,&xarr,&yarr,&i2,&ii,&jj,&fsum);
+			
 			corr[ii*spl+jj] = sqrt((freal[ii*spl+jj]*freal[ii*spl+jj]+fimag[ii*spl+jj]*fimag[ii*spl+jj])/(famp1*famp2));
 
-			if (corr[ii*spl+jj] > 0.3) {
-				rsum+=freal[ii*spl+jj];
+			if (corr[ii*spl+jj] > 0.6) {
+				rsum += freal[ii*spl+jj];
 			}
-			if (corr[ii*spl+jj] > 0.3) {
-				isum+=fimag[ii*spl+jj];
+			if (corr[ii*spl+jj] > 0.6) {
+				isum += fimag[ii*spl+jj];
 			}
 		}
 	}
@@ -291,7 +276,7 @@ int main(int argc, char **argv){
 			if(corr[ii*spl+jj]>0.3) {
 				//fprintf(OUTP,"%d\t%d\t%.9f\n",jj,zz_r[ii],(float)(sqrt((jj-10000)*(jj-10000)+(zz_r[ii]-5000)*(zz_r[ii]-5000)))/5.0e5);
 				phase = atan2(fimag[ii*spl+jj],freal[ii*spl+jj]);
-				fprintf(OUTP,"%d\t%d\t%.9f\t%.9f\n",jj,zz_r[ii],phase,corr[ii*spl+jj]);
+				fprintf(OUTP,"%d\t%d\t%.9f\t%.9f\n",jj,zz_r[ii]+bshift,phase,corr[ii*spl+jj]);
 				//fwrite(&phase,1,sizeof(double),OUTP);
 			}
 		}
@@ -310,10 +295,6 @@ int main(int argc, char **argv){
 	free(zz_r);
 	free(amp1);
 	free(amp2);
-	//free(real1);
-	//free(real2);
-	//free(imag1);
-	//free(imag2);
 	free(corr);
 	free(freal);
 	free(fimag);

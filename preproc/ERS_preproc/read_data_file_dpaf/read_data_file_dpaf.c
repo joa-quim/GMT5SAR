@@ -10,7 +10,11 @@ in CEOS SAR data file
 #include <string.h>
 #include "SARtape.h"
 #include <sys/types.h>
-#include <unistd.h>
+#ifndef _WIN32
+#	include <unistd.h>
+#else
+#	include "../../../unistd.h"
+#endif
 #include <stdio.h>
 #include "data_param.h"
 

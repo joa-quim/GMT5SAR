@@ -53,8 +53,10 @@
 #include <sys/types.h>
 #ifndef _WIN32
 #	include <sys/uio.h>
+#	include <unistd.h>
+#else
+#	include "../../../unistd.h"
 #endif
-#include <unistd.h>
 #include <errno.h>
 #include <limits.h>
 #if defined(_WIN32) && !defined(strcasecmp)
