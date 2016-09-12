@@ -22,6 +22,12 @@
 #include "xmlC.h"
 #include "lib_defs.h"
 
+int pop_prm_hdf5(struct PRM *prm,hid_t input,char *file_name);
+int write_raw_hdf5(hid_t input, FILE *raw);
+int pop_led_hdf5(hid_t input,state_vector *sv);
+int pop_prm_hdf5(struct PRM *prm,hid_t input,char *file_name);
+int hdf5_read(void *output, hid_t file, char *n_group, char *n_dset, char *n_attr, int c);
+
 void set_prm_defaults(struct PRM *);
 
 /*static inline unsigned long long bswap_64(unsigned long long x) {
