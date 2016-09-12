@@ -15,7 +15,7 @@
 #
 
 # Set build type can be: empty, Debug, Release, relwithdebinfo or minsizerel (default is Release)
-set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE Release)
 
 # The GMTSAR package name.
 set (GMTSAR_PACKAGE_NAME "GMTSAR")
