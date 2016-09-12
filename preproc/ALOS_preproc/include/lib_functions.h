@@ -59,7 +59,7 @@ EXTERN_MSC void set_ALOS_defaults(struct PRM *prm);
 EXTERN_MSC void print_ALOS_defaults(struct PRM *prm);
 EXTERN_MSC long read_ALOS_data_SLC (FILE *imagefile, FILE *outfile, struct PRM *prm, long *byte_offset);
 void swap_ALOS_data_info(struct sardata_info *sdr);
-EXTERN_MSC void swap32(in, out, n);
+EXTERN_MSC void swap32(char *in, char *out, int n);
 
 /* ffpack functions */
 #ifndef MAXFAC
