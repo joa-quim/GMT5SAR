@@ -7,7 +7,7 @@ if (HAVE_M_LIBRARY)
 	set (LINK_LIBS m)
 endif (HAVE_M_LIBRARY)
 
-include_directories (include ../../gmtsar ../S1A_preproc/include ${HDF5_INCLUDE_DIR})
+include_directories (include ../../gmtsar ../S1A_preproc/include ${HDF5_INCLUDE_DIR} ${GMT_INCLUDE_DIR})
 
 set (LINK_LIBS ${LINK_LIBS} ${HDF5_LIBRARY} gmtsar xmlC)
 
