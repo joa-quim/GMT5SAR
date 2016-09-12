@@ -34,6 +34,7 @@ void ENVI_baseline(struct PRM *, struct ALOS_ORB *, int, int, char **, double);
 void read_all_ENVI_ldr(struct PRM *, struct ALOS_ORB *, int);
 void read_ENVI_orb(FILE *, struct PRM *, struct ALOS_ORB *);
 void ENVI_llt2rat_sub(char * , double *, double * );
+void cross3_(double *, double *, double *);
 
 /*---------------------------------------------------------------------------*/
 static void read_input_file(char *inputfilename, int nfiles, char **filename) {
