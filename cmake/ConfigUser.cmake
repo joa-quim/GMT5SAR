@@ -15,7 +15,7 @@
 #
 
 # Set build type can be: empty, Debug, Release, relwithdebinfo or minsizerel (default is Release)
-set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE Debug)
 
 # The GMTSAR package name.
 set (GMTSAR_PACKAGE_NAME "GMTSAR")
@@ -158,7 +158,7 @@ if (WIN32)
 	set (LAPACK_ROOT C:/programs/compa_libs/lapack-3.5.0/compileds/lib)
 else ()
 	# Installation path
-	set(CMAKE_INSTALL_PREFIX "~/programs/bin2")
+	#set(CMAKE_INSTALL_PREFIX "~/programs/bin2")
 endif ()
 
 
