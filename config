@@ -1,0 +1,7 @@
+[core]
+	bare = true
+	filemode = false
+	symlinks = false
+	ignorecase = true
+[core]
+	repositoryformatversion = 0
