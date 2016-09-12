@@ -3,6 +3,7 @@
 
 #include "../include/soi.h"
 #include <string.h>
+#include <stdlib.h>
 
 main(int argc, char **argv) {
         char *ifile, *ofile;    /* input file and output file*/
