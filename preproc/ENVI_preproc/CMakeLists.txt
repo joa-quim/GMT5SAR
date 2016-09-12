@@ -20,7 +20,7 @@ target_link_libraries (asa_cat ${LINK_LIBS})
 add_executable (calc_dop_orb_envi Dop_orbit/calc_dop_orb_envi.c)
 target_link_libraries (calc_dop_orb_envi ${LINK_LIBS})
 
-add_executable (ENVI_baseline ENVI_baseline/ENVI_baseline.c Envi_baseline/ENVI_llt2rat_sub.c)
+add_executable (ENVI_baseline ENVI_baseline/ENVI_baseline.c ENVI_baseline/ENVI_llt2rat_sub.c)
 target_link_libraries (ENVI_baseline ${LINK_LIBS})
 
 add_executable (asa_im_decode ENVI_decode/asa_im_decode.c)
