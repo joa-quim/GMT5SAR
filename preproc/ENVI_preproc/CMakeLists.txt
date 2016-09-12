@@ -10,7 +10,7 @@ endif (HAVE_M_LIBRARY)
 include_directories (include ../../gmtsar ../ALOS_preproc/include ${GMT_INCLUDE_DIR})
 
 add_library (ENVI lib_src/ENVI_ldr_orbit.c lib_src/read_ENVI_orb.c)
-target_link_libraries (${LINK_LIBS} ENVI ALOS gmtsar)
+target_link_libraries (ENVI ALOS gmtsar ${LINK_LIBS})
 
 set (LINK_LIBS ${LINK_LIBS} gmtsar ENVI ALOS)
 
