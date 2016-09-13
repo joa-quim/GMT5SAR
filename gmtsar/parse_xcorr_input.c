@@ -94,88 +94,90 @@ void parse_command_line(int na, char **a, struct xcorr *xc, int *nfiles, int *in
 	FILE	*inputfile;
 	char	tmp[128];
 
-for (n = 3; n < na; n++) {
-	if (!strcmp(a[n], "-freq")) {
-		xc->corr_flag = 2;
-		fprintf(stderr," using frequency cross correlation\n");
-	} else if (!strcmp(a[n], "-time")) {
-		xc->corr_flag = 0;
-		fprintf(stderr," using time cross correlation\n");
-	} else if (!strcmp(a[n], "-time4")) {
-		xc->corr_flag = 1;
-		fprintf(stderr," using 4th power time cross correlation\n");
-        } else if (!strcmp(a[n], "-real")) {
-                xc->format = 1;
-                fprintf(stderr," no interpolation\n");
-	} else if (!strcmp(a[n], "-nointerp")) {
-		xc->interp_flag = 0;
-		fprintf(stderr," no interpolation\n");
-	} else if (!strcmp(a[n], "-noshift")) {
-		xc->offset_flag = 1;
-		fprintf(stderr," ignoring shift in prm\n");
-	} else if (!strcmp(a[n], "-interp")) {
-		n++;
-		if (n == na) die (" no option after -interp!\n","");
-		xc->interp_flag = 1;
-		xc->interp_factor = atoi(a[n]);
-		fprintf(stderr," setting interpolation factor to %d\n", xc->interp_factor);
-	} else if (!strcmp(a[n], "-range_interp")) {
-		n++;
-		if (n == na) die (" no option after -range_interp!\n","");
-		xc->ri = atoi(a[n]);
-		fprintf(stderr," setting range interpolation factor to %d\n", xc->ri);
-	} else if (!strcmp(a[n], "-nx")) {
-		n++;
-		if (n == na) die (" no option after -nx!\n","");
-		xc->nxl = atoi(a[n]);
-		fprintf(stderr," setting nx to %d\n", xc->nxl);
-	} else if (!strcmp(a[n], "-ny")) {
-		n++;
-		if (n == na) die (" no option after -ny!\n","");
-		xc->nyl = atoi(a[n]);
-		fprintf(stderr," setting ny to %d\n", xc->nyl);
-	} else if (!strcmp(a[n], "-xsearch")) {
-		n++;
-		if (n == na) die (" no option after -xsearch!\n","");
-		xc->xsearch = atoi(a[n]);
-		xc->nx_corr = 2*xc->xsearch;
-		xc->npx = xc->nx_corr + 2*xc->xsearch;	/* size of data required*/
-		xc->nxc = 2*xc->xsearch;	 	/* size of correlation patch*/
-		if (((xc->xsearch-1) & xc->xsearch)) die (" xsearch needs to be power of 2! (32 64 128 256) \n","");
-		fprintf(stderr," setting xsearch to %d\n", xc->xsearch);
-		fprintf(stderr," setting nx_corr to %d\n", xc->nx_corr);
-        } else if (!strcmp(a[n], "-ysearch")) {
-		n++;
-		if (n == na) die (" no option after -ysearch!\n","");
-		xc->ysearch = atoi(a[n]);
-		xc->ny_corr = 2*xc->ysearch;
-		xc->npy = xc->ny_corr + 2*xc->ysearch;	/* size of data required*/
-		xc->nyc = 2*xc->ysearch;	 	/* size of correlation patch*/
-		if (((xc->ysearch-1) & xc->ysearch)) die (" ysearch needs to be power of 2! (32 64 128 256) \n","");
-		fprintf(stderr," setting ysearch to %d\n", xc->ysearch);
-		fprintf(stderr," setting ny_corr to %d\n", xc->ny_corr);
-	} else if (!strcmp(a[n], "-v")) {
-		verbose = 1;
-		fprintf(stderr," verbose output \n");
-	} else if (!strcmp(a[n], "-norange")) {
-		xc->ri = 1;
-		fprintf(stderr," no range interpolation \n");
-	} else if (!strncmp(a[n], "-input",1)) {
-		n++;
-		if (n == na) die (" no option after -input!\n","");
-		fprintf(stderr,"using input file \n");
-		*input_flag = 1;
+	for (n = 3; n < na; n++) {
+		if (!strcmp(a[n], "-freq")) {
+			xc->corr_flag = 2;
+			fprintf(stderr," using frequency cross correlation\n");
+		} else if (!strcmp(a[n], "-time")) {
+			xc->corr_flag = 0;
+			fprintf(stderr," using time cross correlation\n");
+		} else if (!strcmp(a[n], "-time4")) {
+			xc->corr_flag = 1;
+			fprintf(stderr," using 4th power time cross correlation\n");
+		} else if (!strcmp(a[n], "-real")) {
+			xc->format = 1;
+			fprintf(stderr," no interpolation\n");
+		} else if (!strcmp(a[n], "-nointerp")) {
+			xc->interp_flag = 0;
+			fprintf(stderr," no interpolation\n");
+		} else if (!strcmp(a[n], "-noshift")) {
+			xc->offset_flag = 1;
+			fprintf(stderr," ignoring shift in prm\n");
+		} else if (!strcmp(a[n], "-interp")) {
+			n++;
+			if (n == na) die (" no option after -interp!\n","");
+			xc->interp_flag = 1;
+			xc->interp_factor = atoi(a[n]);
+			fprintf(stderr," setting interpolation factor to %d\n", xc->interp_factor);
+		} else if (!strcmp(a[n], "-range_interp")) {
+			n++;
+			if (n == na) die (" no option after -range_interp!\n","");
+			xc->ri = atoi(a[n]);
+			fprintf(stderr," setting range interpolation factor to %d\n", xc->ri);
+		} else if (!strcmp(a[n], "-nx")) {
+			n++;
+			if (n == na) die (" no option after -nx!\n","");
+			xc->nxl = atoi(a[n]);
+			fprintf(stderr," setting nx to %d\n", xc->nxl);
+		} else if (!strcmp(a[n], "-ny")) {
+			n++;
+			if (n == na) die (" no option after -ny!\n","");
+			xc->nyl = atoi(a[n]);
+			fprintf(stderr," setting ny to %d\n", xc->nyl);
+		} else if (!strcmp(a[n], "-xsearch")) {
+			n++;
+			if (n == na) die (" no option after -xsearch!\n","");
+			xc->xsearch = atoi(a[n]);
+			xc->nx_corr = 2*xc->xsearch;
+			xc->npx = xc->nx_corr + 2*xc->xsearch;	/* size of data required*/
+			xc->nxc = 2*xc->xsearch;	 	/* size of correlation patch*/
+			if (((xc->xsearch-1) & xc->xsearch)) die (" xsearch needs to be power of 2! (32 64 128 256) \n","");
+			fprintf(stderr," setting xsearch to %d\n", xc->xsearch);
+			fprintf(stderr," setting nx_corr to %d\n", xc->nx_corr);
+			} else if (!strcmp(a[n], "-ysearch")) {
+			n++;
+			if (n == na) die (" no option after -ysearch!\n","");
+			xc->ysearch = atoi(a[n]);
+			xc->ny_corr = 2*xc->ysearch;
+			xc->npy = xc->ny_corr + 2*xc->ysearch;	/* size of data required*/
+			xc->nyc = 2*xc->ysearch;	 	/* size of correlation patch*/
+			if (((xc->ysearch-1) & xc->ysearch)) die (" ysearch needs to be power of 2! (32 64 128 256) \n","");
+			fprintf(stderr," setting ysearch to %d\n", xc->ysearch);
+			fprintf(stderr," setting ny_corr to %d\n", xc->ny_corr);
+		} else if (!strcmp(a[n], "-v")) {
+			verbose = 1;
+			fprintf(stderr," verbose output \n");
+		} else if (!strcmp(a[n], "-debug")) {
+			debug = 1;
+		} else if (!strcmp(a[n], "-norange")) {
+			xc->ri = 1;
+			fprintf(stderr," no range interpolation \n");
+		} else if (!strncmp(a[n], "-input",1)) {
+			n++;
+			if (n == na) die (" no option after -input!\n","");
+			fprintf(stderr,"using input file \n");
+			*input_flag = 1;
 
-		if ((inputfile=fopen(a[2],"r")) == NULL) die("Can't open ",a[2]);
+			if ((inputfile=fopen(a[2],"r")) == NULL) die("Can't open ",a[2]);
 
-		while (fscanf(inputfile," %s ",tmp) != EOF) (*nfiles)++;
-		fclose(inputfile);
-	} else {
-		fprintf(stderr," %s *** option not recognized ***\n\n",a[n]);
-		fprintf(stderr," %s someone made a mistake!\n\n",a[n]);
-		fprintf(stderr," %s I think it was you! \n\n",a[n]);
-		fprintf(stderr,"%s",USAGE);
-		exit(1);
+			while (fscanf(inputfile," %s ",tmp) != EOF) (*nfiles)++;
+			fclose(inputfile);
+		} else {
+			fprintf(stderr," %s *** option not recognized ***\n\n",a[n]);
+			fprintf(stderr," %s someone made a mistake!\n\n",a[n]);
+			fprintf(stderr," %s I think it was you! \n\n",a[n]);
+			fprintf(stderr,"%s",USAGE);
+			exit(1);
 		}
 	}
 }

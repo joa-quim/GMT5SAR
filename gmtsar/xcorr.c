@@ -53,9 +53,8 @@ char	*USAGE = "xcorr [GMT5SAR] - Compute 2-D cross-correlation of two images\n\n
 "xcorr IMG-HH-ALPSRP075880660-H1.0__A.PRM IMG-HH-ALPSRP129560660-H1.0__A.PRM -nx 20 -ny 50 \n";
 
 /*-------------------------------------------------------------------------------*/
-int do_range_interpolate(void *API, struct FCOMPLEX *c, int nx, int ri, struct FCOMPLEX *work)
-{
-int	i;
+int do_range_interpolate(void *API, struct FCOMPLEX *c, int nx, int ri, struct FCOMPLEX *work) {
+	int	i;
 
 	/* interpolate c and put into work */
 	fft_interpolate_1d(API, c, nx, work, ri);
@@ -64,7 +63,7 @@ int	i;
 	for (i=0; i<nx; i++) {
 		c[i].r = work[i+nx/2].r;
 		c[i].i = work[i+nx/2].i;
-		}	
+	}	
 
 	return(EXIT_SUCCESS);
 }
@@ -77,10 +76,9 @@ int	i;
 /* c1, c2, and c3 are npy by npx						*/
 /* d1, d2 are npy by nx (length of line in SLC)					*/
 /*-------------------------------------------------------------------------------*/
-void assign_values(void *API, struct xcorr xc, int iloc)
-{
-int	i, j, k, sx, mx;
-double	mean1, mean2;
+void assign_values(void *API, struct xcorr xc, int iloc) {
+	int	i, j, k, sx, mx;
+	double	mean1, mean2;
 
 	/* master and slave x offsets */
 	mx = xc.loc[iloc].x - xc.npx/2;
@@ -97,16 +95,16 @@ double	mean1, mean2;
 
 			xc.c2[k].r = xc.d2[i*xc.s_nx + sx + j].r;
 			xc.c2[k].i = xc.d2[i*xc.s_nx + sx + j].i;
-			}
 		}
+	}
 
 	/* range interpolate */
 	if (xc.ri > 1) {
 		for (i=0; i<xc.npy; i++) {
 			do_range_interpolate(API, &xc.c1[i*xc.npx], xc.npx, xc.ri, xc.ritmp);
 			do_range_interpolate(API, &xc.c2[i*xc.npx], xc.npx, xc.ri, xc.ritmp);
-			}
 		}
+	}
 
 	/* convert to amplitude and demean */
 	mean1 = mean2 = 0.0;
@@ -119,7 +117,7 @@ double	mean1, mean2;
 
 		mean1 += xc.c1[i].r;
 		mean2 += xc.c2[i].r;
-		}
+	}
 
 	mean1 /= (double) (xc.npy * xc.npx);
 	mean2 /= (double) (xc.npy * xc.npx);
@@ -127,23 +125,22 @@ double	mean1, mean2;
 	for (i=0; i<xc.npy*xc.npx; i++) {
 		xc.c1[i].r = xc.c1[i].r - (float)mean1;
 		xc.c2[i].r = xc.c2[i].r - (float)mean2;
-		}
+	}
 
 	/* apply mask */
 	for (i=0; i<xc.npy*xc.npx; i++) {
-			xc.c1[i].i = xc.c2[i].i = 0.0f;
-			xc.c2[i].r = xc.c2[i].r * (float) xc.mask[i];
+		xc.c1[i].i = xc.c2[i].i = 0.0f;
+		xc.c2[i].r = xc.c2[i].r * (float) xc.mask[i];
 
-			xc.i1[i] = (int) (xc.c1[i].r);
-			xc.i2[i] = (int) (xc.c2[i].r);
-		}
+		xc.i1[i] = (int) (xc.c1[i].r);
+		xc.i2[i] = (int) (xc.c2[i].r);
+	}
 
 	if (debug) fprintf(stderr," mean %lf\n", mean1);
 	if (debug) fprintf(stderr," mean %lf\n", mean2);
 }
 /*-------------------------------------------------------------------------------*/
-void do_correlation(void *API, struct xcorr xc)
-{
+void do_correlation(void *API, struct xcorr xc) {
 	int	i, j, iloc, istep;
 
  	/* opportunity for multiple processors */
@@ -191,27 +188,25 @@ void do_correlation(void *API, struct xcorr xc)
 /* want to avoid circular correlation so mask out most of b			*/
 /* could adjust shape for different geometries					*/
 /*-------------------------------------------------------------------------------*/
-void make_mask(struct xcorr xc)
-{
-int i,j,imask;
-imask = 0;
+void make_mask(struct xcorr xc) {
+	int i,j,imask;
+	imask = 0;
 
 	for (i=0; i<xc.npy; i++){
 		for (j=0; j<xc.npx; j++){
-			 xc.mask[i*xc.npx + j] = 1;
+			xc.mask[i*xc.npx + j] = 1;
 			if ((i < xc.ysearch) || (i >= (xc.npy - xc.ysearch))) {
 				xc.mask[i*xc.npx +j] = imask;
-				}
+			}
 			if ((j < xc.xsearch) || (j >= (xc.npx - xc.xsearch))) {
 				xc.mask[i*xc.npx + j] = imask;
-				}
 			}
 		}
+	}
 }
 /*-------------------------------------------------------------------------------*/
-void allocate_arrays(struct xcorr *xc)
-{
-int	nx, ny, nx_exp, ny_exp;
+void allocate_arrays(struct xcorr *xc){
+	int	nx, ny, nx_exp, ny_exp;
 
 	xc->d1 = (struct FCOMPLEX *) malloc(xc->m_nx*xc->npy*sizeof(struct FCOMPLEX));
 	xc->d2 = (struct FCOMPLEX *) malloc(xc->s_nx*xc->npy*sizeof(struct FCOMPLEX));
@@ -236,12 +231,11 @@ int	nx, ny, nx_exp, ny_exp;
 		ny_exp = ny * (xc->interp_factor);
 		xc->md = (struct FCOMPLEX *) malloc(nx * ny * sizeof(struct FCOMPLEX));
 		xc->cd_exp = (struct FCOMPLEX *) malloc(nx_exp * ny_exp * sizeof(struct FCOMPLEX));
-		}
+	}
 }
 
 /*-------------------------------------------------------*/
-int main(int argc,char **argv)
-{
+int main(int argc,char **argv) {
 	int	input_flag, nfiles;
 	struct	xcorr xc;
 	clock_t start, end;
@@ -287,7 +281,7 @@ int main(int argc,char **argv)
 
 	/* write the a_stretch_a based on the PRF differences */
 /*
-        fprintf(xc.file,"a_stretch_a  =  %f \n",xc.astretcha);
+		fprintf(xc.file,"a_stretch_a  =  %f \n",xc.astretcha);
 */
 
 	end = clock();
