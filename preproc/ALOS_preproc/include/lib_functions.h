@@ -22,8 +22,11 @@
 #endif
 
 /* function prototypes 				*/
+EXTERN_MSC void ALOS_ldr_orbit(struct ALOS_ORB *, struct PRM *);
+EXTERN_MSC int write_ALOS_LED(struct ALOS_ORB *, struct PRM *, char *);
+EXTERN_MSC void write_orb(FILE *, struct ALOS_ORB *);
 EXTERN_MSC void calc_height_velocity(struct ALOS_ORB *, struct PRM *, double, double, double *, double *, double *, double *, double *);
-EXTERN_MSC void calc_dop(struct PRM *);
+EXTERN_MSC void calc_dop(struct  PRM *);
 void cfft1d_(int *, fcomplex *, int *);
 EXTERN_MSC void read_data(fcomplex *, unsigned char *, int, struct PRM *);
 EXTERN_MSC void null_sio_struct(struct PRM *);

@@ -15,6 +15,7 @@ EXTERN_MSC int str_date2JD(char *, char *);
 EXTERN_MSC double str2double(char *);
 EXTERN_MSC int str2dbs(double *, char *);
 EXTERN_MSC int null_MEM_STR();
-#ifndef _WIN32
+EXTERN_MSC int assemble_trees(int, struct tree **, int, int, FILE *);
+#ifndef WIN32
 int itoa(int, char *, int);
 #endif

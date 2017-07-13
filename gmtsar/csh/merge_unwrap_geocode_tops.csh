@@ -1,4 +1,4 @@
-#!/bin/csh -f
+#/bin/csh -f
 #       $Id$
 #
 #
@@ -12,9 +12,9 @@
     echo ""
     echo "Note: Inputfiles should be as following:"
     echo ""
-    echo "      Swath1_Path:Swath1_repeat.PRM"
-    echo "      Swath2_Path:Swath2_repeat.PRM"
-    echo "      Swath3_Path:Swath3_repeat.PRM"
+    echo "      Swath1_Path:Swath1_master.PRM:Swath1_repeat.PRM"
+    echo "      Swath2_Path:Swath2_master.PRM:Swath2_repeat.PRM"
+    echo "      Swath3_Path:Swath3_master.PRM:Swath3_repeat.PRM"
     echo "      (Use the repeat PRM which contains the shift information.)"
     echo "      e.g. ../F1/intf/2015016_2015030/:S1A20151012_134357_F1.PRM"
     echo ""
@@ -37,19 +37,33 @@
     exit 1
   endif
 
+  set region_cut = `grep region_cut $2 | awk '{print $3}'`
+
   # Creating inputfiles for merging
   foreach line (`awk '{print $0}' $1`)
+    set now_dir = `pwd`
     set pth = `echo $line | awk -F: '{print $1}'`
     set prm = `echo $line | awk -F: '{print $2}'`
-    echo $pth$prm":"$pth"phasefilt.grd" >> tmp_phaselist
-    echo $pth$prm":"$pth"corr.grd" >> tmp_corrlist
-    echo $pth$prm":"$pth"mask.grd" >> tmp_masklist
+    set prm2 = `echo $line | awk -F: '{print $3}'`
+    cd $pth
+    set rshift = `grep rshift $prm2 | tail -1 | awk '{print $3}'`
+    set fs1 = `grep first_sample $prm | awk '{print $3}'`
+    set fs2 = `grep first_sample $prm2 | awk '{print $3}'`
+    cp $prm tmp.PRM
+    if ($fs2 > $fs1) then
+      update_PRM.csh tmp.PRM first_sample $fs2
+    endif
+    update_PRM.csh tmp.PRM rshift $rshift
+    cd $now_dir
+
+    echo $pth"tmp.PRM:"$pth"phasefilt.grd" >> tmp_phaselist
+    echo $pth"tmp.PRM:"$pth"corr.grd" >> tmp_corrlist
+    echo $pth"tmp.PRM:"$pth"mask.grd" >> tmp_masklist
   end 
 
   set pth = `awk -F: 'NR==1 {print $1}' $1`
   set stem = `awk -F: 'NR==1 {print $2}' $1 | awk -F"." '{print $1}'`
   #echo $pth $stem
-  cp $pth$stem".LED" .
 
   echo ""
   echo "Merging START"
@@ -61,7 +75,9 @@
   
   # This step is essential, cut the DEM so it can run faster.
   if (! -f trans.dat) then
-  echo "Recomputing the projection LUT..."
+    set led = `grep led_file $pth$stem".PRM" | awk '{print $3}'`
+    cp $pth$led .
+    echo "Recomputing the projection LUT..."
     gmt grd2xyz --FORMAT_FLOAT_OUT=%lf dem.grd -s | SAT_llt2rat $stem".PRM" 1 -bod > trans.dat
   endif
 
@@ -122,4 +138,4 @@
     echo "GEOCODE END"
   endif 
 
-  rm tmp* *.eps *.bb
+  rm tmp_phaselist tmp_corrlist tmp_masklist *.eps *.bb

@@ -72,6 +72,8 @@ unset noclobber
   set region_cut = `grep region_cut $3 | awk '{print $3}'`
   set switch_land = `grep switch_land $3 | awk '{print $3}'`
   set defomax = `grep defomax $3 | awk '{print $3}'`
+  set range_dec = `grep range_dec $3 | awk '{print $3}'`
+  set azimuth_dec = `grep azimuth_dec $3 | awk '{print $3}'`
 #
 # read file names of raw data
 #
@@ -267,15 +269,15 @@ unset noclobber
       if ($shift_topo == 1) then
         ln -s ../../topo/topo_shift.grd .
         intf.csh $ref.PRM $rep.PRM -topo topo_shift.grd  
-        filter.csh $ref.PRM $rep.PRM $filter $dec 
+        filter.csh $ref.PRM $rep.PRM $filter $dec $range_dec $azimuth_dec 
       else 
         ln -s ../../topo/topo_ra.grd . 
         intf.csh $ref.PRM $rep.PRM -topo topo_ra.grd 
-        filter.csh $ref.PRM $rep.PRM $filter $dec 
+        filter.csh $ref.PRM $rep.PRM $filter $dec $range_dec $azimuth_dec
       endif
     else
       intf.csh $ref.PRM $rep.PRM
-      filter.csh $ref.PRM $rep.PRM $filter $dec 
+      filter.csh $ref.PRM $rep.PRM $filter $dec $range_dec $azimuth_dec
     endif
     cd ../..
     echo "INTF.CSH, FILTER.CSH - END"
@@ -326,25 +328,31 @@ unset noclobber
 # 6 - start from geocode  #
 ###########################
 
-    if ($stage <= 6) then
-    cd intf
-    set ref_id  = `grep SC_clock_start ../SLC/$master.PRM | awk '{printf("%d",int($3))}' `
-    set rep_id  = `grep SC_clock_start ../SLC/$slave.PRM | awk '{printf("%d",int($3))}' `
-    cd $ref_id"_"$rep_id
-    echo " "
-    echo "GEOCODE.CSH - START"
-    rm raln.grd ralt.grd
-    if ($topo_phase == 1) then
-      rm trans.dat
-      ln -s  ../../topo/trans.dat . 
-      echo "threshold_geocode: $threshold_geocode"
-      geocode.csh $threshold_geocode
-    else 
-      echo "topo_ra is needed to geocode"
-      exit 1
+  if ($stage <= 6) then
+    if ($threshold_geocode != 0 ) then
+      cd intf
+      set ref_id  = `grep SC_clock_start ../SLC/$master.PRM | awk '{printf("%d",int($3))}' `
+      set rep_id  = `grep SC_clock_start ../SLC/$slave.PRM | awk '{printf("%d",int($3))}' `
+      cd $ref_id"_"$rep_id
+      echo " "
+      echo "GEOCODE.CSH - START"
+      rm raln.grd ralt.grd
+      if ($topo_phase == 1) then
+        rm trans.dat
+        ln -s  ../../topo/trans.dat . 
+        echo "threshold_geocode: $threshold_geocode"
+        geocode.csh $threshold_geocode
+      else 
+        echo "topo_ra is needed to geocode"
+        exit 1
+      endif
+      echo "GEOCODE.CSH - END"
+      cd ../..
+    else
+      echo ""
+      echo "SKIP GEOCODE"
+      echo ""
     endif
-    echo "GEOCODE.CSH - END"
-    cd ../..
   endif
 
 # end

@@ -83,8 +83,8 @@ EXTERN_MSC int rec_stop;
 /* End new parameters 4/23/97 -EJP */ 
 
 /* New parameters 4/23/97 -DTS */
-EXTERN_MSC int SC_identity;	/* (1)-ERS1 (2)-ERS2 (3)-Radarsat (4)-Envisat (5)-ALOS  (6)-  (7)-TSX (8)-CSK (9)-RS2 (10)-S1A*/
-EXTERN_MSC int ref_identity;	/* (1)-ERS1 (2)-ERS2 (3)-Radarsat (4)-Envisat (5)-ALOS  (6)-  (7)-TSX (8)-CSK (9)-RS2 (10)-S1A*/
+EXTERN_MSC int SC_identity;	/* (1)-ERS1 (2)-ERS2 (3)-Radarsat (4)-Envisat (5)-ALOS  (6)-Envisat_SLC  (7)-TSX (8)-CSK (9)-RS2 (10)-S1A*/
+EXTERN_MSC int ref_identity;	/* (1)-ERS1 (2)-ERS2 (3)-Radarsat (4)-Envisat (5)-ALOS  (6)-Envisat_SLC  (7)-TSX (8)-CSK (9)-RS2 (10)-S1A*/
 EXTERN_MSC double SC_clock_start;	/* YYDDD.DDDD */
 EXTERN_MSC double SC_clock_stop;	/* YYDDD.DDDD */
 EXTERN_MSC double icu_start;       /* onboard clock counter */

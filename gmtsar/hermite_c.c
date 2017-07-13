@@ -15,6 +15,9 @@
 
 #include "gmtsar.h"
 #include "lib_functions.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
 
 void hermite_c(double *x, double *y, double *z, int nmax, int nval, double xp, double *yp, int *ir)
 {
@@ -48,7 +51,7 @@ double	sj, hj, f0, f1;
 
 	/* reduced index by 1 */
       	if (xp < x[0] || xp > x[nmax-1]) { 
-      		fprintf(stderr,"interpolation point outside of data constraints\n");
+      		fprintf(stderr,"interpolation point outside of data constraints, %f %f %f\n",xp,x[0],x[nmax-1]);
       		*ir = 2;
       		exit(1);	
       		}

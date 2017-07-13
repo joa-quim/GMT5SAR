@@ -14,8 +14,8 @@
  * 10/10/10   added command line options for SLC_factor and rbias               *
  * *****************************************************************************/
 
-#include "image_sio.h"
-#include "lib_functions.h"
+#include"image_sio.h"
+#include"lib_functions.h"
 
 char    *USAGE = "\n\nUsage: ALOS_pre_process_SLC imagefile LEDfile [-radius RE] [-swap] [-V] [-debug] [-quiet] \n"
 "\ncreates data.SLC and writes out parameters (PRM format) to stdout\n"
@@ -28,6 +28,8 @@ char    *USAGE = "\n\nUsage: ALOS_pre_process_SLC imagefile LEDfile [-radius RE]
 "-swap                  do byte-swap (should be automatic) \n"
 "-ALOS1                 ALOS2 L1.1 data format \n"
 "-ALOS2                 ALOS2 L1.1 data format (default)\n"
+"-LED                   write generic LED file\n"
+"-noLED                 oldstyle use ldr file for orbits directlyn"
 "-V                     verbose write information \n"
 "-debug                 write even more information \n"
 "-quiet                 don't write any information \n"
@@ -36,20 +38,24 @@ char    *USAGE = "\n\nUsage: ALOS_pre_process_SLC imagefile LEDfile [-radius RE]
 "Example:\n"
 "ALOS_pre_process_SLC IMG-HH-ALOS2011986990-140813-HBQR1.1__A LED-ALOS2011986990-140813-HBQR1.1__A -SLC_factor 1. -rbias -70.0000 -tbias 0.068759 \n";
 
+long read_ALOS_data_SLC (FILE *, FILE *, struct PRM *, long *);
 void parse_ALOS_commands(int, char **, char *, struct PRM *);
-long read_ALOS_data_SLC (FILE *imagefile, FILE *outfile, struct PRM *prm, long *byte_offset);
-
+void set_ALOS_defaults(struct PRM *);
+void print_ALOS_defaults(struct PRM *);
+void swap_ALOS_data_info(struct sardata_info *);
 void get_files(struct PRM *, FILE **, FILE **, char *, char *, int);
 
-int main (int argc, char **argv) {
-	FILE	*imagefile, *ldrfile;
-	FILE	*rawfile[11], *prmfile[11];
-	char	prmfilename[128];
-	int	nPRF;
-	long	byte_offset;
-	struct 	PRM prm;
-	struct 	ALOS_ORB orb;
-	/*char   	date[8];*/
+int ledflag;
+int main (int argc, char **argv) 
+{
+FILE	*imagefile, *ldrfile;
+FILE	*rawfile[11], *prmfile[11];
+char	prmfilename[128];
+int	nPRF;
+long	byte_offset;
+struct 	PRM prm;
+struct 	ALOS_ORB orb;
+/*char   	date[8];*/
 
 	if (argc < 3) die (USAGE,"");
 
@@ -60,6 +66,9 @@ int main (int argc, char **argv) {
         rbias = 0.0;
         prefix_off = 132;
 
+        /* default is to use the new LED orbit */
+        ledflag = 1;
+
 	nPRF = 0;
 
 	null_sio_struct(&prm);
@@ -68,12 +77,15 @@ int main (int argc, char **argv) {
 	/* read command line */
 	parse_ALOS_commands(argc, argv, USAGE, &prm);
 
+        /* shift the start time if this is ALOS1 */
+        if(prefix_off == 0) tbias = tbias - 0.0020835;
+
 	if (verbose) print_ALOS_defaults(&prm);
 	if (is_big_endian_() == -1) {swap = 1;fprintf(stderr,".... swapping bytes\n");} else {swap = 0;} 
 
 	/* IMG and LED files should exist already */
-	if ((imagefile = fopen(argv[1], "rb")) == NULL) die ("couldn't open Level 1.1 IMG file \n",argv[1]);
-	if ((ldrfile = fopen(argv[2], "rb")) == NULL) die ("couldn't open LED file \n",argv[2]); 
+	if ((imagefile = fopen(argv[1], "r")) == NULL) die ("couldn't open Level 1.1 IMG file \n",argv[1]);
+	if ((ldrfile = fopen(argv[2], "r")) == NULL) die ("couldn't open LED file \n",argv[2]); 
 
 	/* if it exists, copy to prm structure */
 	strcpy(prm.led_file,argv[2]);
@@ -83,6 +95,11 @@ int main (int argc, char **argv) {
 
 	/* read sarleader; put info into prm; write log file if specified 		*/
 	read_ALOS_sarleader(ldrfile, &prm, &orb);
+
+// AUGUST 2016
+       /* write out orbit params in generic LED format */
+       if (ledflag) write_ALOS_LED(&orb, &prm, argv[1]);
+// AUGUST 2016
 
 	/* read Level 1.1 file;  put info into prm; convert to *.SLC format 		*/
 	/* if PRF changes halfway through, create new set of header and data files      */
@@ -96,7 +113,7 @@ int main (int argc, char **argv) {
 		if (nPRF > 0 ) {
 			if (verbose) fprintf(stderr,"creating multiple files due to PRF change (*.%d) \n",nPRF+1);
 			get_files(&prm, &rawfile[nPRF], &prmfile[nPRF], prmfilename, argv[1], nPRF);
-		}
+			}
 
 		/* set the chirp extension to 500 if FBD fs = 16000000 */
         	if (prm.fs < 17000000.) {
@@ -146,7 +163,8 @@ int main (int argc, char **argv) {
 	return(EXIT_SUCCESS);
 }
 /*------------------------------------------------------*/
-void get_files(struct PRM *prm, FILE **rawfile, FILE **prmfile, char *prmfilename, char *name, int n) {
+void get_files(struct PRM *prm, FILE **rawfile, FILE **prmfile, char *prmfilename, char *name, int n)
+{
 	/* name and open output file for raw data (but input for later processing)      */
 	/* if more than 1 set of output files, append an integer (beginning with 2)     */
 
@@ -161,8 +179,9 @@ void get_files(struct PRM *prm, FILE **rawfile, FILE **prmfile, char *prmfilenam
 	strcpy(prm->dtype, "a");
 
 	/* now open the files */
-	if ((*rawfile = fopen(prm->input_file,"wb")) == NULL) die("can't open ",prm->input_file);
+	if ((*rawfile = fopen(prm->input_file,"w")) == NULL) die("can't open ",prm->input_file);
 
 	if ((*prmfile = fopen(prmfilename, "w")) == NULL) die ("couldn't open output PRM file \n",prmfilename);
 
 }
+/*------------------------------------------------------*/

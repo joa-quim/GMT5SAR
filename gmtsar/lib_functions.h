@@ -100,20 +100,20 @@ EXTERN_MSC void ldr_orbit(struct ALOS_ORB *, struct PRM *);
 EXTERN_MSC void calc_dop(struct PRM *);
 EXTERN_MSC void conv2d (float *rdat, int *ni, int *nj, float *filt, int *nif, int *njf, float *fdat, int *ic, int *jc, float *rnorm);
 
-/* sbas functions */
-EXTERN_MSC int parse_command_ts(int , char **, float *, double *, double *, double *, int *, int *); 
-EXTERN_MSC int init_array_ts(double *, double *, float *, float *, float *, int , int , int , int , int, int);
-EXTERN_MSC int read_table_data_ts(void *,FILE *,FILE *,char **,char **,int *,float *,int *,float *,float *,int,int,int,int,struct  GMT_GRID **,int *,double *); 
-EXTERN_MSC int init_G_ts(double *, double *, int, int, int, int, int *, int *, double *, float, float *, double);
-EXTERN_MSC int lsqlin_sov_ts(int,int,float *,float *,int *,double *,double *,double *,double *,double *,double *,float *,float *,int,int,int,int,double *,int,int,float *,int,float *,int *,double);
-EXTERN_MSC int write_output_ts(void *API, struct GMT_GRID *Out,int agc,char **agv, int xdim, int ydim, int S, int flag_rms, int flag_dem, float *disp, float *vel, float *res, float *dem, float *screen, double wl);
-EXTERN_MSC int free_memory_ts(int N,float *phi,float *var,char **gfile,char **cfile,float *disp,double *G,double *A,double *Gs,int *H,double *d,double *ds,int *L,float *res,float *vel,double *time,int *flag,float *bperp,float *dem,double *work,int *jpvt,int *hit);
-EXTERN_MSC int allocate_memory_ts(int **jpvt,double **work,double **d,double **ds,float **bperp,char ***gfile,char ***cfile,int **L,double **time,int **H,double **G,double **A,double **Gs,int **flag,float **dem,float **res,float **vel,float **phi,float **var,float **disp,int n,int m,int lwork,int ldb,int N,int S,int xdim,int ydim, int **hit);
-EXTERN_MSC int remove_ts(float *, float *, int, int, int, int, int *, int *);
-EXTERN_MSC int sum_intfs(float *, int *, float *, int, int, int);
-EXTERN_MSC int connect(int *, int *, double *, int *, int *, int, int, int, int);
-EXTERN_MSC double compute_noise(float *,int, int);
-EXTERN_MSC int rank_double(double *, int *, int);
-EXTERN_MSC int apply_screen(float *, float *, int, int, int, int *);
+/* sbas functions */ 
+EXTERN_MSC int parse_command_ts(int64_t agc, char **agv, float *sf ,double *wl, double *theta, double *rng, int64_t *flag_rms, int64_t *flag_dem, int64_t *atm);
+EXTERN_MSC int init_array_ts(double *G, double *Gs, float *res, float *dem, float *disp, int64_t n, int64_t m, int64_t xdim, int64_t ydim, int64_t N, int64_t S);
+EXTERN_MSC int read_table_data_ts(void *API,FILE *infile,FILE *datefile,char **gfile,char **cfile,int64_t *H,float *bperp,int64_t *flag,float *var,float *phi,int64_t S,int64_t N,int64_t xdim,int64_t ydim,struct GMT_GRID **Out, int64_t *L, double *time);
+EXTERN_MSC int init_G_ts(double *G, double *Gs, int64_t N, int64_t S, int64_t m, int64_t n, int64_t *L, int64_t *H, double *time, float sf, float *bperp, double scale);
+EXTERN_MSC int64_t lsqlin_sov_ts(int64_t xdim, int64_t ydim, float *disp, float *vel, int64_t *flag, double *d, double *ds,double *time, double *G, double *Gs, double *A, float *var, float *phi, int64_t N, int64_t S,int64_t m, int64_t n, double *work,int64_t lwork, int64_t flag_dem, float *dem, int64_t flag_rms, float *res, int64_t *jpvt, double wl, double *atm_rms);
+EXTERN_MSC int write_output_ts(void *API, struct GMT_GRID *Out,int64_t agc,char **agv, int64_t xdim, int64_t ydim, int64_t S, int64_t flag_rms, int64_t flag_dem, float *disp, float *vel, float *res, float *dem, float *screen, double wl, int64_t n_atm);
+EXTERN_MSC int free_memory_ts(int64_t N,float *phi,float *var,char **gfile,char **cfile,float *disp,double *G,double *A,double *Gs,int64_t *H,double *d,double *ds,int64_t *L,float *res,float *vel,double *time,int64_t *flag,float *bperp,float *dem,double *work,int64_t *jpvt,int64_t *hit);
+EXTERN_MSC int allocate_memory_ts(int64_t **jpvt,double **work,double **d,double **ds,float **bperp,char ***gfile,char ***cfile,int64_t **L,double **time,int64_t **H,double **G,double **A,double **Gs,int64_t **flag,float **dem,float **res,float **vel,float **phi,float **var,float **disp,int64_t n,int64_t m,int64_t lwork,int64_t ldb,int64_t N,int64_t S,int64_t xdim,int64_t ydim, int64_t **hit);
+EXTERN_MSC int remove_ts(float *phi, float *ts, int64_t xdim, int64_t ydim, int64_t N, int64_t S, int64_t *H, int64_t *L);
+EXTERN_MSC int sum_intfs(float *phi, int64_t *mark, float *screen, int64_t xdim, int64_t ydim, int64_t N);
+EXTERN_MSC int connect(int64_t *L, int64_t *H, double *time, int64_t *hit, int64_t *mark, int64_t N, int64_t S, int64_t n, int64_t mode);
+EXTERN_MSC double compute_noise(float *screen,int64_t xdim, int64_t ydim);
+EXTERN_MSC int rank_double(double *nums, int64_t *seq, int64_t n);
+EXTERN_MSC int apply_screen(float *screen, float *phi, int64_t xdim, int64_t ydim, int64_t N, int64_t *mark);
 
 #endif /* LIB_FUNCTIONS_H */

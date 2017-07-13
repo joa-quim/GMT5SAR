@@ -189,17 +189,14 @@ void Unwrap(infileT *infiles, outfileT *outfiles, paramT *params,
 
 	      /* set up tile parameters */
 	      pid=getpid();
-	      fprintf(sp1,"Unwrapping tile at row %ld, column %ld (pid %ld)\n",
-		      nexttilerow,nexttilecol,(long )pid);
-	      SetupTile(nlines,linelen,params,tileparams,outfiles,tileoutfiles,
-			nexttilerow,nexttilecol);
+	      fprintf(sp1,"Unwrapping tile at row %ld, column %ld (pid %ld)\n", nexttilerow,nexttilecol,(long )pid);
+	      SetupTile(nlines,linelen,params,tileparams,outfiles,tileoutfiles, nexttilerow,nexttilecol);
 	      
 	      /* reset stream pointers for logging */
 	      ChildResetStreamPointers(pid,nexttilerow,nexttilecol,params);
 
 	      /* unwrap the tile */
-	      UnwrapTile(infiles,tileoutfiles,params,tileparams,
-			 nlines,linelen);
+	      UnwrapTile(infiles,tileoutfiles,params,tileparams, nlines,linelen);
 
 	      /* log elapsed time */
 	      DisplayElapsedTime(tiletstart,tilecputimestart);
@@ -266,10 +263,8 @@ void Unwrap(infileT *infiles, outfileT *outfiles, paramT *params,
 	  for(nexttilecol=0;nexttilecol<ntilecol;nexttilecol++){
 	    
 	    /* set up tile parameters */
-	    fprintf(sp1,"Unwrapping tile at row %ld, column %ld\n",
-		    nexttilerow,nexttilecol);
-	    SetupTile(nlines,linelen,params,tileparams,outfiles,tileoutfiles,
-		      nexttilerow,nexttilecol);
+	    fprintf(sp1,"Unwrapping tile at row %ld, column %ld\n", nexttilerow,nexttilecol);
+	    SetupTile(nlines,linelen,params,tileparams,outfiles,tileoutfiles, nexttilerow,nexttilecol);
 	    
 	    /* unwrap the tile */
 	    UnwrapTile(infiles,tileoutfiles,params,tileparams,nlines,linelen);

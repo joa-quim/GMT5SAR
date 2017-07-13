@@ -78,15 +78,16 @@ endif
 # convert to grd
 #
 gmt xyz2grd unwrap.out -ZTLf -r `gmt grdinfo -I- phase_patch.grd` `gmt grdinfo -I phase_patch.grd` -Gtmp.grd
-gmt grdmath tmp.grd mask2_patch.grd MUL = tmp.grd
+#gmt grdmath tmp.grd mask2_patch.grd MUL = tmp.grd
+gmt grdmath tmp.grd mask_patch.grd MUL = tmp.grd
 #
 # detrend the unwrapped if DEFOMAX = 0 for interseismic
 #
-if ($2 == 0) then
-  gmt grdtrend tmp.grd -N3r -Dunwrap.grd
-else
+#if ($2 == 0) then
+#  gmt grdtrend tmp.grd -N3r -Dunwrap.grd
+#else
   mv tmp.grd unwrap.grd
-endif
+#endif
 #
 # landmask
 if (-e landmask_ra.grd) then
@@ -121,6 +122,7 @@ rm phase.in corr.in
 #
 #   cleanup more
 #
-rm wrap.grd corr_patch.grd phase_patch.grd mask_patch.grd mask3.grd mask3.out
+rm wrap.grd phase_patch.grd mask_patch.grd mask3.grd mask3.out
+mv corr_patch.grd corr_cut.grd
 #
 

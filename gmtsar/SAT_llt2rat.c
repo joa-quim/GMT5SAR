@@ -66,6 +66,7 @@ char    *USAGE = " \n Usage: "
 " \n"
 " example: SAT_llt2rat master.PRM 0 < topo.llt > topo.ratll    \n";
 
+int npad = 8000;
 
 /* int parse_ALOS_llt2rat(char **, char *);    */
 EXTERN_MSC void read_orb(FILE *, struct PRM *, struct ALOS_ORB *);
@@ -88,14 +89,14 @@ int main (int argc, char **argv) {
 	float ds[5];   /* dummy for output  single precision */
     double r0,rf,a0,af;
     double rad=PI/180.;
-	double fll,rdd,daa,drr;
-    double dt,dtt,xs,ys,zs;
-    double time[20],rng[20],d[3];  /* arrays used for polynomial refinement of min range */
-    int ir, k, ntt=10, nc=3;           /* size of arrays used for polynomial refinement */
-    int j,nrec,npad=8000,precise = 0;
-    int goldop();
-    int stai,endi,midi;
-    double **orb_pos = NULL;
+	double fll,rdd,daa,drr,dopc;
+	double dt,dtt,xs,ys,zs;
+	double time[20],rng[20],d[3];  /* arrays used for polynomial refinement of min range */
+	int ir, k, ntt=10, nc=3;           /* size of arrays used for polynomial refinement */
+	int j,nrec,precise = 0;
+	int goldop();
+	int stai,endi,midi;
+	double **orb_pos = NULL;
 	struct PRM prm;
 	struct ALOS_ORB *orb = NULL;
 	char name[128], value[128];
@@ -177,7 +178,10 @@ int main (int argc, char **argv) {
 /* if this is S1A which has a low PRF sample 2 times more often */
 
         ts=2./prm.prf;
-        if(prm.prf < 600.) ts=2./(2.*prm.prf);
+        if(prm.prf < 600.) {
+            ts=2./(2.*prm.prf);
+            npad = 20000;
+        }
         nrec=(int)((t2-t1)/ts);
 
 /* allocate memory for the orbit postion into a 2-dimensional array. It's about 
@@ -259,8 +263,9 @@ int main (int argc, char **argv) {
 /* compute the azimuth and range correction if the Doppler is not zero */
 
 	   if(prm.fd1 != 0.){
+             dopc = prm.fd1 + prm.fdd1*(prm.near_range + dr*prm.num_rng_bins/2.);
 	     rdd = (prm.vel*prm.vel)/rng0;
-	     daa=-0.5*(prm.lambda*prm.fd1)/rdd;
+	     daa=-0.5*(prm.lambda*dopc)/rdd;
 	     drr=0.5*rdd*daa*daa/dr;
 	     daa=prm.prf*daa;
 	     xt[0] = xt[0] + drr;
@@ -365,7 +370,7 @@ int calorb_alos(struct ALOS_ORB *orb, double  **orb_pos, double ts, double t1, i
 
 {
         int i,k,nval;
-        int     npad = 8000;   /* number of buffer points to add before and after the acquisition */
+        //int     npad = 8000;   /* number of buffer points to add before and after the acquisition */
 	int    ir;      /* return code: 0 = ok; 1 = interp not in center; 2 = time out of range */
 	double  xs,ys,zs;  /* position at time */
         double *pt,*px,*py,*pz,*pvx,*pvy,*pvz;

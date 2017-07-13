@@ -62,8 +62,10 @@ char    *USAGE = "phasediff [GMT5SAR] - Compute phase difference of two images\n
 void calc_drho(int xdim, double *range, double *topo, double avet, double re,
                double height, double B, double alpha, double *drho) {
 	int k;
-	double rho,sint,cost,cosa,sina;
-	double term1,term2,c,c2,ret,ret2;
+	/* EX: changing to long double for better precision */
+	long double rho,sint,cost,cosa,sina;
+	//long double term1,term2,c,c2,ret,ret2;
+	long double term1,term2,c,c2,ret,ret2;
 
 	sina = sin(alpha);
 	cosa = cos(alpha);
@@ -80,13 +82,13 @@ void calc_drho(int xdim, double *range, double *topo, double avet, double re,
 		sint = sqrt(1. - cost*cost);
 
 		/* compute the range change using equation (c23) in Appendic C */
-		term1 = -B*(sint*cosa-cost*sina);
-		term2 = B*B*(cost*cosa+sint*sina)/(2.*rho);
-		drho[k] = term1 + term2;
+		//term1 = -B*(sint*cosa-cost*sina);
+		//term2 = B*B*(cost*cosa+sint*sina)/(2.*rho);
+		//drho[k] = term1 + term2;
 
 		/* New (Eric Lindsey, April 2015): compute the range change using the full nonlinear equation */
-		//term1 = rho*rho + B*B - 2*rho*B*(sint*cosa-cost*sina);
-		//drho[k] = -rho + sqrt(term1);
+		term1 = rho*rho + B*B - 2*rho*B*(sint*cosa-cost*sina);
+		drho[k] = -rho + sqrt(term1);
 	}
 }
 
@@ -135,7 +137,7 @@ void fix_prm_params(struct PRM *p, char *s) {
 	/* this is the correction for the range and azimuth shifts of the re-aligned SLC images */
 	if (p->sub_int_r < 0.) p->sub_int_r = 0.;
 	if (p->sub_int_a < 0.) p->sub_int_a = 0.;
-	p->near_range = p->near_range + (p->st_rng_bin - p->chirp_ext + p->rshift+p->sub_int_r-1 )*delr;
+	p->near_range = p->near_range + (p->st_rng_bin - p->chirp_ext + p->rshift+p->sub_int_r - 1)*delr;
 	p->SC_clock_start = p->SC_clock_start + (p->ashift+p->sub_int_a)/(p->prf*86400.0) + (p->nrows-p->num_valid_az)/(2.0*p->prf*86400);
 	p->SC_clock_stop  = p->SC_clock_start + (p->num_valid_az*p->num_patches)/(p->prf*86400.0);
 
@@ -199,6 +201,8 @@ int main (int argc, char **argv) {
 	void	*API = NULL; /* GMT control structure */
 	struct	GMT_GRID *M = NULL, *T = NULL;	/* Grid structures containing ->header and ->data */
 	struct	GMT_GRID *RE = NULL, *IM = NULL;	/* For the real and imaginary grids */
+
+        double *range2 = NULL;
 
 	/* Begin: Initializing new GMT5 session */
 	if ((API = GMT_Create_Session (argv[0], 0U, 0U, NULL)) == NULL) return EXIT_FAILURE;
@@ -266,6 +270,7 @@ int main (int argc, char **argv) {
 	drho = (double *) malloc(xdim * sizeof(double));
 	drho0 = (double *) malloc(xdim * sizeof(double));
 	range = (double *) malloc(xdim * sizeof(double));
+	range2 = (double *) malloc(xdim * sizeof(double));
 
 	intfp = (fcomplex *) malloc(xdim * sizeof(fcomplex));
 	iptr1 = (fcomplex *) malloc(xdim * sizeof(fcomplex));
@@ -327,7 +332,8 @@ int main (int argc, char **argv) {
 	cnst = -4.0*PI/p2.lambda;
 
 	for (k=0;k<xdim;k++){
-		range[k]=p1.near_range+k*drange;
+		//range[k]=p1.near_range+k*drange;
+		range[k]=p1.near_range+k*(1+p1.stretch_r)*drange;
 		topo2[k]=0.;
 		xs[k] = k;
 	}
@@ -344,6 +350,7 @@ int main (int argc, char **argv) {
 		
 		Bhc = p2.baseline_center*cos(p2.alpha_center*PI/180.0);
 		Bvc = p2.baseline_center*sin(p2.alpha_center*PI/180.0);
+
 		dBh = (-3.*Bh0 + 4*Bhc -Bhf)/tspan;
 		dBv = (-3.*Bv0 + 4*Bvc -Bvf)/tspan;
 		ddBh = (2.*Bh0 - 4*Bhc + 2*Bhf)/(tspan*tspan);
@@ -365,6 +372,11 @@ int main (int argc, char **argv) {
 
 	/* now go through all the rows 		*/
 	for (j=ydim_start;j<(ydim+ydim_start);j++){
+
+for (k=0;k<xdim;k++){
+    //range[k]=p1.near_range+k*drange;
+    range2[k]= range[k]+j*p1.a_stretch_r*drange;
+}
 
 		/* read data from complex i2 SLC 	*/
 	 	read_SLC_short2float(SLCfile1, p1.SLC_file, d1, &iptr1[0], xdim, 1, DFACT);
@@ -395,6 +407,11 @@ int main (int argc, char **argv) {
 
 		/* loop over range to make topographic and model phase corrections */
 		for (k=0; k<xdim; k++){
+//
+//iptr1[k].r = 1.0;
+//iptr1[k].i = 1.0;
+//
+
 			intfp[k] = iptr1[k];
 			pha=cnst*drho[k];
 			if (modelflag) { 
@@ -436,6 +453,12 @@ int main (int argc, char **argv) {
 		left_node = GMT_Get_Index (API, RE->header, j, 0);
 		
 		for (k = 0; k < xdim; k++) {
+
+//
+//iptr2[k].r = 1.0;
+//iptr2[k].i = 1.0;
+//
+
 			iptr2[k] = Conjg(iptr2[k]);
       		intfp[k] = Cmul(intfp[k],iptr2[k]);
 			RE->data[left_node+k] = intfp[k].r;

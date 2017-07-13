@@ -143,10 +143,10 @@ if (WIN32)
 	set(TIFF_INCLUDE_DIR "c:/programs/compa_libs/tiff-4.0.6/compileds/${VC}_${BITAGE}")
 	set(TIFF_LIBRARY "c:/programs/compa_libs/tiff-4.0.6/compileds/${VC}_${BITAGE}/lib/libtiff_i.lib")
 
-	set(MMAP_LIB "C:/programs/compa_libs/mman-win32/compileds/VC12_64/lib/mman.lib")
-	
-	set(GETOPT_LIB "C:/programs/compa_libs/getopt/compileds/VC10_${BITAGE}/lib/getopt.lib")
-	set(GETOPT_INC "C:/programs/compa_libs/getopt/compileds/VC10_${BITAGE}/include")
+	set(MMAP_LIB "C:/programs/compa_libs/mman-win32/compileds/${VC}_${BITAGE}/lib/mman.lib")
+
+	set(GETOPT_LIB "C:/programs/compa_libs/getopt/compileds/${VC}_${BITAGE}/lib/getopt.lib")
+	set(GETOPT_INC "C:/programs/compa_libs/getopt/compileds/${VC}_${BITAGE}/include")
 
 	# Set location of single precision FFTW (can be root directory or path to header file) [auto]:
 	set (FFTW3_ROOT "C:/programs/compa_libs/fftw-3.3.3/compileds/${VC}_${BITAGE}/lib/")

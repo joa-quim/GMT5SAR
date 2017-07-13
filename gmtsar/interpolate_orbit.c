@@ -9,6 +9,9 @@
  * *****************************************************************************/
 
 #include "gmtsar.h"
+#include <stdio.h>
+#include <math.h>
+#include <stdlib.h>
 #include "lib_functions.h"
 #include "orbit_ALOS.h"
 #define FACTOR 1000000
