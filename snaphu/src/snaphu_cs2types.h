@@ -33,7 +33,7 @@
 /* defs.h */
 
 
-typedef long excess_t;
+typedef int64_t excess_t;
 
 typedef  /* arc */
    struct arc_st
@@ -55,7 +55,7 @@ typedef  /* node */
    struct node_st   *q_next;          /* next node in push queue */
    struct node_st   *b_next;          /* next node in bucket-list */
    struct node_st   *b_prev;          /* previous node in bucket-list */
-   long             rank;             /* bucket number */
+   int64_t             rank;             /* bucket number */
    excess_t         excess;           /* excess of the node */
    signed char      inp;              /* temporary number of input arcs */
 } node;

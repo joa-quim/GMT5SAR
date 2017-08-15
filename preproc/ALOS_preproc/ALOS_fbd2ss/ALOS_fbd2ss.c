@@ -24,7 +24,7 @@
 
 /* fast random number generator */
 #define znew   (int) (z=36969*(z&65535)+(z>>16))
-typedef unsigned long UL;
+typedef uint64_t UL;
 static UL z=362436069, t[256];
 void settable(UL i1)
 { int i; z=i1;

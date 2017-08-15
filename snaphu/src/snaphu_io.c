@@ -179,9 +179,9 @@ void SetDefaults(infileT *infiles, outfileT *outfiles, paramT *params){
  * Parses command line inputs passed to main().
  */
 void ProcessArgs(int argc, char *argv[], infileT *infiles, outfileT *outfiles,
-		 long *linelenptr, paramT *params){
+		 int64_t *linelenptr, paramT *params){
 
-  long i,j;
+  int64_t i,j;
   signed char noarg_exit;
 
   /* required inputs */
@@ -466,9 +466,9 @@ void ProcessArgs(int argc, char *argv[], infileT *infiles, outfileT *outfiles,
  * function with lots of checks in it.
  */
 void CheckParams(infileT *infiles, outfileT *outfiles, 
-		 long linelen, long nlines, paramT *params){
+		 int64_t linelen, int64_t nlines, paramT *params){
 
-  long ni, nj, n;
+  int64_t ni, nj, n;
   FILE *fp;
 
   /* make sure output file is writable (try opening in append mode) */
@@ -947,9 +947,9 @@ void CheckParams(infileT *infiles, outfileT *outfiles,
  * Read in parameter values from a file, overriding existing parameters.
  */
 void ReadConfigFile(char *conffile, infileT *infiles, outfileT *outfiles,
-		    long *linelenptr, paramT *params){
+		    int64_t *linelenptr, paramT *params){
   
-  long nlines, nparams, nfields;
+  int64_t nlines, nparams, nfields;
   FILE *fp;
   char buf[MAXLINELEN];
   char str1[MAXLINELEN], str2[MAXLINELEN];
@@ -1435,11 +1435,11 @@ void ReadConfigFile(char *conffile, infileT *infiles, outfileT *outfiles,
  * a configuration file.  
  */
 void WriteConfigLogFile(int argc, char *argv[], infileT *infiles, 
-			outfileT *outfiles, long linelen, paramT *params){
+			outfileT *outfiles, int64_t linelen, paramT *params){
 
   FILE *fp;
   time_t t[1];
-  long k;
+  int64_t k;
   char buf[MAXSTRLEN], *ptr;
 
   /* see if we need to write a log file */
@@ -1742,10 +1742,10 @@ void LogFileFormat(FILE *fp, char *key, signed char fileformat){
  * Gets the number of lines of data in the input file based on the file 
  * size.
  */
-long GetNLines(infileT *infiles, long linelen){
+int64_t GetNLines(infileT *infiles, int64_t linelen){
 
   FILE *fp;
-  long filesize, datasize;
+  int64_t filesize, datasize;
 
   /* get size of input file in rows and columns */
   if((fp=fopen(infiles->infile,"r"))==NULL){
@@ -1776,7 +1776,7 @@ long GetNLines(infileT *infiles, long linelen){
  * format given in the parameter structure.
  */
 void WriteOutputFile(float **mag, float **unwrappedphase, char *outfile,
-		     outfileT *outfiles, long nrow, long ncol){
+		     outfileT *outfiles, int64_t nrow, int64_t ncol){
 
   if(outfiles->outfileformat==ALT_LINE_DATA){
     WriteAltLineFile(mag,unwrappedphase,outfile,nrow,ncol);
@@ -1838,7 +1838,7 @@ FILE *OpenOutputFile(char *outfile, char *realoutfile){
  * default directory if the file name/path passed in cannot be used.
  */
 void WriteAltLineFile(float **mag, float **phase, char *outfile, 
-		      long nrow, long ncol){
+		      int64_t nrow, int64_t ncol){
 
   int row;
   FILE *fp;
@@ -1865,9 +1865,9 @@ void WriteAltLineFile(float **mag, float **phase, char *outfile,
  * passed in cannot be used.
  */
 void WriteAltSampFile(float **arr1, float **arr2, char *outfile, 
-		      long nrow, long ncol){
+		      int64_t nrow, int64_t ncol){
 
-  long row, col;
+  int64_t row, col;
   FILE *fp;
   float *outline;
   char realoutfile[MAXSTRLEN];
@@ -1895,7 +1895,7 @@ void WriteAltSampFile(float **arr1, float **arr2, char *outfile,
  * have the number of bytes specified by size (use sizeof() when 
  * calling this function.  
  */
-void Write2DArray(void **array, char *filename, long nrow, long ncol, 
+void Write2DArray(void **array, char *filename, int64_t nrow, int64_t ncol, 
 		  size_t size){
 
   int row;
@@ -1921,8 +1921,8 @@ void Write2DArray(void **array, char *filename, long nrow, long ncol,
  * calling this function.  The format of the array is nrow-1 rows
  * of ncol elements, followed by nrow rows of ncol-1 elements each.
  */
-void Write2DRowColArray(void **array, char *filename, long nrow, 
-			long ncol, size_t size){
+void Write2DRowColArray(void **array, char *filename, int64_t nrow, 
+			int64_t ncol, size_t size){
 
   int row;
   FILE *fp;
@@ -1952,10 +1952,10 @@ void Write2DRowColArray(void **array, char *filename, long nrow,
  * Reads the input file specified on the command line.
  */
 void ReadInputFile(infileT *infiles, float ***magptr, float ***wrappedphaseptr,
- 		   short ***flowsptr, long linelen, long nlines, 
+ 		   short ***flowsptr, int64_t linelen, int64_t nlines, 
 		   paramT *params, tileparamT *tileparams){
 
-  long row, col, nrow, ncol;
+  int64_t row, col, nrow, ncol;
   float **mag, **wrappedphase, **unwrappedphase;
   short **flows;
 
@@ -2072,7 +2072,7 @@ void ReadInputFile(infileT *infiles, float ***magptr, float ***wrappedphaseptr,
  * Memory for the magnitude array should already have been allocated by
  * ReadInputFile().
  */
-void ReadMagnitude(float **mag, infileT *infiles, long linelen, long nlines, 
+void ReadMagnitude(float **mag, infileT *infiles, int64_t linelen, int64_t nlines, 
 		   tileparamT *tileparams){
 
   float **dummy;
@@ -2106,11 +2106,11 @@ void ReadMagnitude(float **mag, infileT *infiles, long linelen, long nlines,
  * Reads the unwrapped-phase estimate from a file (assumes file name exists).
  */
 void ReadUnwrappedEstimateFile(float ***unwrappedestptr, infileT *infiles, 
-			       long linelen, long nlines, 
+			       int64_t linelen, int64_t nlines, 
 			       paramT *params, tileparamT *tileparams){
 
   float **dummy;
-  long nrow, ncol;
+  int64_t nrow, ncol;
 
 
   /* initialize */
@@ -2155,9 +2155,9 @@ void ReadUnwrappedEstimateFile(float ***unwrappedestptr, infileT *infiles,
  * Read in weights form rowcol format file of short ints.
  */
 void ReadWeightsFile(short ***weightsptr,char *weightfile, 
-		     long linelen, long nlines, tileparamT *tileparams){
+		     int64_t linelen, int64_t nlines, tileparamT *tileparams){
 
-  long row, col, nrow, ncol;
+  int64_t row, col, nrow, ncol;
   short **rowweight, **colweight;
   signed char printwarning;
 
@@ -2210,11 +2210,11 @@ void ReadWeightsFile(short ***weightsptr,char *weightfile,
  * SAR images.  
  */
 void ReadIntensity(float ***pwrptr, float ***pwr1ptr, float ***pwr2ptr, 
-		   infileT *infiles, long linelen, long nlines, 
+		   infileT *infiles, int64_t linelen, int64_t nlines, 
 		   paramT *params, tileparamT *tileparams){
   
   float **pwr, **pwr1, **pwr2;
-  long row, col, nrow, ncol;
+  int64_t row, col, nrow, ncol;
 
 
   /* initialize */
@@ -2310,10 +2310,10 @@ void ReadIntensity(float ***pwrptr, float ***pwr1ptr, float ***pwr2ptr,
  * Reads the correlation information from specified file.
  */
 void ReadCorrelation(float ***corrptr, infileT *infiles, 
-		     long linelen, long nlines, tileparamT *tileparams){
+		     int64_t linelen, int64_t nlines, tileparamT *tileparams){
   
   float **corr, **dummy;
-  long nrow;
+  int64_t nrow;
 
 
   /* initialize */
@@ -2354,10 +2354,10 @@ void ReadCorrelation(float ***corrptr, infileT *infiles,
  * data.  
  */
 void ReadAltLineFile(float ***mag, float ***phase, char *alfile, 
-		     long linelen, long nlines, tileparamT *tileparams){
+		     int64_t linelen, int64_t nlines, tileparamT *tileparams){
 
   FILE *fp;
-  long filesize,row,nrow,ncol,padlen;
+  int64_t filesize,row,nrow,ncol,padlen;
 
   /* open the file */
   if((fp=fopen(alfile,"r"))==NULL){
@@ -2415,10 +2415,10 @@ void ReadAltLineFile(float ***mag, float ***phase, char *alfile,
  * data. 
  */
 void ReadAltLineFilePhase(float ***phase, char *alfile, 
-			  long linelen, long nlines, tileparamT *tileparams){
+			  int64_t linelen, int64_t nlines, tileparamT *tileparams){
 
   FILE *fp;
-  long filesize,row,nrow,ncol,padlen;
+  int64_t filesize,row,nrow,ncol,padlen;
 
   /* open the file */
   if((fp=fopen(alfile,"r"))==NULL){
@@ -2467,10 +2467,10 @@ void ReadAltLineFilePhase(float ***phase, char *alfile,
  * [0,2pi).
  */
 void ReadComplexFile(float ***mag, float ***phase, char *rifile, 
-		     long linelen, long nlines, tileparamT *tileparams){
+		     int64_t linelen, int64_t nlines, tileparamT *tileparams){
          
   FILE *fp;
-  long filesize,ncol,nrow,row,col,padlen;
+  int64_t filesize,ncol,nrow,row,col,padlen;
   float *inpline;
 
   /* open the file */
@@ -2533,11 +2533,11 @@ void ReadComplexFile(float ***mag, float ***phase, char *rifile,
  * Reads file of real data of size elsize.  Assumes the native byte order 
  * of the platform. 
  */
-void Read2DArray(void ***arr, char *infile, long linelen, long nlines, 
+void Read2DArray(void ***arr, char *infile, int64_t linelen, int64_t nlines, 
 		 tileparamT *tileparams, size_t elptrsize, size_t elsize){
          
   FILE *fp;
-  long filesize,row,nrow,ncol,padlen;
+  int64_t filesize,row,nrow,ncol,padlen;
 
   /* open the file */
   if((fp=fopen(infile,"r"))==NULL){
@@ -2586,10 +2586,10 @@ void Read2DArray(void ***arr, char *infile, long linelen, long nlines,
  * floats per line in the specified file).
  */
 void ReadAltSampFile(float ***arr1, float ***arr2, char *infile, 
-		     long linelen, long nlines, tileparamT *tileparams){
+		     int64_t linelen, int64_t nlines, tileparamT *tileparams){
          
   FILE *fp;
-  long filesize,row,col,nrow,ncol,padlen;
+  int64_t filesize,row,col,nrow,ncol,padlen;
   float *inpline;
 
   /* open the file */
@@ -2647,11 +2647,11 @@ void ReadAltSampFile(float ***arr1, float ***arr2, char *infile,
  * followed by the column array (size nrow x ncol-1).  Both arrays 
  * are placed into the passed array as they were in the file.
  */
-void Read2DRowColFile(void ***arr, char *filename, long linelen, long nlines, 
+void Read2DRowColFile(void ***arr, char *filename, int64_t linelen, int64_t nlines, 
 		      tileparamT *tileparams, size_t size){
 
   FILE *fp;
-  long row, nel, nrow, ncol, padlen, filelen;
+  int64_t row, nel, nrow, ncol, padlen, filelen;
  
   /* open the file */
   if((fp=fopen(filename,"r"))==NULL){
@@ -2663,7 +2663,7 @@ void Read2DRowColFile(void ***arr, char *filename, long linelen, long nlines,
   fseek(fp,0,SEEK_END);
   filelen=ftell(fp);
   fseek(fp,0,SEEK_SET);
-  nel=(long )(filelen/size);
+  nel=(int64_t )(filelen/size);
 
   /* check file size */
   if(2*linelen*nlines-nlines-linelen != nel || (filelen % size)){
@@ -2711,11 +2711,11 @@ void Read2DRowColFile(void ***arr, char *filename, long linelen, long nlines,
  * equivalent rows in the orginal pixel file (whose arcs are represented
  * in the RowCol file).
  */
-void Read2DRowColFileRows(void ***arr, char *filename, long linelen, 
-			  long nlines, tileparamT *tileparams, size_t size){
+void Read2DRowColFileRows(void ***arr, char *filename, int64_t linelen, 
+			  int64_t nlines, tileparamT *tileparams, size_t size){
 
   FILE *fp;
-  long row, nel, nrow, ncol, padlen, filelen;
+  int64_t row, nel, nrow, ncol, padlen, filelen;
  
   /* open the file */
   if((fp=fopen(filename,"r"))==NULL){
@@ -2727,7 +2727,7 @@ void Read2DRowColFileRows(void ***arr, char *filename, long linelen,
   fseek(fp,0,SEEK_END);
   filelen=ftell(fp);
   fseek(fp,0,SEEK_SET);
-  nel=(long )(filelen/size);
+  nel=(int64_t )(filelen/size);
 
   /* check file size */
   if(2*linelen*nlines-nlines-linelen != nel || (filelen % size)){
@@ -2860,7 +2860,7 @@ void SetVerboseOut(paramT *params){
  * Reset the global stream pointers for a child.  Streams equal to stdout 
  * are directed to a log file, and errors are written to the screen.
  */
-void ChildResetStreamPointers(pid_t pid, long tilerow, long tilecol, 
+void ChildResetStreamPointers(pid_t pid, int64_t tilerow, int64_t tilecol, 
 			      paramT *params){
 
   FILE *logfp;
@@ -2873,7 +2873,7 @@ void ChildResetStreamPointers(pid_t pid, long tilerow, long tilecol,
     exit(ABNORMAL_EXIT);
   }
   fprintf(logfp,"%s (pid %ld): unwrapping tile at row %ld, column %ld\n\n",
-	  PROGRAMNAME,(long )pid,tilerow,tilecol);
+	  PROGRAMNAME,(int64_t )pid,tilerow,tilecol);
   if(getcwd(cwd,MAXSTRLEN)!=NULL){
     fprintf(logfp,"Current working directory is %s\n",cwd);
   }
@@ -2900,10 +2900,10 @@ void ChildResetStreamPointers(pid_t pid, long tilerow, long tilecol,
  * -----------------------------
  * Dumps incremental cost arrays, creating file names for them.
  */
-void DumpIncrCostFiles(incrcostT **incrcosts, long iincrcostfile, 
-		       long nflow, long nrow, long ncol){
+void DumpIncrCostFiles(incrcostT **incrcosts, int64_t iincrcostfile, 
+		       int64_t nflow, int64_t nrow, int64_t ncol){
 
-  long row, col, maxcol;
+  int64_t row, col, maxcol;
   char incrcostfile[MAXSTRLEN];
   char tempstr[MAXSTRLEN];
   short **tempcosts;
@@ -2961,7 +2961,7 @@ void MakeTileDir(paramT *params, outfileT *outfiles){
 
   /* create name for tile directory (use pid to make unique) */
   ParseFilename(outfiles->outfile,path,basename);
-  sprintf(params->tiledir,"%s%s%ld",path,TMPTILEDIRROOT,(long )getpid());
+  sprintf(params->tiledir,"%s%s%ld",path,TMPTILEDIRROOT,(int64_t )getpid());
 
   /* create tile directory */
   fprintf(sp1,"Creating temporary directory %s\n",params->tiledir);

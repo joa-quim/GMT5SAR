@@ -7,8 +7,8 @@
 double calc_time_corr(struct xcorr xc, int ioff, int joff)
 {
 	int	ip, jp;
-	long long	a, b;
-	long long	gamma_num, gamma_denom1, gamma_denom2;
+	int64_t a, b;
+	int64_t gamma_num, gamma_denom1, gamma_denom2;
 	double	gamma, gamma_denom;
 
 	gamma_denom = gamma_num = 0.0;
@@ -47,8 +47,8 @@ double calc_time_corr(struct xcorr xc, int ioff, int joff)
 double calc_time_corr_hat(struct xcorr xc, int ioff, int joff)
 {
 	int	ip, jp;
-	long long	a, b;
-	long long	gamma_num, gamma_denom1, gamma_denom2;
+	int64_t	a, b;
+	int64_t	gamma_num, gamma_denom1, gamma_denom2;
 	double		gamma_denom;
 	double		gamma;
 

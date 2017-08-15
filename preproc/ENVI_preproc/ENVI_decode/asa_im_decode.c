@@ -21,6 +21,7 @@ v1.1.1, 8 Nov 2005, Vikas Gudipati, now runs correctly on 64-bit compilers.
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <stdint.h>
 /**
  * The <code>EPR_DataTypeId</code> enumeration lists all possible data 
  * types for field elements in ENVISAT dataset records.
@@ -351,8 +352,8 @@ typedef int            boolean;
 typedef unsigned char  uchar;
 typedef unsigned short ushort;
 typedef unsigned int   uint;
-typedef unsigned long  ulong;
-
+//typedef unsigned long  ulong;
+typedef uint64_t  ulong;
 
 
 /* function prototypes */
@@ -368,7 +369,7 @@ void printInsGads( const struct insGadsStruct );
 int is_bigendian();
 void byte_swap_short(short *buffer, uint number_of_swaps);
 void byte_swap_ushort(ushort* buffer, uint number_of_swaps);
-void byte_swap_long(long *buffer, uint number_of_swaps);
+void byte_swap_long(int64_t *buffer, uint number_of_swaps);
 void byte_swap_ulong(ulong* buffer, uint number_of_swaps);
 void byte_swap_float(float* buffer, uint number_of_swaps);
 
@@ -1695,9 +1696,9 @@ void byte_swap_short(short *buffer, uint number_of_swaps)
  *
  *
  */
-void byte_swap_long(long *buffer, uint number_of_swaps)
+void byte_swap_long(int64_t *buffer, uint number_of_swaps)
 {
-   long *temp = buffer;
+   int64_t *temp = buffer;
    uint swap_loop;
 
    for (swap_loop = 0, temp = buffer; swap_loop < number_of_swaps; swap_loop++, temp++) {
@@ -1791,7 +1792,7 @@ void byte_swap_ushort(ushort* buffer, uint number_of_swaps)
  */
 void byte_swap_ulong(ulong* buffer, uint number_of_swaps)
 {
-   byte_swap_long((long*) buffer, number_of_swaps);
+   byte_swap_long((int64_t*) buffer, number_of_swaps);
 }
 
 /*

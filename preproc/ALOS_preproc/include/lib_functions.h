@@ -8,6 +8,7 @@
 
 #include <math.h>
 #include <stdio.h>
+#include <stdint.h>
 /* include files to define sarleader structure */
 #include "data_ALOS.h"
 #include "data_ALOSE.h"
@@ -60,7 +61,7 @@ EXTERN_MSC void read_ALOS_sarleader(FILE *, struct PRM *, struct ALOS_ORB *);
 EXTERN_MSC void ALOS_ldr_prm(struct SAR_info, struct PRM *);
 EXTERN_MSC void set_ALOS_defaults(struct PRM *prm);
 EXTERN_MSC void print_ALOS_defaults(struct PRM *prm);
-EXTERN_MSC long read_ALOS_data_SLC (FILE *imagefile, FILE *outfile, struct PRM *prm, long *byte_offset);
+EXTERN_MSC int64_t read_ALOS_data_SLC (FILE *imagefile, FILE *outfile, struct PRM *prm, int64_t *byte_offset);
 //void swap_ALOS_data_info(struct sardata_info *sdr);
 EXTERN_MSC void swap32(char *in, char *out, int n);
 

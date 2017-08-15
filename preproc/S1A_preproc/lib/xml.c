@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <math.h>
 #include "xmlC.h"
 #include "lib_defs.h"
@@ -48,7 +49,7 @@ int search_tree(tree *list, char *str, char *s_out, int type, int loc, int num){
   str2dbs to convert to double array.
  ***************************************************************************/
 	// search the num-th target at loc in str in the tree
-	long int ct = 0;
+	int64_t ct = 0;
 	int n = 1,i,j,j1,j2;
 	char s_name[200], *tmp_name, tmp_num[200];
 	while (strlocate(str,'/',n)!=-1)
@@ -146,9 +147,9 @@ int get_tree(FILE *fp, tree *list, int num_parse){
 	char *buffer;
 	char tmp_char[200], tmp_s[200], *tmp_c;
 	int i1,i2,j1,j2,have_slash;
-	long int count=0;
+	int64_t count=0;
 	//int *num_space;
-	long int level[100]={-1},lev_ct=0;
+	int64_t level[100]={-1},lev_ct=0;
 	char lev_rec[100][200];
 	
 	buffer = (char *)malloc(MAX_CHAR_SIZE*sizeof(char));
@@ -286,7 +287,7 @@ int space_count( char *str ){
 int itoa_xml(int d, char *buf, int base) {
 	char *p = buf;
 	char *p1, *p2;
-	unsigned long ud = d;
+	uint64_t ud = d;
 	int divisor = 10;
 	
 	/* If %d is specified and D is minus, put `-' in the head.  */

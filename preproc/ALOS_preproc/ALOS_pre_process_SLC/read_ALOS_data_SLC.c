@@ -44,22 +44,23 @@ clock_start clock_stop
 
 #include "image_sio.h"
 #include "lib_functions.h"
+#include <stdint.h>
 
 //void swap_ALOS_data_info(struct sardata_info *sdr);
-long read_sardata_info(FILE *, struct PRM *, int *, int *);
+int64_t read_sardata_info(FILE *, struct PRM *, int *, int *);
 void print_params(struct PRM *prm);
 int assign_sardata_params(struct PRM *, int, int *, int *);
 int check_shift(struct PRM *, int *, int *, int *, int);
-int set_file_position(FILE *, long *, int);
-int reset_params(struct PRM *prm, long *, int *, int *);
+int set_file_position(FILE *, int64_t *, int);
+int reset_params(struct PRM *prm, int64_t *, int *, int *);
 int fill_shift_data(int, int, int, int, int, char *, char *, FILE *);
-int handle_prf_change(struct PRM *, FILE *, long *, int); 
+int handle_prf_change(struct PRM *, FILE *, int64_t *, int); 
 
 struct 	sardata_record r1;
 struct	sardata_descriptor dfd;
 struct	sardata_info sdr;
 
-long read_ALOS_data_SLC (FILE *imagefile, FILE *outfile, struct PRM *prm, long *byte_offset) {
+int64_t read_ALOS_data_SLC (FILE *imagefile, FILE *outfile, struct PRM *prm, int64_t *byte_offset) {
 
         float   *rdata, *rdata_swap;
         short   *i2data;
@@ -242,7 +243,7 @@ void print_params(struct PRM *prm) {
         fprintf(stdout,"clock_stop              = %16.12lf \n",prm->clock_stop);
 }
 /***************************************************************************/
-long read_sardata_info(FILE *imagefile, struct PRM *prm, int *header_size, int *line_prefix_size) {
+int64_t read_sardata_info(FILE *imagefile, struct PRM *prm, int *header_size, int *line_prefix_size) {
 	size_t nitems;
 
 	*header_size = sizeof(struct sardata_record) + sizeof(struct sardata_descriptor);
@@ -347,7 +348,7 @@ int check_shift(struct PRM *prm, int *shift, int *ishift, int *shift0, int recor
 	return(EXIT_SUCCESS);
 }
 /***************************************************************************/
-int set_file_position(FILE *imagefile, long *byte_offset, int header_size)
+int set_file_position(FILE *imagefile, int64_t *byte_offset, int header_size)
 {
 	if (*byte_offset < 0) {
 		*byte_offset = 0;
@@ -360,7 +361,7 @@ int set_file_position(FILE *imagefile, long *byte_offset, int header_size)
 	return(EXIT_SUCCESS);
 }
 /***************************************************************************/
-int reset_params(struct PRM *prm, long *byte_offset, int *n, int *m)
+int reset_params(struct PRM *prm, int64_t *byte_offset, int *n, int *m)
 {
 double get_clock();
 
@@ -401,7 +402,7 @@ int	k;
 	return(EXIT_SUCCESS);
 } 
 /***************************************************************************/
-int handle_prf_change(struct PRM *prm, FILE *imagefile, long *byte_offset, int n) 
+int handle_prf_change(struct PRM *prm, FILE *imagefile, int64_t *byte_offset, int n) 
 {
 	prm->num_lines = n;
 

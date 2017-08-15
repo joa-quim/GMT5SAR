@@ -37,10 +37,11 @@ clock_start clock_stop
 
 #include "image_sio.h"
 #include "lib_functions.h"
+#include <stdint.h>
 
 /*
 #define znew   (int) (z=36969*(z&65535)+(z>>16))
-typedef unsigned long UL;
+typedef uint64_t UL;
  static UL z=362436069, t[256];
 
  void settable(UL i1)
@@ -49,17 +50,17 @@ typedef unsigned long UL;
  }
 */
 
-long read_sardata_info_ALOSE(FILE *, struct PRM *, int *, int *);
+int64_t read_sardata_info_ALOSE(FILE *, struct PRM *, int *, int *);
 int assign_sardata_params_ALOSE(struct PRM *, int, int *, int *);
 
 void swap_ALOS_data_info(struct sardata_info_ALOSE *sdr);
-void settable(unsigned long);
+void settable(unsigned int64_t);
 void print_params(struct PRM *prm);
 int check_shift(struct PRM *, int *, int *, int *, int);
-int set_file_position(FILE *, long *, int);
-int reset_params(struct PRM *prm, long *, int *, int *);
+int set_file_position(FILE *, int64_t *, int);
+int reset_params(struct PRM *prm, int64_t *, int *, int *);
 int fill_shift_data(int, int, int, int, int, char *, char *, FILE *);
-int handle_prf_change_ALOSE(struct PRM *, FILE *, long *, int); 
+int handle_prf_change_ALOSE(struct PRM *, FILE *, int64_t *, int); 
 
 struct 	sardata_record r1;
 struct	sardata_descriptor_ALOSE dfd;
@@ -75,7 +76,7 @@ struct sardata_info_ALOSE
 SARDATA__WCS_ALOSE
 SARDATA_RVL_ALOSE(SP)
 */
-long read_ALOSE_data (FILE *imagefile, FILE *outfile, struct PRM *prm, long *byte_offset) {
+int64_t read_ALOSE_data (FILE *imagefile, FILE *outfile, struct PRM *prm, int64_t *byte_offset) {
 
 	char *data_fbd=NULL, *data, *shift_data;
 	int	record_length0;		/* length of record read at start of file */
@@ -218,8 +219,8 @@ double get_clock_ALOSE(struct sardata_info_ALOSE sdr, double tbias) {
 	return(time);
 }
 /***************************************************************************/
-long read_sardata_info_ALOSE(FILE *imagefile, struct PRM *prm, int *header_size, int *line_prefix_size) {
-	long nitems;
+int64_t read_sardata_info_ALOSE(FILE *imagefile, struct PRM *prm, int *header_size, int *line_prefix_size) {
+	int64_t nitems;
 
 	if(debug) print_params( prm );   /* bytof */
 
@@ -317,10 +318,10 @@ int assign_sardata_params_ALOSE(struct PRM *prm, int line_prefix_size, int *line
 	return(EXIT_SUCCESS);
 }
 /***************************************************************************/
-int handle_prf_change_ALOSE(struct PRM *prm, FILE *imagefile, long *byte_offset, int n) {
+int handle_prf_change_ALOSE(struct PRM *prm, FILE *imagefile, int64_t *byte_offset, int n) {
 	prm->num_lines = n;
 
-	fseek(imagefile, -1 * (long)(sizeof(struct sardata_info_ALOSE)), SEEK_CUR);
+	fseek(imagefile, -1 * (int64_t)(sizeof(struct sardata_info_ALOSE)), SEEK_CUR);
 
 	*byte_offset = ftell(imagefile);
 

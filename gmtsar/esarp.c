@@ -45,7 +45,7 @@ int main (int argc, char *argv[]) {
 	FILE *fph = NULL, *fpq2 = NULL, *fpi = NULL;
 	int ranfft;
 	int n,i,j,k,ipatch,low_ind,hi_ind;
-	long num_to_seek;
+	int64_t num_to_seek;
 	double delr,rtest,itest,shft,dfact;
 	fcomplex **fdata = NULL,*fft_vec = NULL,*ref = NULL;
 	scomplex *i2data = NULL;
@@ -156,7 +156,7 @@ int main (int argc, char *argv[]) {
  		clock(); 
 		
 		/* seek over IMOP file, first_line, data from last patch */
-		num_to_seek = ((long)((ipatch-1)*num_valid_az+first_line+1))*((long)bytes_per_line);
+		num_to_seek = ((int64_t)((ipatch-1)*num_valid_az+first_line+1))*((int64_t)bytes_per_line);
 
 		if ((n = fseek(fpi, num_to_seek,0)) != 0){ 
 			perror(argv[0]);
@@ -167,7 +167,7 @@ int main (int argc, char *argv[]) {
 		print_time((float) clock()/CLOCKS_PER_SEC); 
 		fprintf(stderr,"Range Compression\n");
 
-		if(ineg >= 0) if((n = fseek(fpi, ((long)(bytes_per_line)*((long)yshift)),1)) != 0){
+		if(ineg >= 0) if((n = fseek(fpi, ((int64_t)(bytes_per_line)*((int64_t)yshift)),1)) != 0){
 			perror(argv[0]);
 			exit(-1);
 		}
@@ -177,12 +177,12 @@ int main (int argc, char *argv[]) {
 			if(ineg >= 0) {
 				/* this code reads the number of good data from the header */
 				if(SC_identity == 1 || SC_identity == 2 || SC_identity == 5){
-					if((n = fseek(fpi,(long) (pcount),1)) != 0){
+					if((n = fseek(fpi,(int64_t) (pcount),1)) != 0){
 						perror(argv[0]);
 						exit(-1);
 					} 
 					fread(&count, 4*sizeof(char),1,fpi);
-					if((n = fseek(fpi,(long) (first_sample*2 - pcount - 4),1)) != 0){
+					if((n = fseek(fpi,(int64_t) (first_sample*2 - pcount - 4),1)) != 0){
 						perror(argv[0]);
 						exit(-1);
 					}
@@ -190,7 +190,7 @@ int main (int argc, char *argv[]) {
 
 				/* this code actually reads the data including trailing bytes that may be bad */
 				fread((void *) indata,2*sizeof(unsigned char),good_bytes/2,fpi);
-				fseek(fpi,(long) (bytes_per_line-(first_sample*2 + good_bytes)),1);
+				fseek(fpi,(int64_t) (bytes_per_line-(first_sample*2 + good_bytes)),1);
 
 				/* if the count is bad then use the good_bytes. TXP. */
 				if (count==0) count=good_bytes/2;

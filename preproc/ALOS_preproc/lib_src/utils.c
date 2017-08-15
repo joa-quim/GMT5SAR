@@ -16,11 +16,11 @@
 /* 1 if big; -1 if little	*/
 int is_big_endian_() {
 	union {
-		long l;
-		char c[sizeof (long) ];
+		int64_t l;
+		char c[sizeof (int64_t) ];
 	} u;
 	u.l = 1;
-	return( u.c[sizeof(long) - 1] ==  1 ? 1 : -1);
+	return( u.c[sizeof(int64_t) - 1] ==  1 ? 1 : -1);
 }
 int is_big_endian__() {
 	return is_big_endian_();

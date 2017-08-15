@@ -46,10 +46,11 @@ clock_start clock_stop        - this has not year for better precision DDD.DDDDD
 
 #include "image_sio.h"
 #include "lib_functions.h"
+#include <stdint.h>
 
 /* fast random number generator */
 #define znew   (int) (z=36969*(z&65535)+(z>>16))
-typedef unsigned long UL;
+typedef uint64_t UL;
 static UL z=362436069, t[256];
 void settable(UL i1)
 { int i; z=i1;
@@ -62,19 +63,19 @@ static int n_burst[5]={247,356,274,355,327};
 static int PRF[5]={0,0,0,0,0};
 
 void swap_ALOS_data_info(struct sardata_info *sdr);
-long read_sardata_info(FILE *, struct PRM *, int *, int *);
+int64_t read_sardata_info(FILE *, struct PRM *, int *, int *);
 void print_params(struct PRM *prm);
 int assign_sardata_params(struct PRM *, int, int *, int *);
 int check_shift(struct PRM *, int *, int *, int *, int);
-int set_file_position(FILE *, long *, int);
+int set_file_position(FILE *, int64_t *, int);
 int fill_shift_data(int, int, int, int, int, char *, char *, FILE *);
-int handle_prf_change(struct PRM *, FILE *, long *, int);
+int handle_prf_change(struct PRM *, FILE *, int64_t *, int);
 
 struct 	sardata_record r1;
 struct	sardata_descriptor dfd;
 struct	sardata_info sdr;
 
-long read_ALOS_data_SS (FILE *imagefile, FILE *outfile, struct PRM *prm, long *byte_offset, 
+int64_t read_ALOS_data_SS (FILE *imagefile, FILE *outfile, struct PRM *prm, int64_t *byte_offset, 
                         int *nsub, int *burst_skip, int *num_burst) {
 
 	char *data, *shift_data, *gap_data;
@@ -320,7 +321,7 @@ void print_params(struct PRM *prm)
        	fprintf(stdout,"clock_stop		= %16.12lf \n",prm->clock_stop);
 }
 /***************************************************************************/
-long read_sardata_info(FILE *imagefile, struct PRM *prm, int *header_size, int *line_prefix_size) {
+int64_t read_sardata_info(FILE *imagefile, struct PRM *prm, int *header_size, int *line_prefix_size) {
 	size_t nitems;
 
 	*header_size = sizeof(struct sardata_record) + sizeof(struct sardata_descriptor);
@@ -416,7 +417,7 @@ int check_shift(struct PRM *prm, int *shift, int *ishift, int *shift0, int recor
 	return(EXIT_SUCCESS);
 }
 /***************************************************************************/
-int set_file_position(FILE *imagefile, long *byte_offset, int header_size)
+int set_file_position(FILE *imagefile, int64_t *byte_offset, int header_size)
 {
 	if (*byte_offset < 0) {
 		*byte_offset = 0;
@@ -453,12 +454,12 @@ int	k;
 	return(EXIT_SUCCESS);
 }
 /***************************************************************************/
-int handle_prf_change(struct PRM *prm, FILE *imagefile, long *byte_offset, int n)
+int handle_prf_change(struct PRM *prm, FILE *imagefile, int64_t *byte_offset, int n)
 {
         prm->num_lines = n;
 
         /* skip back to beginning of the line */
-        fseek(imagefile, -1 * (long)(sizeof(struct sardata_info)), SEEK_CUR);
+        fseek(imagefile, -1 * (int64_t)(sizeof(struct sardata_info)), SEEK_CUR);
 
         /* define byte_offset */
         *byte_offset = ftell(imagefile);

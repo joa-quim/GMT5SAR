@@ -8,6 +8,7 @@ in CEOS SAR data file
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include "SARtape.h"
 #include <sys/types.h>
 #ifndef _WIN32
@@ -245,11 +246,11 @@ int is_big_endian_()
 {
         union
         {
-        long l;
-        char c[sizeof (long) ];
+        int64_t l;
+        char c[sizeof (int64_t) ];
         } u;
         u.l = 1;
-        return( u.c[sizeof(long) - 1] ==  1 ? 1 : -1);
+        return( u.c[sizeof(int64_t) - 1] ==  1 ? 1 : -1);
 }
 int is_big_endian__()
 {

@@ -89,9 +89,9 @@ double ModDiff(double f1, double f2){
  * Makes sure the passed float array is properly wrapped into the [0,2pi)
  * interval.
  */
-void WrapPhase(float **wrappedphase, long nrow, long ncol){
+void WrapPhase(float **wrappedphase, int64_t nrow, int64_t ncol){
 
-  long row, col;
+  int64_t row, col;
 
   for(row=0;row<nrow;row++){
     for(col=0;col<ncol;col++){
@@ -107,9 +107,9 @@ void WrapPhase(float **wrappedphase, long nrow, long ncol){
  * Input wrapped phase array should be in radians.  Output is in cycles.
  */
 void CalcWrappedRangeDiffs(float **dpsi, float **avgdpsi, float **wrappedphase,
-			   long kperpdpsi, long kpardpsi,
-			   long nrow, long ncol){
-  long row, col;
+			   int64_t kperpdpsi, int64_t kpardpsi,
+			   int64_t nrow, int64_t ncol){
+  int64_t row, col;
   float **paddpsi;
 
   for(row=0;row<nrow;row++){
@@ -140,8 +140,8 @@ void CalcWrappedRangeDiffs(float **dpsi, float **avgdpsi, float **wrappedphase,
  * Input wrapped phase array should be in radians.  Output is in cycles.
  */
 void CalcWrappedAzDiffs(float **dpsi, float **avgdpsi, float **wrappedphase,
-			long kperpdpsi, long kpardpsi, long nrow, long ncol){
-  long row, col;
+			int64_t kperpdpsi, int64_t kpardpsi, int64_t nrow, int64_t ncol){
+  int64_t row, col;
   float **paddpsi;
 
   for(row=0;row<nrow-1;row++){
@@ -214,9 +214,9 @@ void CycleResidue(float **phase, signed char **residue,
  * Calculates flow based on unwrapped phase data in a 2D array.  
  * Allocates memory for row and column flow arrays.
  */
-void CalcFlow(float **phase, short ***flowsptr, long nrow, long ncol){
+void CalcFlow(float **phase, short ***flowsptr, int64_t nrow, int64_t ncol){
 
-  long row, col;
+  int64_t row, col;
 
   /* get memory for flow arrays */
   if((*flowsptr)==NULL){
@@ -252,9 +252,9 @@ void CalcFlow(float **phase, short ***flowsptr, long nrow, long ncol){
  * phase fields are NxM.  Output is saved to a file.
  */
 void IntegratePhase(float **psi, float **phi, short **flows,
-		    long nrow, long ncol){
+		    int64_t nrow, int64_t ncol){
 
-  long row, col;
+  int64_t row, col;
   short **rowflow, **colflow;
   rowflow=flows;
   colflow=&(flows[nrow-1]);
@@ -287,9 +287,9 @@ void IntegratePhase(float **psi, float **phi, short **flows,
  * wrapped phase to passed pointer.  Assumes flows fit into short ints.
  */
 float **ExtractFlow(float **unwrappedphase, short ***flowsptr, 
-		    long nrow, long ncol){    
+		    int64_t nrow, int64_t ncol){    
 
-  long row, col;
+  int64_t row, col;
   float **wrappedphase;
   
   /* get memory for wrapped phase array */
@@ -319,9 +319,9 @@ float **ExtractFlow(float **unwrappedphase, short ***flowsptr,
  * Flips the sign of all values in a passed array if the flip flag is set.
  * Otherwise, does nothing.
  */
-void FlipPhaseArraySign(float **arr, paramT *params, long nrow, long ncol){
+void FlipPhaseArraySign(float **arr, paramT *params, int64_t nrow, int64_t ncol){
 
-  long row, col;
+  int64_t row, col;
 
   if(params->flipphasesign){
     for(row=0;row<nrow;row++){
@@ -338,9 +338,9 @@ void FlipPhaseArraySign(float **arr, paramT *params, long nrow, long ncol){
  * Flips the sign of all values in a row-by-column array if the flip
  * flip flag is set.  Otherwise, does nothing.
  */
-void FlipFlowArraySign(short **arr, paramT *params, long nrow, long ncol){
+void FlipFlowArraySign(short **arr, paramT *params, int64_t nrow, int64_t ncol){
 
-  long row, col, maxcol;
+  int64_t row, col, maxcol;
 
   if(params->flipphasesign){
     for(row=0;row<2*nrow-1;row++){
@@ -391,9 +391,9 @@ void **Get2DMem(int nrow, int ncol, int psize, size_t size){
  * The first nrow-1 rows will have ncol columns, and the rest will
  * have ncol-1 columns.
  */
-void **Get2DRowColMem(long nrow, long ncol, int psize, size_t size){
+void **Get2DRowColMem(int64_t nrow, int64_t ncol, int psize, size_t size){
 
-  long row;
+  int64_t row;
   void **array;
 
   if((array=malloc((2*nrow-1)*psize))==NULL){
@@ -422,9 +422,9 @@ void **Get2DRowColMem(long nrow, long ncol, int psize, size_t size){
  * The first nrow-1 rows will have ncol columns, and the rest will
  * have ncol-1 columns.  Memory is initialized to zero.
  */
-void **Get2DRowColZeroMem(long nrow, long ncol, int psize, size_t size){
+void **Get2DRowColZeroMem(int64_t nrow, int64_t ncol, int psize, size_t size){
 
-  long row;
+  int64_t row;
   void **array;
 
   if((array=malloc((2*nrow-1)*psize))==NULL){
@@ -518,9 +518,9 @@ void Free2DArray(void **array, unsigned int nrow){
  * Sets all entries of a 2D array of shorts to the given value.  Assumes
  * that memory is already allocated.
  */
-void Set2DShortArray(short **arr, long nrow, long ncol, long value){
+void Set2DShortArray(short **arr, int64_t nrow, int64_t ncol, int64_t value){
 
-  long row, col;
+  int64_t row, col;
 
   for(row=0;row<nrow;row++){
     for(col=0;col<ncol;col++){
@@ -535,9 +535,9 @@ void Set2DShortArray(short **arr, long nrow, long ncol, long value){
  * Given a 2D floating point array, returns FALSE if any elements are NaN
  * or infinite, and TRUE otherwise (uses math library finite() function).
  */
-signed char ValidDataArray(float **arr, long nrow, long ncol){
+signed char ValidDataArray(float **arr, int64_t nrow, int64_t ncol){
 
-  long row, col;
+  int64_t row, col;
 
   for(row=0;row<nrow;row++){
     for(col=0;col<ncol;col++){
@@ -578,11 +578,11 @@ signed char IsFinite(double d){
 /* function: LRound()
  * ------------------
  * Rounds a floating point number to the nearest integer.  
- * The function takes a float and returns a long.
+ * The function takes a float and returns a int64_t.
  */
-long LRound(double a){
+int64_t LRound(double a){
 
-  return((long )rint(a));
+  return((int64_t )rint(a));
 }
 
 
@@ -592,9 +592,9 @@ long LRound(double a){
  * two-dimensional short array.  The number of rows and columns 
  * should be passed in.
  */
-long Short2DRowColAbsMax(short **arr, long nrow, long ncol){
+int64_t Short2DRowColAbsMax(short **arr, int64_t nrow, int64_t ncol){
 
-  long row, col, maxval;
+  int64_t row, col, maxval;
 
   maxval=0;
   for(row=0;row<nrow-1;row++){
@@ -620,12 +620,12 @@ long Short2DRowColAbsMax(short **arr, long nrow, long ncol){
  * Given an array of floats, interpolates at the specified noninteger
  * index.  Returns first or last array value if index is out of bounds.
  */
-float LinInterp1D(float *arr, double index, long nelem){
+float LinInterp1D(float *arr, double index, int64_t nelem){
 
-  long intpart;
+  int64_t intpart;
   double fracpart;
 
-  intpart=(long )floor(index);
+  intpart=(int64_t )floor(index);
   fracpart=index-intpart;
   if(intpart<0){
     return(arr[0]);
@@ -643,12 +643,12 @@ float LinInterp1D(float *arr, double index, long nelem){
  * indices.  Returns first or last array values if index is out of bounds.
  */
 float LinInterp2D(float **arr, double rowind, double colind , 
-                  long nrow, long ncol){
+                  int64_t nrow, int64_t ncol){
 
-  long rowintpart;
+  int64_t rowintpart;
   double rowfracpart;
 
-  rowintpart=(long )floor(rowind);
+  rowintpart=(int64_t )floor(rowind);
   rowfracpart=rowind-rowintpart;
   if(rowintpart<0){
     return(LinInterp1D(arr[0],colind,ncol));
@@ -666,11 +666,11 @@ float LinInterp2D(float **arr, double rowind, double colind ,
  * Filters magnitude/power data with adaptive geometric filter to get rid of 
  * speckle.  Allocates 2D memory for ei.  Does not square before averaging.
  */
-void Despeckle(float **mag, float ***ei, long nrow, long ncol){
+void Despeckle(float **mag, float ***ei, int64_t nrow, int64_t ncol){
 
   float **intensity;
   double ratio, ratiomax, wfull, wstick, w[NARMS+1];
-  long row, col, i, j, k, Irow, Icol;
+  int64_t row, col, i, j, k, Irow, Icol;
   short jmin[5]={2,2,0,1,2};
   short jmax[5]={2,3,4,3,2};
   enum{ C=0, T, B, R, L, TR, BL, TL, BR};
@@ -763,9 +763,9 @@ void Despeckle(float **mag, float ***ei, long nrow, long ncol){
  * too large for the array size, a pointer to the original array is
  * returned.
  */
-float **MirrorPad(float **array1, long nrow, long ncol, long krow, long kcol){
+float **MirrorPad(float **array1, int64_t nrow, int64_t ncol, int64_t krow, int64_t kcol){
 
-  long row, col;
+  int64_t row, col;
   float **array2;
 
   /* get memory */
@@ -826,10 +826,10 @@ float **MirrorPad(float **array1, long nrow, long ncol, long krow, long kcol){
  * itself recursively) to compute the result, so there may be roundoff 
  * errors.
  */
-void BoxCarAvg(float **avgarr, float **padarr, long nrow, long ncol, 
-	       long krow, long kcol){
+void BoxCarAvg(float **avgarr, float **padarr, int64_t nrow, int64_t ncol, 
+	       int64_t krow, int64_t kcol){
 
-  long i, row, col, n;
+  int64_t i, row, col, n;
   double window;
 
   /* loop over all rows */
@@ -886,9 +886,9 @@ char *StrNCopy(char *dest, const char *src, size_t n){
  * the result, rewrapped to [0,2pi), in the wrapped array.
  */
 void FlattenWrappedPhase(float **wrappedphase, float **unwrappedest, 
-			 long nrow, long ncol){
+			 int64_t nrow, int64_t ncol){
  
-  long row, col;
+  int64_t row, col;
 
   /* loop to subtract, rewrap, store in wrapped array. */
   for(row=0;row<nrow;row++){
@@ -907,9 +907,9 @@ void FlattenWrappedPhase(float **wrappedphase, float **unwrappedest,
  * ----------------------------
  * Addes the values of two 2-D arrays elementwise.
  */
-void Add2DFloatArrays(float **arr1, float **arr2, long nrow, long ncol){
+void Add2DFloatArrays(float **arr1, float **arr2, int64_t nrow, int64_t ncol){
 
-  long row, col;
+  int64_t row, col;
  
   /* loop over all rows and columns, add and store result in first array */
   for(row=0;row<nrow;row++){
@@ -945,13 +945,13 @@ int StringToDouble(char *str, double *d){
 
 /* function: StringToLong()
  * ------------------------
- * Uses strtol to convert a string to a base-10 long, but also does error 
+ * Uses strtol to convert a string to a base-10 int64_t, but also does error 
  * checking.  If any part of the string is not converted, the function does 
  * not make the assignment and returns TRUE.  Otherwise, returns FALSE.
  */
-int StringToLong(char *str, long *l){
+int StringToLong(char *str, int64_t *l){
 
-  long templong;
+  int64_t templong;
   char *endp;
   
   endp=str;
@@ -1103,7 +1103,7 @@ void DisplayElapsedTime(time_t tstart, double cputimestart){
 
 #ifndef _WIN32
   double cputime, walltime, seconds;
-  long hours, minutes;
+  int64_t hours, minutes;
   time_t tstop;
   struct rusage usagebuf;
 
@@ -1123,19 +1123,19 @@ void DisplayElapsedTime(time_t tstart, double cputimestart){
   tstop=time(NULL);
   if(cputime>0 && cputimestart>=0){
     cputime-=cputimestart;
-    hours=(long )floor(cputime/3600);
-    minutes=(long )floor((cputime-3600*hours)/60);
+    hours=(int64_t )floor(cputime/3600);
+    minutes=(int64_t )floor((cputime-3600*hours)/60);
     seconds=cputime-3600*hours-60*minutes;
     fprintf(sp1,"Elapsed processor time:   %ld:%02ld:%05.2f\n",
 	    hours,minutes,seconds);
   }
   if(tstart>0 && tstop>0){
     walltime=tstop-tstart;
-    hours=(long )floor(walltime/3600);
-    minutes=(long )floor((walltime-3600*hours)/60);
+    hours=(int64_t )floor(walltime/3600);
+    minutes=(int64_t )floor((walltime-3600*hours)/60);
     seconds=walltime-3600*hours-60*minutes;
     fprintf(sp1,"Elapsed wall clock time:  %ld:%02ld:%02ld\n",
-	    hours,minutes,(long )seconds);
+	    hours,minutes,(int64_t )seconds);
   }
 #endif
 }
@@ -1143,9 +1143,9 @@ void DisplayElapsedTime(time_t tstart, double cputimestart){
 
 /* function: LongCompare()
  * -----------------------
- * Compares two long integers.  For use with qsort().
+ * Compares two int64_t integers.  For use with qsort().
  */
 int LongCompare(const void *c1, const void *c2){
-  return((*((long *)c1))-(*((long *)c2)));
+  return((*((int64_t *)c1))-(*((int64_t *)c2)));
 }
 

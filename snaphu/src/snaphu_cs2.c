@@ -244,7 +244,7 @@ for ( a = i -> current, a_stop = ( i + 1 ) -> suspended; a != a_stop; a ++ )
 #define BLACK 2
 
 arc     *sa, *sb;
-long    d_cap;
+int64_t    d_cap;
 
 #define EXCHANGE( a, b )\
 {\
@@ -283,7 +283,7 @@ if ( a != b )\
 
 
 
-long n_push      =0,
+int64_t n_push      =0,
      n_relabel   =0,
      n_discharge =0,
      n_refine    =0,
@@ -296,7 +296,7 @@ long n_push      =0,
      n_bad_relabel = 0,
      n_prefine   =0;
 
-long   n,                    /* number of nodes */
+int64_t   n,                    /* number of nodes */
        m;                    /* number of arcs */
 
 short   *cap;                 /* array containig capacities */
@@ -311,7 +311,7 @@ arc    *arcs,                /* array of arcs */
 
 bucket *buckets,             /* array of buckets */
        *l_bucket;            /* last bucket */
-long   linf;                 /* number of l_bucket + 1 */
+int64_t   linf;                 /* number of l_bucket + 1 */
 double dlinf;                /* copy of linf in double mode */
 
 int time_for_price_in;
@@ -328,7 +328,7 @@ double epsilon,              /* optimality bound */
 
 double total_excess;         /* total excess */
 
-long   n_rel,                /* number of relabels from last price update */
+int64_t   n_rel,                /* number of relabels from last price update */
        n_ref,                /* current number of refines */
        n_src;                /* current number of nodes with excess */
 
@@ -340,7 +340,7 @@ int   flag_price = 0,        /* if = 1 - signal to start price-in ASAP -
 				unfeasible or you have to return 
                                 suspended arcs */
 
-long  empty_push_bound;      /* maximal possible number of zero pushes
+int64_t  empty_push_bound;      /* maximal possible number of zero pushes
                                 during one discharge */
 
 int   snc_max;               /* maximal number of cycles cancelled
@@ -381,11 +381,11 @@ exit(ABNORMAL_EXIT);
 
 static void cs_init ( n_p, m_p, nodes_p, arcs_p, f_sc, max_c, cap_p )
 
-long    n_p,        /* number of nodes */
+int64_t    n_p,        /* number of nodes */
         m_p;        /* number of arcs */
 node    *nodes_p;   /* array of nodes */
 arc     *arcs_p;    /* array of arcs */
-long    f_sc;       /* scaling factor */
+int64_t    f_sc;       /* scaling factor */
 double  max_c;      /* maximal cost */
 short    *cap_p;     /* array of capacities (changed to short by CWC) */
 
@@ -474,7 +474,7 @@ arc    *a,                     /* ( i, j ) */
        *ra;                    /* ( j, i ) */
 bucket *b_old,                 /* old bucket contained j */
        *b_new;                 /* new bucket for j */
-long   i_rank,
+int64_t   i_rank,
        j_rank,                 /* ranks of nodes */
        j_new_rank;             
 double rc,                     /* reduced cost of (j,i) */
@@ -501,7 +501,7 @@ FOR_ALL_ARCS_a_FROM_i
 	    else
 	      {
 		dr = rc / epsilon;
-		j_new_rank = ( dr < dlinf ) ? i_rank + (long)dr + 1
+		j_new_rank = ( dr < dlinf ) ? i_rank + (int64_t)dr + 1
 		                            : linf;
 	      }
 
@@ -724,7 +724,7 @@ register arc  *a;       /* an arc from  i  */
 arc  *b,                /* an arc from j */
      *ra;               /* reversed arc (j,i) */
 register node *j;       /* head of  a  */
-register long df;       /* amoumt of flow to be pushed through  a  */
+register int64_t df;       /* amoumt of flow to be pushed through  a  */
 excess_t j_exc;             /* former excess of  j  */
 
 int  empty_push;        /* number of unsuccessful attempts to push flow
@@ -932,7 +932,7 @@ static void refine ()
 node     *i;      /* current node */
 excess_t i_exc;   /* excess of  i  */
 
-/* long   np, nr, ns; */  /* variables for additional print */
+/* int64_t   np, nr, ns; */  /* variables for additional print */
 
 int    pr_in_int;   /* current number of updates between price_in */
 
@@ -1060,8 +1060,8 @@ arc    *a,              /* arc (i,j) */
        *a_stop,         /* first arc from the next node */
        *ar;
 
-long   bmax;            /* number of farest nonempty bucket */
-long   i_rank,          /* rank of node i */
+int64_t   bmax;            /* number of farest nonempty bucket */
+int64_t   i_rank,          /* rank of node i */
        j_rank,          /* rank of node j */
        j_new_rank;      /* new rank of node j */
 bucket *b,              /* current bucket */
@@ -1072,7 +1072,7 @@ double rc,              /* reduced cost of a */
        dp;
 int    cc;              /* return code: 1 - flow is epsilon optimal
                                         0 - refine is needed        */
-long   df;              /* cycle capacity */
+int64_t   df;              /* cycle capacity */
 
 int    nnc,             /* number of negative cycles cancelled during
 			   one iteration */
@@ -1274,7 +1274,7 @@ for ( b = buckets + bmax; b != buckets; b -- )
 		    else
 		      {
 			dr = rc / epsilon;
-			j_new_rank = ( dr < dlinf ) ? i_rank - ( (long)dr + 1 )
+			j_new_rank = ( dr < dlinf ) ? i_rank - ( (int64_t)dr + 1 )
 			                            : 0;
 		      }
 		    if ( j_rank < j_new_rank )
@@ -1351,8 +1351,8 @@ node   *i,              /* current node */
 arc    *a,              /* arc (i,j) */
        *a_stop;         /* first arc from the next node */
 
-long   bmax;            /* number of farest nonempty bucket */
-long   i_rank,          /* rank of node i */
+int64_t   bmax;            /* number of farest nonempty bucket */
+int64_t   i_rank,          /* rank of node i */
        j_rank,          /* rank of node j */
        j_new_rank;      /* new rank of node j */
 bucket *b,              /* current bucket */
@@ -1508,7 +1508,7 @@ for ( b = buckets + bmax; b != buckets; b -- )
 		    else
 		      {
 			dr = rc;
-			j_new_rank = ( dr < dlinf ) ? i_rank - ( (long)dr + 1 )
+			j_new_rank = ( dr < dlinf ) ? i_rank - ( (int64_t)dr + 1 )
 			                            : 0;
 		      }
 		    if ( j_rank < j_new_rank )
@@ -1604,10 +1604,10 @@ double *obj_ad;       /* objective */
 
 {
 arc   *a;            /* current arc */
-long  na;            /* corresponding position in capacity array */
+int64_t  na;            /* corresponding position in capacity array */
 double  obj_internal;/* objective */
 double cs;           /* actual arc cost */
-long   flow;         /* flow through an arc */
+int64_t   flow;         /* flow through an arc */
 
 obj_internal = 0;
 
@@ -1635,7 +1635,7 @@ for ( a = arcs, na = 0; a != sentinel_arc ; a ++, na ++ )
 /*  arc   *a; */   /* current arc  (i,j) */ 
 /*  node  *i, */   /* tail of  a  */ 
 /*        *j; */   /* head of  a  */ 
-/*  long  df; */   /* ricidual capacity */ 
+/*  int64_t  df; */   /* ricidual capacity */ 
 
 /*  for ( a = arcs; a != sentinel_arc ; a ++ ) */
 /*      { */
@@ -1668,11 +1668,11 @@ for ( a = arcs, na = 0; a != sentinel_arc ; a ++, na ++ )
 
 static void  cs2 ( n_p, m_p, nodes_p, arcs_p, f_sc, max_c, cap_p, obj_ad)
 
-long    n_p,        /* number of nodes */
+int64_t    n_p,        /* number of nodes */
         m_p;        /* number of arcs */
 node    *nodes_p;   /* array of nodes */
 arc     *arcs_p;    /* array of arcs */
-long    f_sc;       /* scaling factor */
+int64_t    f_sc;       /* scaling factor */
 double  max_c;      /* maximal cost */
 short   *cap_p;     /* capacities (changed to short by CWC) */
 double  *obj_ad;    /* objective */
@@ -1720,20 +1720,20 @@ finishup ( obj_ad );
 
 /* SolveCS2-- formerly main() */
 
-void SolveCS2(signed char **residue, short **mstcosts, long nrow, long ncol, 
-	      long cs2scalefactor, short ***flowsptr)
+void SolveCS2(signed char **residue, short **mstcosts, int64_t nrow, int64_t ncol, 
+	      int64_t cs2scalefactor, short ***flowsptr)
 {
 
   /*  double t; */
   arc *arp;
   node *ndp;
-  long n, m, m2, nmin; 
+  int64_t n, m, m2, nmin; 
   node *i;
-  long ni;
+  int64_t ni;
   arc *a;
-  long nNrow, nNcol;
-  long to, from, num, flow, ground;
-  long f_sc;
+  int64_t nNrow, nNcol;
+  int64_t to, from, num, flow, ground;
+  int64_t f_sc;
 
   double cost,  c_max;
   short *cap;  /* cap changed to short by CWC */

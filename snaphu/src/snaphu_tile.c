@@ -15,11 +15,11 @@
  * ---------------------
  * Sets up tile parameters and output file names for the current tile.
  */
-void SetupTile(long nlines, long linelen, paramT *params, 
+void SetupTile(int64_t nlines, int64_t linelen, paramT *params, 
 	       tileparamT *tileparams, outfileT *outfiles, 
-	       outfileT *tileoutfiles, long tilerow, long tilecol){
+	       outfileT *tileoutfiles, int64_t tilerow, int64_t tilecol){
 
-  long ni, nj;
+  int64_t ni, nj;
   char tempstring[MAXTMPSTRLEN], path[MAXSTRLEN], basename[MAXSTRLEN];
   char *tiledir;
 
@@ -149,14 +149,14 @@ void SetupTile(long nlines, long linelen, paramT *params,
  * Grows contiguous regions demarcated by arcs whose residual costs are
  * less than some threshold.  Numbers the regions sequentially from 0.
  */
-void GrowRegions(void **costs, short **flows, long nrow, long ncol, 
+void GrowRegions(void **costs, short **flows, int64_t nrow, int64_t ncol, 
 		 incrcostT **incrcosts, outfileT *outfiles, paramT *params){
 
-  long i, row, col, maxcol;
-  long arcrow, arccol, arcnum, fromdist, arcdist;
-  long regioncounter, *regionsizes, regionsizeslen, *thisregionsize;
-  long closestregiondist, closestregion=0, lastfromdist;
-  long costthresh, minsize, maxcost;
+  int64_t i, row, col, maxcol;
+  int64_t arcrow, arccol, arcnum, fromdist, arcdist;
+  int64_t regioncounter, *regionsizes, regionsizeslen, *thisregionsize;
+  int64_t closestregiondist, closestregion=0, lastfromdist;
+  int64_t costthresh, minsize, maxcost;
   short **regions = NULL;
   nodeT **nodes = NULL;
   nodeT *source, *from, *to, *ground;
@@ -222,7 +222,7 @@ void GrowRegions(void **costs, short **flows, long nrow, long ncol,
   /* initialize region variables */
   regioncounter=-1;
   regionsizeslen=INITARRSIZE;
-  regionsizes=(long *)MAlloc(regionsizeslen*sizeof(long));
+  regionsizes=(int64_t *)MAlloc(regionsizeslen*sizeof(int64_t));
   for(row=0;row<nrow;row++){
     for(col=0;col<ncol;col++){
       nodes[row][col].incost=-1;
@@ -252,8 +252,8 @@ void GrowRegions(void **costs, short **flows, long nrow, long ncol,
 	/* increment the region counter */
 	if(++regioncounter>=regionsizeslen){
 	  regionsizeslen+=INITARRSIZE;
-	  regionsizes=(long *)ReAlloc(regionsizes,
-				       regionsizeslen*sizeof(long));
+	  regionsizes=(int64_t *)ReAlloc(regionsizes,
+				       regionsizeslen*sizeof(int64_t));
 	}
 	thisregionsize=&regionsizes[regioncounter];
 
@@ -387,15 +387,15 @@ void GrowRegions(void **costs, short **flows, long nrow, long ncol,
  * Writes out byte file of connected component mask, with 0 for any pixels
  * not assigned to a component.
  */
-void GrowConnCompsMask(void **costs, short **flows, long nrow, long ncol, 
+void GrowConnCompsMask(void **costs, short **flows, int64_t nrow, int64_t ncol, 
 		       incrcostT **incrcosts, outfileT *outfiles, 
 		       paramT *params){
 
-  long i, row, col, maxcol;
-  long arcrow, arccol, arcnum;
-  long regioncounter, *regionsizes, regionsizeslen, *thisregionsize;
-  long *sortedregionsizes;
-  long costthresh, minsize, maxncomps, ntied, newnum;
+  int64_t i, row, col, maxcol;
+  int64_t arcrow, arccol, arcnum;
+  int64_t regioncounter, *regionsizes, regionsizeslen, *thisregionsize;
+  int64_t *sortedregionsizes;
+  int64_t costthresh, minsize, maxncomps, ntied, newnum;
   nodeT **nodes;
   nodeT *source, *from, *to, *ground;
   unsigned char **components;
@@ -458,7 +458,7 @@ void GrowConnCompsMask(void **costs, short **flows, long nrow, long ncol,
   /* initialize region variables */
   regioncounter=0;
   regionsizeslen=INITARRSIZE;
-  regionsizes=(long *)MAlloc(regionsizeslen*sizeof(long));
+  regionsizes=(int64_t *)MAlloc(regionsizeslen*sizeof(int64_t));
   for(row=0;row<nrow;row++){
     for(col=0;col<ncol;col++){
       nodes[row][col].incost=-1;
@@ -487,8 +487,8 @@ void GrowConnCompsMask(void **costs, short **flows, long nrow, long ncol,
 	/* increment the region counter */
 	if(++regioncounter>=regionsizeslen){
 	  regionsizeslen+=INITARRSIZE;
-	  regionsizes=(long *)ReAlloc(regionsizes,
-				       regionsizeslen*sizeof(long));
+	  regionsizes=(int64_t *)ReAlloc(regionsizes,
+				       regionsizeslen*sizeof(int64_t));
 	}
 	thisregionsize=&regionsizes[regioncounter];
 
@@ -549,11 +549,11 @@ void GrowConnCompsMask(void **costs, short **flows, long nrow, long ncol,
 
     /* copy regionsizes array and sort to find new minimum region size */
     fprintf(sp2,"Keeping only %ld connected components\n",maxncomps);
-    sortedregionsizes=(long *)MAlloc(regioncounter*sizeof(long));
+    sortedregionsizes=(int64_t *)MAlloc(regioncounter*sizeof(int64_t));
     for(i=0;i<regioncounter;i++){
       sortedregionsizes[i]=regionsizes[i+1];
     }
-    qsort((void *)sortedregionsizes,regioncounter,sizeof(long),LongCompare);
+    qsort((void *)sortedregionsizes,regioncounter,sizeof(int64_t),LongCompare);
     minsize=sortedregionsizes[regioncounter-maxncomps];
 
     /* see how many regions of size minsize still need zeroing */
@@ -624,9 +624,9 @@ void GrowConnCompsMask(void **costs, short **flows, long nrow, long ncol,
 /* function: ThickenCosts()
  * ------------------------
  */
-long ThickenCosts(incrcostT **incrcosts, long nrow, long ncol){
+int64_t ThickenCosts(incrcostT **incrcosts, int64_t nrow, int64_t ncol){
 
-  long row, col, templong, maxcost;
+  int64_t row, col, templong, maxcost;
   double n;
   
 
@@ -696,11 +696,11 @@ long ThickenCosts(incrcostT **incrcosts, long nrow, long ncol){
  * Return the neighboring node of the given node corresponding to the
  * given arc number.
  */
-nodeT *RegionsNeighborNode(nodeT *node1, long *arcnumptr, nodeT **nodes, 
-			   long *arcrowptr, long *arccolptr, 
-			   long nrow, long ncol){
+nodeT *RegionsNeighborNode(nodeT *node1, int64_t *arcnumptr, nodeT **nodes, 
+			   int64_t *arcrowptr, int64_t *arccolptr, 
+			   int64_t nrow, int64_t ncol){
   
-  long row, col;
+  int64_t row, col;
 
   row=node1->row;
   col=node1->col;
@@ -750,7 +750,7 @@ nodeT *RegionsNeighborNode(nodeT *node1, long *arcnumptr, nodeT **nodes,
 void ClearBuckets(bucketT *bkts){
 
   nodeT *currentnode, *nextnode;
-  long i;
+  int64_t i;
 
   /* loop over all buckets */
   for(i=0;i<bkts->size;i++){
@@ -778,10 +778,10 @@ void ClearBuckets(bucketT *bkts){
  * ------------------------
  * 
  */
-void MergeRegions(nodeT **nodes, nodeT *source, long *regionsizes, 
-		  long closestregion, long nrow, long ncol){
+void MergeRegions(nodeT **nodes, nodeT *source, int64_t *regionsizes, 
+		  int64_t closestregion, int64_t nrow, int64_t ncol){
 
-  long nextnodelistlen, nextnodelistnext, arcnum, arcrow, arccol, regionnum;
+  int64_t nextnodelistlen, nextnodelistnext, arcnum, arcrow, arccol, regionnum;
   nodeT *from, *to, **nextnodelist;
 
   
@@ -824,10 +824,10 @@ void MergeRegions(nodeT **nodes, nodeT *source, long *regionsizes,
  * --------------------------
  * 
  */
-void RenumberRegion(nodeT **nodes, nodeT *source, long newnum, 
-		    long nrow, long ncol){
+void RenumberRegion(nodeT **nodes, nodeT *source, int64_t newnum, 
+		    int64_t nrow, int64_t ncol){
 
-  long nextnodelistlen, nextnodelistnext, arcnum, arcrow, arccol, regionnum;
+  int64_t nextnodelistlen, nextnodelistnext, arcnum, arcrow, arccol, regionnum;
   nodeT *from, *to, **nextnodelist;
 
   
@@ -867,15 +867,15 @@ void RenumberRegion(nodeT **nodes, nodeT *source, long newnum,
  * -------------------------
  */
 void AssembleTiles(outfileT *outfiles, paramT *params, 
-		   long nlines, long linelen){
+		   int64_t nlines, int64_t linelen){
 
-  long tilerow, tilecol, ntilerow, ntilecol, ntiles, rowovrlp, colovrlp;
-  long i, j, k, ni, nj, dummylong, costtypesize = 0;
-  long nrow, ncol, prevnrow, prevncol, nextnrow, nextncol;
-  long n, ncycle, nflowdone, nflow, candidatelistsize, candidatebagsize;
-  long nnodes, maxnflowcycles, arclen, narcs, sourcetilenum, flowmax;
-  long *totarclens;
-  long ***scndrycosts;
+  int64_t tilerow, tilecol, ntilerow, ntilecol, ntiles, rowovrlp, colovrlp;
+  int64_t i, j, k, ni, nj, dummylong, costtypesize = 0;
+  int64_t nrow, ncol, prevnrow, prevncol, nextnrow, nextncol;
+  int64_t n, ncycle, nflowdone, nflow, candidatelistsize, candidatebagsize;
+  int64_t nnodes, maxnflowcycles, arclen, narcs, sourcetilenum, flowmax;
+  int64_t *totarclens;
+  int64_t ***scndrycosts;
   double avgarclen;
   float **unwphase, **nextunwphase, **lastunwphase, **tempunwphase;
   float *unwphaseabove, *unwphasebelow;
@@ -931,10 +931,10 @@ void AssembleTiles(outfileT *outfiles, paramT *params,
   scndrynodes=(nodeT **)MAlloc(ntiles*sizeof(nodeT *));
   nodesupp=(nodesuppT **)MAlloc(ntiles*sizeof(nodesuppT *));
   scndryarcs=(scndryarcT **)MAlloc(ntiles*sizeof(scndryarcT *));
-  scndrycosts=(long ***)MAlloc(ntiles*sizeof(long **));
+  scndrycosts=(int64_t ***)MAlloc(ntiles*sizeof(int64_t **));
   nscndrynodes=(short *)MAlloc(ntiles*sizeof(short));
   nscndryarcs=(short *)MAlloc(ntiles*sizeof(short));
-  totarclens=(long *)MAlloc(ntiles*sizeof(long));
+  totarclens=(int64_t *)MAlloc(ntiles*sizeof(int64_t));
   bulkoffsets=(short **)Get2DMem(ntilerow,ntilecol,sizeof(short *),
 				 sizeof(short));
   costs=(void **)Get2DRowColMem(ni+2,nj+2,sizeof(void *),costtypesize);
@@ -1007,7 +1007,7 @@ void AssembleTiles(outfileT *outfiles, paramT *params,
     for(j=0;j<nscndryarcs[i];j++){
       if(scndrycosts[i][j][2*flowmax+1]!=ZEROCOSTARC){
 	for(k=1;k<=2*flowmax;k++){
-	  scndrycosts[i][j][k]=(long )ceil(scndrycosts[i][j][k]/avgarclen);
+	  scndrycosts[i][j][k]=(int64_t )ceil(scndrycosts[i][j][k]/avgarclen);
 	}
 	scndrycosts[i][j][2*flowmax+1]=LRound(scndrycosts[i][j][2*flowmax+1]
 					      /avgarclen);
@@ -1078,7 +1078,7 @@ void AssembleTiles(outfileT *outfiles, paramT *params,
 		       ntiles,nscndryarcs,params); 
 
     /* set the tree root (equivalent to source of shortest path problem) */
-    sourcetilenum=(long )ntilecol*floor(ntilerow/2.0)+floor(ntilecol/2.0);
+    sourcetilenum=(int64_t )ntilecol*floor(ntilerow/2.0)+floor(ntilecol/2.0);
     source=&scndrynodes[sourcetilenum][0];
 
     /* run the solver, and increment nflowdone if no cycles are found */
@@ -1172,13 +1172,13 @@ void AssembleTiles(outfileT *outfiles, paramT *params,
 /* function: ReadNextRegion()
  * --------------------------
  */
-void ReadNextRegion(long tilerow, long tilecol, long nlines, long linelen,
+void ReadNextRegion(int64_t tilerow, int64_t tilecol, int64_t nlines, int64_t linelen,
 		    outfileT *outfiles, paramT *params, 
 		    short ***nextregionsptr, float ***nextunwphaseptr,
 		    void ***nextcostsptr, 
-		    long *nextnrowptr, long *nextncolptr){
+		    int64_t *nextnrowptr, int64_t *nextncolptr){
 
-  long nexttilelinelen, nexttilenlines, costtypesize=0;
+  int64_t nexttilelinelen, nexttilenlines, costtypesize=0;
   tileparamT nexttileparams[1];
   outfileT nexttileoutfiles[1];
   char nextfile[MAXSTRLEN], tempstring[MAXTMPSTRLEN];
@@ -1253,11 +1253,11 @@ void ReadNextRegion(long tilerow, long tilecol, long nlines, long linelen,
  * The meanings of these variables are different for the last row 
  * and column.
  */
-void SetTileReadParams(tileparamT *tileparams, long nexttilenlines, 
-		       long nexttilelinelen, long tilerow, long tilecol, 
-		       long nlines, long linelen, paramT *params){
+void SetTileReadParams(tileparamT *tileparams, int64_t nexttilenlines, 
+		       int64_t nexttilelinelen, int64_t tilerow, int64_t tilecol, 
+		       int64_t nlines, int64_t linelen, paramT *params){
 
-  long rowovrlp, colovrlp;
+  int64_t rowovrlp, colovrlp;
 
   /* set temporary variables */
   rowovrlp=params->rowovrlp;
@@ -1292,14 +1292,14 @@ void SetTileReadParams(tileparamT *tileparams, long nexttilenlines,
 /* function: ReadEdgesAboveAndBelow()
  * ----------------------------------
  */
-void ReadEdgesAboveAndBelow(long tilerow, long tilecol, long nlines, 
-			    long linelen, paramT *params, outfileT *outfiles, 
+void ReadEdgesAboveAndBelow(int64_t tilerow, int64_t tilecol, int64_t nlines, 
+			    int64_t linelen, paramT *params, outfileT *outfiles, 
 			    short *regionsabove, short *regionsbelow,
 			    float *unwphaseabove, float *unwphasebelow,
 			    void *costsabove, void *costsbelow){
 
-  long ni, nj, readtilelinelen, readtilenlines, costtypesize=0;
-  long ntilerow, ntilecol, rowovrlp, colovrlp;
+  int64_t ni, nj, readtilelinelen, readtilenlines, costtypesize=0;
+  int64_t ntilerow, ntilecol, rowovrlp, colovrlp;
   tileparamT tileparams[1];
   outfileT outfilesabove[1], outfilesbelow[1];
   float **unwphaseaboveptr, **unwphasebelowptr;
@@ -1463,16 +1463,16 @@ void TraceRegions(short **regions, short **nextregions, short **lastregions,
 		  float **nextunwphase, float **lastunwphase, 
 		  float *unwphaseabove, float *unwphasebelow, void **costs, 
 		  void **nextcosts, void **lastcosts, void *costsabove, 
-		  void *costsbelow, long prevnrow, long prevncol, long tilerow,
-		  long tilecol, long nrow, long ncol, nodeT **scndrynodes,
+		  void *costsbelow, int64_t prevnrow, int64_t prevncol, int64_t tilerow,
+		  int64_t tilecol, int64_t nrow, int64_t ncol, nodeT **scndrynodes,
 		  nodesuppT **nodesupp, scndryarcT **scndryarcs, 
-		  long ***scndrycosts, short *nscndrynodes, 
-		  short *nscndryarcs, long *totarclens, short **bulkoffsets, 
+		  int64_t ***scndrycosts, short *nscndrynodes, 
+		  short *nscndryarcs, int64_t *totarclens, short **bulkoffsets, 
 		  paramT *params){
 
-  long i, j, row, col, nnrow, nncol, tilenum, costtypesize = 0;
-  long nnewnodes, nnewarcs, npathsout, flowmax, totarclen;
-  long nupdatednontilenodes, updatednontilenodesize, ntilecol;
+  int64_t i, j, row, col, nnrow, nncol, tilenum, costtypesize = 0;
+  int64_t nnewnodes, nnewarcs, npathsout, flowmax, totarclen;
+  int64_t nupdatednontilenodes, updatednontilenodesize, ntilecol;
   short **flows;
   short **rightedgeflows, **loweredgeflows, **leftedgeflows, **upperedgeflows;
   short *inontilenodeoutarc;
@@ -1687,12 +1687,12 @@ void TraceRegions(short **regions, short **nextregions, short **lastregions,
  * ---------------------------
  * Check all outgoing arcs to see how many paths out there are. 
  */
-long FindNumPathsOut(nodeT *from, paramT *params, long tilerow, long tilecol, 
-		     long nnrow, long nncol, short **regions, 
+int64_t FindNumPathsOut(nodeT *from, paramT *params, int64_t tilerow, int64_t tilecol, 
+		     int64_t nnrow, int64_t nncol, short **regions, 
 		     short **nextregions, short **lastregions,
-		     short *regionsabove, short *regionsbelow, long prevncol){
+		     short *regionsabove, short *regionsbelow, int64_t prevncol){
 
-  long npathsout, ntilerow, ntilecol, fromrow, fromcol;
+  int64_t npathsout, ntilerow, ntilecol, fromrow, fromcol;
 
   /* initialize */
   ntilerow=params->ntilerow;
@@ -1771,25 +1771,25 @@ void RegionTraceCheckNeighbors(nodeT *from, nodeT **nextnodeptr,
 			       nodeT **primarynodes, short **regions, 
 			       short **nextregions, short **lastregions, 
 			       short *regionsabove, short *regionsbelow,  
-			       long tilerow, long tilecol, long nnrow, 
-			       long nncol, nodeT **scndrynodes, 
+			       int64_t tilerow, int64_t tilecol, int64_t nnrow, 
+			       int64_t nncol, nodeT **scndrynodes, 
 			       nodesuppT **nodesupp, scndryarcT **scndryarcs, 
-			       long *nnewnodesptr, long *nnewarcsptr, 
-			       long flowmax, long nrow, long ncol, 
-			       long prevnrow, long prevncol, paramT *params, 
+			       int64_t *nnewnodesptr, int64_t *nnewarcsptr, 
+			       int64_t flowmax, int64_t nrow, int64_t ncol, 
+			       int64_t prevnrow, int64_t prevncol, paramT *params, 
 			       void **costs, void **rightedgecosts, 
 			       void **loweredgecosts, void **leftedgecosts, 
 			       void **upperedgecosts, short **flows, 
 			       short **rightedgeflows, short **loweredgeflows,
 			       short **leftedgeflows, short **upperedgeflows,
-			       long ***scndrycosts, 
+			       int64_t ***scndrycosts, 
 			       nodeT ***updatednontilenodesptr, 
-			       long *nupdatednontilenodesptr, 
-			       long *updatednontilenodesizeptr,
+			       int64_t *nupdatednontilenodesptr, 
+			       int64_t *updatednontilenodesizeptr,
 			       short **inontilenodeoutarcptr, 
-			       long *totarclenptr){
+			       int64_t *totarclenptr){
 
-  long fromrow, fromcol;
+  int64_t fromrow, fromcol;
   nodeT *to, *nextnode;
 
 
@@ -1916,16 +1916,16 @@ void RegionTraceCheckNeighbors(nodeT *from, nodeT **nextnodeptr,
 /* function: SetUpperEdge()
  * ------------------------
  */
-void SetUpperEdge(long ncol, long tilerow, long tilecol, void **voidcosts, 
+void SetUpperEdge(int64_t ncol, int64_t tilerow, int64_t tilecol, void **voidcosts, 
 		  void *voidcostsabove, float **unwphase, 
 		  float *unwphaseabove, void **voidupperedgecosts, 
 		  short **upperedgeflows, paramT *params, short **bulkoffsets){
 
-  long col, reloffset;
+  int64_t col, reloffset;
   double dphi, dpsi;
   costT **upperedgecosts, **costs, *costsabove;
   smoothcostT **upperedgesmoothcosts, **smoothcosts, *smoothcostsabove;
-  long nshortcycle;
+  int64_t nshortcycle;
 
 
   /* typecast generic pointers to costT pointers */
@@ -1999,19 +1999,19 @@ void SetUpperEdge(long ncol, long tilerow, long tilecol, void **voidcosts,
 /* function: SetLowerEdge()
  * ------------------------
  */
-void SetLowerEdge(long nrow, long ncol, long tilerow, long tilecol, 
+void SetLowerEdge(int64_t nrow, int64_t ncol, int64_t tilerow, int64_t tilecol, 
 		  void **voidcosts, void *voidcostsbelow, 
 		  float **unwphase, float *unwphasebelow, 
 		  void **voidloweredgecosts, short **loweredgeflows, 
 		  paramT *params, short **bulkoffsets){
 
-  long *flowhistogram;
-  long col, iflow, reloffset, nmax;
-  long flowlimhi, flowlimlo, maxflow, minflow, tempflow;
+  int64_t *flowhistogram;
+  int64_t col, iflow, reloffset, nmax;
+  int64_t flowlimhi, flowlimlo, maxflow, minflow, tempflow;
   double dphi, dpsi;
   costT **loweredgecosts, **costs, *costsbelow;
   smoothcostT **loweredgesmoothcosts, **smoothcosts, *smoothcostsbelow;
-  long nshortcycle;
+  int64_t nshortcycle;
 
   /* typecast generic pointers to costT pointers */
   loweredgecosts=(costT **)voidloweredgecosts;
@@ -2028,7 +2028,7 @@ void SetLowerEdge(long nrow, long ncol, long tilerow, long tilecol,
     nshortcycle=params->nshortcycle;
     flowlimhi=LARGESHORT;
     flowlimlo=-LARGESHORT;
-    flowhistogram=(long *)CAlloc(flowlimhi-flowlimlo+1,sizeof(long));
+    flowhistogram=(int64_t *)CAlloc(flowlimhi-flowlimlo+1,sizeof(int64_t));
     minflow=flowlimhi;
     maxflow=flowlimlo;
 
@@ -2124,16 +2124,16 @@ void SetLowerEdge(long nrow, long ncol, long tilerow, long tilecol,
 /* function: SetLeftEdge()
  * -----------------------
  */
-void SetLeftEdge(long nrow, long prevncol, long tilerow, long tilecol, 
+void SetLeftEdge(int64_t nrow, int64_t prevncol, int64_t tilerow, int64_t tilecol, 
 		 void **voidcosts, void **voidlastcosts, float **unwphase, 
 		 float **lastunwphase, void **voidleftedgecosts, 
 		 short **leftedgeflows, paramT *params, short **bulkoffsets){
 
-  long row, reloffset;
+  int64_t row, reloffset;
   double dphi, dpsi;
   costT  **leftedgecosts, **costs, **lastcosts;
   smoothcostT  **leftedgesmoothcosts, **smoothcosts, **lastsmoothcosts;
-  long nshortcycle;
+  int64_t nshortcycle;
 
   /* typecast generic pointers to costT pointers */
   leftedgecosts=(costT **)voidleftedgecosts;
@@ -2211,19 +2211,19 @@ void SetLeftEdge(long nrow, long prevncol, long tilerow, long tilecol,
 /* function: SetRightEdge()
  * ------------------------
  */
-void SetRightEdge(long nrow, long ncol, long tilerow, long tilecol, 
+void SetRightEdge(int64_t nrow, int64_t ncol, int64_t tilerow, int64_t tilecol, 
 		  void **voidcosts, void **voidnextcosts, 
 		  float **unwphase, float **nextunwphase, 
 		  void **voidrightedgecosts, short **rightedgeflows, 
 		  paramT *params, short **bulkoffsets){
 
-  long *flowhistogram;
-  long row, iflow, reloffset, nmax;
-  long flowlimhi, flowlimlo, maxflow, minflow, tempflow;
+  int64_t *flowhistogram;
+  int64_t row, iflow, reloffset, nmax;
+  int64_t flowlimhi, flowlimlo, maxflow, minflow, tempflow;
   double dphi, dpsi;
   costT  **rightedgecosts, **costs, **nextcosts;
   smoothcostT  **rightedgesmoothcosts, **smoothcosts, **nextsmoothcosts;
-  long nshortcycle;
+  int64_t nshortcycle;
 
   /* typecast generic pointers to costT pointers */
   rightedgecosts=(costT **)voidrightedgecosts;
@@ -2240,7 +2240,7 @@ void SetRightEdge(long nrow, long ncol, long tilerow, long tilecol,
     nshortcycle=params->nshortcycle;
     flowlimhi=LARGESHORT;
     flowlimlo=-LARGESHORT;
-    flowhistogram=(long *)CAlloc(flowlimhi-flowlimlo+1,sizeof(long));
+    flowhistogram=(int64_t *)CAlloc(flowlimhi-flowlimlo+1,sizeof(int64_t));
     minflow=flowlimhi;
     maxflow=flowlimlo;
 
@@ -2346,25 +2346,25 @@ void SetRightEdge(long nrow, long ncol, long tilerow, long tilecol,
  */
 void TraceSecondaryArc(nodeT *primaryhead, nodeT **scndrynodes, 
 		       nodesuppT **nodesupp, scndryarcT **scndryarcs, 
-		       long ***scndrycosts, long *nnewnodesptr, 
-		       long *nnewarcsptr, long tilerow, long tilecol, 
-		       long flowmax, long nrow, long ncol, 
-		       long prevnrow, long prevncol, paramT *params, 
+		       int64_t ***scndrycosts, int64_t *nnewnodesptr, 
+		       int64_t *nnewarcsptr, int64_t tilerow, int64_t tilecol, 
+		       int64_t flowmax, int64_t nrow, int64_t ncol, 
+		       int64_t prevnrow, int64_t prevncol, paramT *params, 
 		       void **tilecosts, void **rightedgecosts, 
 		       void **loweredgecosts, void **leftedgecosts,
 		       void **upperedgecosts, short **tileflows, 
 		       short **rightedgeflows, short **loweredgeflows, 
 		       short **leftedgeflows, short **upperedgeflows,
 		       nodeT ***updatednontilenodesptr, 
-		       long *nupdatednontilenodesptr, 
-		       long *updatednontilenodesizeptr,
-		       short **inontilenodeoutarcptr, long *totarclenptr){
+		       int64_t *nupdatednontilenodesptr, 
+		       int64_t *updatednontilenodesizeptr,
+		       short **inontilenodeoutarcptr, int64_t *totarclenptr){
 
-  long i, row, col, nnewnodes, arclen, ntilerow, ntilecol, arcnum;
-  long tilenum, nflow, primaryarcrow, primaryarccol, poscost, negcost, nomcost;
-  long nnrow, nncol, calccostnrow, nnewarcs, arroffset, nshortcycle;
-  long mincost, mincostflow;
-  long *scndrycostarr;
+  int64_t i, row, col, nnewnodes, arclen, ntilerow, ntilecol, arcnum;
+  int64_t tilenum, nflow, primaryarcrow, primaryarccol, poscost, negcost, nomcost;
+  int64_t nnrow, nncol, calccostnrow, nnewarcs, arroffset, nshortcycle;
+  int64_t mincost, mincostflow;
+  int64_t *scndrycostarr;
   long double templongdouble;
   double sigsq=0.0, sumsigsqinv, tempdouble, tileedgearcweight;
   short **flows;
@@ -2389,7 +2389,7 @@ void TraceSecondaryArc(nodeT *primaryhead, nodeT **scndrynodes,
   nnrow=nrow+1;
   nncol=ncol+1;
   tilenum=tilerow*ntilecol+tilecol;
-  scndrycostarr=(long *)MAlloc((2*flowmax+2)*sizeof(long));
+  scndrycostarr=(int64_t *)MAlloc((2*flowmax+2)*sizeof(int64_t));
   tileedgearcweight=params->tileedgeweight;
   nshortcycle=params->nshortcycle;
   zerocost=FALSE;
@@ -2602,9 +2602,9 @@ void TraceSecondaryArc(nodeT *primaryhead, nodeT **scndrynodes,
 
     /* correct value of arroffset for next loop */
     if(mincostflow==flowmax){
-      arroffset-=((long )floor(1.5*flowmax));
+      arroffset-=((int64_t )floor(1.5*flowmax));
     }else if(mincostflow==-flowmax){
-      arroffset+=((long )floor(1.5*flowmax));      
+      arroffset+=((int64_t )floor(1.5*flowmax));      
     }else{
       arroffset-=mincostflow;
     }
@@ -2789,8 +2789,8 @@ void TraceSecondaryArc(nodeT *primaryhead, nodeT **scndrynodes,
   newarc=&scndryarcs[tilenum][nnewarcs-1];
   newarc->arcrow=tilenum;
   newarc->arccol=nnewarcs-1;
-  scndrycosts[tilenum]=(long **)ReAlloc(scndrycosts[tilenum],
-					nnewarcs*sizeof(long *));
+  scndrycosts[tilenum]=(int64_t **)ReAlloc(scndrycosts[tilenum],
+					nnewarcs*sizeof(int64_t *));
   scndrycosts[tilenum][nnewarcs-1]=scndrycostarr;
 
   /* update secondary node data */
@@ -2875,9 +2875,9 @@ void TraceSecondaryArc(nodeT *primaryhead, nodeT **scndrynodes,
  * --------------------------
  */
 nodeT *FindScndryNode(nodeT **scndrynodes, nodesuppT **nodesupp, 
-		      long tilenum, long primaryrow, long primarycol){
+		      int64_t tilenum, int64_t primaryrow, int64_t primarycol){
 
-  long nodenum;
+  int64_t nodenum;
   nodesuppT *nodesuppptr;
 
   /* set temporary variables */
@@ -2896,7 +2896,7 @@ nodeT *FindScndryNode(nodeT **scndrynodes, nodesuppT **nodesupp,
 /* function: IntegrateSecondaryFlows()
  * -----------------------------------
  */
-void IntegrateSecondaryFlows(long linelen, long nlines, nodeT **scndrynodes, 
+void IntegrateSecondaryFlows(int64_t linelen, int64_t nlines, nodeT **scndrynodes, 
 			     nodesuppT **nodesupp, scndryarcT **scndryarcs, 
 			     short *nscndryarcs, short **scndryflows, 
 			     short **bulkoffsets, outfileT *outfiles, 
@@ -2905,10 +2905,10 @@ void IntegrateSecondaryFlows(long linelen, long nlines, nodeT **scndrynodes,
   FILE *outfp;
   float **unwphase, **tileunwphase, **mag, **tilemag;
   float *outline;
-  long row, col, colstart, nrow=0, ncol, nnrow, nncol, maxcol;
-  long readtilelinelen, readtilenlines, nextcoloffset, nextrowoffset;
-  long tilerow, tilecol, ntilerow, ntilecol, rowovrlp, colovrlp;
-  long ni, nj, tilenum;
+  int64_t row, col, colstart, nrow=0, ncol, nnrow, nncol, maxcol;
+  int64_t readtilelinelen, readtilenlines, nextcoloffset, nextrowoffset;
+  int64_t tilerow, tilecol, ntilerow, ntilecol, rowovrlp, colovrlp;
+  int64_t ni, nj, tilenum;
   double tileoffset;
   short **regions, **tileflows;
   char realoutfile[MAXSTRLEN], readfile[MAXSTRLEN], tempstring[MAXTMPSTRLEN];
@@ -3114,15 +3114,15 @@ void IntegrateSecondaryFlows(long linelen, long nlines, nodeT **scndrynodes,
 /* function: ParseSecondaryFlows()
  * -------------------------------
  */
-void ParseSecondaryFlows(long tilenum, short *nscndryarcs, short **tileflows, 
+void ParseSecondaryFlows(int64_t tilenum, short *nscndryarcs, short **tileflows, 
 			 short **regions, short **scndryflows, 
 			 nodesuppT **nodesupp, scndryarcT **scndryarcs, 
-			 long nrow, long ncol, long ntilerow, long ntilecol,
+			 int64_t nrow, int64_t ncol, int64_t ntilerow, int64_t ntilecol,
 			 paramT *params){
 
   nodeT *scndryfrom, *scndryto;
-  long arcnum, nnrow, nncol, nflow, primaryfromrow, primaryfromcol;
-  long prevrow, prevcol, thisrow, thiscol, nextrow, nextcol;
+  int64_t arcnum, nnrow, nncol, nflow, primaryfromrow, primaryfromcol;
+  int64_t prevrow, prevcol, thisrow, thiscol, nextrow, nextcol;
   signed char phaseflipsign;
 
 

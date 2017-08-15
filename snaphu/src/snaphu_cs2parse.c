@@ -41,15 +41,15 @@ int cs2mcfparse(residue, rowcost, colcost, nNrow, nNcol, n_ad, m_ad, nodes_ad,
 signed char    **residue;             /* 2D array of residues */
 short   **rowcost;             /* 2D array of row arc costs */
 short   **colcost;             /* 2D array of col arc costs */
-long    nNrow;                 /* number of nodes per row */
-long    nNcol;                 /* number of nodes per column */
+int64_t    nNrow;                 /* number of nodes per row */
+int64_t    nNcol;                 /* number of nodes per column */
 
 /* these parameters are output */
-long    *n_ad;                 /* address of the number of nodes */
-long    *m_ad;                 /* address of the number of arcs */
+int64_t    *n_ad;                 /* address of the number of nodes */
+int64_t    *m_ad;                 /* address of the number of arcs */
 node    **nodes_ad;            /* address of the array of nodes */
 arc     **arcs_ad;             /* address of the array of arcs */
-long    *node_min_ad;          /* address of the minimal node */
+int64_t    *node_min_ad;          /* address of the minimal node */
 double  *m_c_ad;               /* maximal arc cost */
 short    **cap_ad;             /* array of capacities (changed to short) */
 
@@ -60,12 +60,12 @@ short    **cap_ad;             /* array of capacities (changed to short) */
 
 /* variables added for unwrapping parse */
 unsigned int row, col, dir;
-unsigned long narcs, nnodes, nodectr, arcctr, nresidues;
-long cumsupply, temp;
+uint64_t narcs, nnodes, nodectr, arcctr, nresidues;
+int64_t cumsupply, temp;
 
 
-long inf_cap = 0;
-long    n,                      /* internal number of nodes */
+int64_t inf_cap = 0;
+int64_t    n,                      /* internal number of nodes */
         node_min,               /* minimal no of node  */
         node_max,               /* maximal no of nodes */
        *arc_first,              /* internal array for holding
@@ -75,7 +75,7 @@ long    n,                      /* internal number of nodes */
         /* temporary variables carrying no of nodes */
         head, tail, i;
 
-long    m,                      /* internal number of arcs */
+int64_t    m,                      /* internal number of arcs */
         /* temporary variables carrying no of arcs */
         last, arc_num, arc_new_num;
 
@@ -90,11 +90,11 @@ arc     *arcs,                  /* pointers to the arc structure */
         *arc_new,
         *arc_tmp;
 
-long    excess,                 /* supply/demand of the node */
+int64_t    excess,                 /* supply/demand of the node */
         low,                    /* lowest flow through the arc */
         acap;                    /* capacity */
 
-long    cost;                   /* arc cost */
+int64_t    cost;                   /* arc cost */
 
 
 double  dcost,                  /* arc cost in double mode */
@@ -107,7 +107,7 @@ double  total_p,                /* total supply */
         cap_out,                /* sum of outgoing capacities */
         cap_in;                 /* sum of incoming capacities */
 
-long    no_lines=0,             /* no of current input line */
+int64_t    no_lines=0,             /* no of current input line */
   /*    no_plines=0, */           /* no of problem-lines */
   /*    no_nlines=0, */            /* no of node lines */
         no_alines=0,            /* no of arc-lines */
@@ -186,8 +186,8 @@ if ( n <= 0  || m <= 0 )
 nodes    = (node*) CAlloc ( n+2, sizeof(node) );
 arcs     = (arc*)  CAlloc ( 2*m+1, sizeof(arc) );
 cap      = (short*) CAlloc ( 2*m,   sizeof(short) ); /* changed to short */
-arc_tail = (long*) CAlloc ( 2*m,   sizeof(long) ); 
-arc_first= (long*) CAlloc ( n+2, sizeof(long) );
+arc_tail = (int64_t*) CAlloc ( 2*m,   sizeof(int64_t) ); 
+arc_first= (int64_t*) CAlloc ( n+2, sizeof(int64_t) );
 /* arc_first [ 0 .. n+1 ] = 0 - initialized by calloc */
 
 for ( in = nodes; in <= nodes + n; in ++ )

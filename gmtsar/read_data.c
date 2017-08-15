@@ -9,7 +9,7 @@
 /*-------------------------------------------------------*/
 void read_complex_short(FILE *f, int *d, int iy, int jx, int npx, int npy, int nx)
 {
-	long num_to_seek;
+	int64_t num_to_seek;
 	int	i, j;
 	int	ireal, iimag;
 	short	*tmp;
@@ -35,7 +35,7 @@ void read_complex_short(FILE *f, int *d, int iy, int jx, int npx, int npy, int n
 /*-------------------------------------------------------*/
 void read_real_float(FILE *f, int *d, int iy, int jx, int npx, int npy, int nx)
 {
-	long num_to_seek;
+	int64_t num_to_seek;
 	int	i, j;
 	float	*tmp;
 	
@@ -83,7 +83,7 @@ int	iy, jx, ishft;
 /*-------------------------------------------------------*/
 void read_complex_short2float(FILE *f, float *d, int iy, int jx, int npx, int npy, int nx)
 {
-	long num_to_seek;
+	int64_t num_to_seek;
 	int	i, j;
 	int	ireal, iimag;
 	short	*tmp;

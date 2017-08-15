@@ -18,13 +18,13 @@
  */
 void BuildCostArrays(void ***costsptr, short ***mstcostsptr, 
 		     float **mag, float **wrappedphase, 
-		     float **unwrappedest, long linelen, long nlines, 
-		     long nrow, long ncol, paramT *params, 
+		     float **unwrappedest, int64_t linelen, int64_t nlines, 
+		     int64_t nrow, int64_t ncol, paramT *params, 
 		     tileparamT *tileparams, infileT *infiles, 
 		     outfileT *outfiles){
   
-  long row, col, maxcol, tempcost;
-  long poscost, negcost, costtypesize;
+  int64_t row, col, maxcol, tempcost;
+  int64_t poscost, negcost, costtypesize;
   float **pwr, **corr;
   short **weights, **rowweight, **colweight, **scalarcosts = NULL;
   void **costs, **rowcost = NULL, **colcost = NULL;
@@ -253,11 +253,11 @@ void BuildCostArrays(void ***costsptr, short ***mstcostsptr,
 void **BuildStatCostsTopo(float **wrappedphase, float **mag, 
 			  float **unwrappedest, float **pwr, 
 			  float **corr, short **rowweight, short **colweight,
-			  long nrow, long ncol, tileparamT *tileparams, 
+			  int64_t nrow, int64_t ncol, tileparamT *tileparams, 
 			  outfileT *outfiles, paramT *params){
 
-  long row, col, iei, nrho, nominctablesize;
-  long kperpdpsi, kpardpsi, sigsqshortmin;
+  int64_t row, col, iei, nrho, nominctablesize;
+  int64_t kperpdpsi, kpardpsi, sigsqshortmin;
   double a, re, dr, slantrange, nearrange, nominc0, dnominc;
   double nomincangle, nomincind, sinnomincangle, cosnomincangle, bperp;
   double baseline, baselineangle, lambda, lookangle;
@@ -289,7 +289,7 @@ void **BuildStatCostsTopo(float **wrappedphase, float **mag,
   dr=params->dr;
   nearrange=params->nearrange+dr*tileparams->firstcol;
   drho=params->drho;
-  nrho=(long )floor((1-rhomin)/drho)+1;
+  nrho=(int64_t )floor((1-rhomin)/drho)+1;
   nshortcycle=params->nshortcycle;
   layminei=params->layminei;
   laywidth=params->laywidth;
@@ -663,11 +663,11 @@ void **BuildStatCostsTopo(float **wrappedphase, float **mag,
 void **BuildStatCostsDefo(float **wrappedphase, float **mag, 
 			  float **unwrappedest, float **corr, 
 			  short **rowweight, short **colweight,
-			  long nrow, long ncol, tileparamT *tileparams, 
+			  int64_t nrow, int64_t ncol, tileparamT *tileparams, 
 			  outfileT *outfiles, paramT *params){
 
-  long row, col;
-  long kperpdpsi, kpardpsi, sigsqshortmin, defomax;
+  int64_t row, col;
+  int64_t kperpdpsi, kpardpsi, sigsqshortmin, defomax;
   double rho, rho0, rhopow;
   double defocorrthresh, sigsqcorr, sigsqrho, sigsqrhoconst;
   double glay, costscale;
@@ -694,7 +694,7 @@ void **BuildStatCostsDefo(float **wrappedphase, float **mag,
   nshortcycle=params->nshortcycle;
   nshortcyclesq=nshortcycle*nshortcycle;
   glay=-costscale*log(params->defolayconst);
-  defomax=(long )ceil(params->defomax*nshortcycle);
+  defomax=(int64_t )ceil(params->defomax*nshortcycle);
 
   /* get memory for wrapped difference arrays */
   dpsi=(float **)Get2DMem(nrow,ncol,sizeof(float *),sizeof(float));
@@ -851,11 +851,11 @@ void **BuildStatCostsDefo(float **wrappedphase, float **mag,
 void **BuildStatCostsSmooth(float **wrappedphase, float **mag, 
 			    float **unwrappedest, float **corr, 
 			    short **rowweight, short **colweight,
-			    long nrow, long ncol, tileparamT *tileparams, 
+			    int64_t nrow, int64_t ncol, tileparamT *tileparams, 
 			    outfileT *outfiles, paramT *params){
 
-  long row, col;
-  long kperpdpsi, kpardpsi, sigsqshortmin;
+  int64_t row, col;
+  int64_t kperpdpsi, kpardpsi, sigsqshortmin;
   double rho, rho0, rhopow;
   double defocorrthresh, sigsqcorr, sigsqrho, sigsqrhoconst;
   double costscale;
@@ -1011,11 +1011,11 @@ void **BuildStatCostsSmooth(float **wrappedphase, float **mag,
  */
 void GetIntensityAndCorrelation(float **mag, float **wrappedphase, 
 				float ***pwrptr, float ***corrptr, 
-				infileT *infiles, long linelen, long nlines,
-				long nrow, long ncol, outfileT *outfiles, 
+				infileT *infiles, int64_t linelen, int64_t nlines,
+				int64_t nrow, int64_t ncol, outfileT *outfiles, 
 				paramT *params, tileparamT *tileparams){
 
-  long row, col, krowcorr, kcolcorr, iclipped;
+  int64_t row, col, krowcorr, kcolcorr, iclipped;
   float **pwr, **corr;
   float **realcomp, **imagcomp;
   float **padreal, **padimag, **avgreal, **avgimag;
@@ -1199,11 +1199,11 @@ void GetIntensityAndCorrelation(float **mag, float **wrappedphase,
  * -------------------------
  * Divides intensity by average over sliding window.
  */
-void RemoveMean(float **ei, long nrow, long ncol, 
-		       long krowei, long kcolei){
+void RemoveMean(float **ei, int64_t nrow, int64_t ncol, 
+		       int64_t krowei, int64_t kcolei){
 
   float **avgei, **padei;
-  long row, col;
+  int64_t row, col;
 
   /* make sure krowei, kcolei are odd */
   if(!(krowei % 2)){
@@ -1249,10 +1249,10 @@ void RemoveMean(float **ei, long nrow, long ncol,
  * (in rad).
  */
 float *BuildDZRCritLookupTable(double *nominc0ptr, double *dnomincptr, 
-			       long *tablesizeptr, tileparamT *tileparams, 
+			       int64_t *tablesizeptr, tileparamT *tileparams, 
 			       paramT *params){
 
-  long tablesize, k;
+  int64_t tablesize, k;
   double nominc, nominc0, nomincmax, dnominc;
   double a, re, slantrange;
   float *dzrcrittable;
@@ -1273,7 +1273,7 @@ float *BuildDZRCritLookupTable(double *nominc0ptr, double *dnomincptr,
 
   /* build lookup table */
   dnominc=params->dnomincangle;
-  tablesize=(long )floor((nomincmax-nominc0)/dnominc)+1;
+  tablesize=(int64_t )floor((nomincmax-nominc0)/dnominc)+1;
   dzrcrittable=MAlloc(tablesize*sizeof(float));
   nominc=nominc0;
   for(k=0;k<tablesize;k++){
@@ -1305,7 +1305,7 @@ double SolveDZRCrit(double sinnomincangle, double cosnomincangle,
   double residual, thetai, kds, n, dr, dzr, dx;
   double costhetai, cos2thetai, step;
   double dzrcritfactor, diffuse, specular;
-  long i;
+  int64_t i;
 
   /* get parameters */
   kds=params->kds;
@@ -1438,10 +1438,10 @@ double EIofDZR(double dzr, double sinnomincangle, double cosnomincangle,
  * (rad) and correlation.
  */
 float **BuildDZRhoMaxLookupTable(double nominc0, double dnominc, 
-				 long nominctablesize, double rhomin, 
-				 double drho, long nrho, paramT *params){
+				 int64_t nominctablesize, double rhomin, 
+				 double drho, int64_t nrho, paramT *params){
 
-  long krho, knominc;
+  int64_t krho, knominc;
   double nominc, rho;
   float **dzrhomaxtable;
 
@@ -1471,7 +1471,7 @@ float **BuildDZRhoMaxLookupTable(double nominc0, double dnominc,
 double CalcDZRhoMax(double rho, double nominc, paramT *params, 
 		    double threshold){
 
-  long i;
+  int64_t i;
   double dx, dr, dz, dzstep, rhos, sintheta, costheta, numerator;
   double a, re, bperp, slantrange, lookangle;
   double costhetairsq, rhosfactor, residual;
@@ -1545,13 +1545,13 @@ double CalcDZRhoMax(double rho, double nominc, paramT *params,
  * ------------------------
  * Calculates topography arc distance given an array of cost data structures.
  */
-void CalcCostTopo(void **costs, long flow, long arcrow, long arccol, 
-		  long nflow, long nrow, paramT *params, 
-		  long *poscostptr, long *negcostptr){
+void CalcCostTopo(void **costs, int64_t flow, int64_t arcrow, int64_t arccol, 
+		  int64_t nflow, int64_t nrow, paramT *params, 
+		  int64_t *poscostptr, int64_t *negcostptr){
 
-  long idz1, idz2pos, idz2neg, cost1, nflowsq, poscost, negcost;
-  long nshortcycle, layfalloffconst;
-  long offset, sigsq, laycost, dzmax;
+  int64_t idz1, idz2pos, idz2neg, cost1, nflowsq, poscost, negcost;
+  int64_t nshortcycle, layfalloffconst;
+  int64_t offset, sigsq, laycost, dzmax;
   costT *cost;
 
 
@@ -1629,14 +1629,14 @@ void CalcCostTopo(void **costs, long flow, long arcrow, long arccol,
   /* scale costs for this nflow */
   nflowsq=nflow*nflow;
   if(poscost>0){
-    *poscostptr=(long )ceil((float )poscost/nflowsq);
+    *poscostptr=(int64_t )ceil((float )poscost/nflowsq);
   }else{
-    *poscostptr=(long )floor((float )poscost/nflowsq);
+    *poscostptr=(int64_t )floor((float )poscost/nflowsq);
   }
   if(negcost>0){
-    *negcostptr=(long )ceil((float )negcost/nflowsq);
+    *negcostptr=(int64_t )ceil((float )negcost/nflowsq);
   }else{
-    *negcostptr=(long )floor((float )negcost/nflowsq);
+    *negcostptr=(int64_t )floor((float )negcost/nflowsq);
   }
 
 }
@@ -1646,12 +1646,12 @@ void CalcCostTopo(void **costs, long flow, long arcrow, long arccol,
  * ------------------------
  * Calculates deformation arc distance given an array of cost data structures.
  */
-void CalcCostDefo(void **costs, long flow, long arcrow, long arccol, 
-		  long nflow, long nrow, paramT *params, 
-		  long *poscostptr, long *negcostptr){
+void CalcCostDefo(void **costs, int64_t flow, int64_t arcrow, int64_t arccol, 
+		  int64_t nflow, int64_t nrow, paramT *params, 
+		  int64_t *poscostptr, int64_t *negcostptr){
 
-  long idz1, idz2pos, idz2neg, cost1, nflowsq, poscost, negcost;
-  long nshortcycle, layfalloffconst;
+  int64_t idz1, idz2pos, idz2neg, cost1, nflowsq, poscost, negcost;
+  int64_t nshortcycle, layfalloffconst;
   costT *cost;
 
 
@@ -1705,14 +1705,14 @@ void CalcCostDefo(void **costs, long flow, long arcrow, long arccol,
   /* scale costs for this nflow */
   nflowsq=nflow*nflow;
   if(poscost>0){
-    *poscostptr=(long )ceil((float )poscost/nflowsq);
+    *poscostptr=(int64_t )ceil((float )poscost/nflowsq);
   }else{
-    *poscostptr=(long )floor((float )poscost/nflowsq);
+    *poscostptr=(int64_t )floor((float )poscost/nflowsq);
   }
   if(negcost>0){
-    *negcostptr=(long )ceil((float )negcost/nflowsq);
+    *negcostptr=(int64_t )ceil((float )negcost/nflowsq);
   }else{
-    *negcostptr=(long )floor((float )negcost/nflowsq);
+    *negcostptr=(int64_t )floor((float )negcost/nflowsq);
   }
 
 }
@@ -1723,12 +1723,12 @@ void CalcCostDefo(void **costs, long flow, long arcrow, long arccol,
  * Calculates smooth-solution arc distance given an array of smoothcost
  *  data structures.
  */
-void CalcCostSmooth(void **costs, long flow, long arcrow, long arccol, 
-		    long nflow, long nrow, paramT *params, 
-		    long *poscostptr, long *negcostptr){
+void CalcCostSmooth(void **costs, int64_t flow, int64_t arcrow, int64_t arccol, 
+		    int64_t nflow, int64_t nrow, paramT *params, 
+		    int64_t *poscostptr, int64_t *negcostptr){
 
-  long idz1, idz2pos, idz2neg, cost1, nflowsq, poscost, negcost;
-  long nshortcycle;
+  int64_t idz1, idz2pos, idz2neg, cost1, nflowsq, poscost, negcost;
+  int64_t nshortcycle;
   smoothcostT *cost;
 
 
@@ -1751,14 +1751,14 @@ void CalcCostSmooth(void **costs, long flow, long arcrow, long arccol,
   /* scale costs for this nflow */
   nflowsq=nflow*nflow;
   if(poscost>0){
-    *poscostptr=(long )ceil((float )poscost/nflowsq);
+    *poscostptr=(int64_t )ceil((float )poscost/nflowsq);
   }else{
-    *poscostptr=(long )floor((float )poscost/nflowsq);
+    *poscostptr=(int64_t )floor((float )poscost/nflowsq);
   }
   if(negcost>0){
-    *negcostptr=(long )ceil((float )negcost/nflowsq);
+    *negcostptr=(int64_t )ceil((float )negcost/nflowsq);
   }else{
-    *negcostptr=(long )floor((float )negcost/nflowsq);
+    *negcostptr=(int64_t )floor((float )negcost/nflowsq);
   }
 
 }
@@ -1768,9 +1768,9 @@ void CalcCostSmooth(void **costs, long flow, long arcrow, long arccol,
  * ----------------------
  * Calculates the L0 arc distance given an array of short integer weights.
  */
-void CalcCostL0(void **costs, long flow, long arcrow, long arccol, 
-		long nflow, long nrow, paramT *params, 
-		long *poscostptr, long *negcostptr){
+void CalcCostL0(void **costs, int64_t flow, int64_t arcrow, int64_t arccol, 
+		int64_t nflow, int64_t nrow, paramT *params, 
+		int64_t *poscostptr, int64_t *negcostptr){
 
   /* L0-norm */
   if(flow){
@@ -1795,9 +1795,9 @@ void CalcCostL0(void **costs, long flow, long arcrow, long arccol,
  * ----------------------
  * Calculates the L1 arc distance given an array of short integer weights.
  */
-void CalcCostL1(void **costs, long flow, long arcrow, long arccol, 
-		long nflow, long nrow, paramT *params, 
-		long *poscostptr, long *negcostptr){
+void CalcCostL1(void **costs, int64_t flow, int64_t arcrow, int64_t arccol, 
+		int64_t nflow, int64_t nrow, paramT *params, 
+		int64_t *poscostptr, int64_t *negcostptr){
 
   /* L1-norm */
   *poscostptr=((short **)costs)[arcrow][arccol]*(labs(flow+nflow)-labs(flow));
@@ -1810,11 +1810,11 @@ void CalcCostL1(void **costs, long flow, long arcrow, long arccol,
  * ----------------------
  * Calculates the L2 arc distance given an array of short integer weights.
  */
-void CalcCostL2(void **costs, long flow, long arcrow, long arccol, 
-		long nflow, long nrow, paramT *params, 
-		long *poscostptr, long *negcostptr){
+void CalcCostL2(void **costs, int64_t flow, int64_t arcrow, int64_t arccol, 
+		int64_t nflow, int64_t nrow, paramT *params, 
+		int64_t *poscostptr, int64_t *negcostptr){
 
-  long flow2, flowsq;
+  int64_t flow2, flowsq;
 
   /* L2-norm */
   flowsq=flow*flow;
@@ -1829,11 +1829,11 @@ void CalcCostL2(void **costs, long flow, long arcrow, long arccol,
  * ----------------------
  * Calculates the Lp arc distance given an array of short integer weights.
  */
-void CalcCostLP(void **costs, long flow, long arcrow, long arccol, 
-		long nflow, long nrow, paramT *params, 
-		long *poscostptr, long *negcostptr){
+void CalcCostLP(void **costs, int64_t flow, int64_t arcrow, int64_t arccol, 
+		int64_t nflow, int64_t nrow, paramT *params, 
+		int64_t *poscostptr, int64_t *negcostptr){
 
-  long p;
+  int64_t p;
   short flow2;
 
   /* Lp-norm */
@@ -1849,21 +1849,21 @@ void CalcCostLP(void **costs, long flow, long arcrow, long arccol,
 
 /* function: CalcCostNonGrid()
  * ---------------------------
- * Calculates the arc cost given an array of long integer cost lookup tables.
+ * Calculates the arc cost given an array of int64_t integer cost lookup tables.
  */
-void CalcCostNonGrid(void **costs, long flow, long arcrow, long arccol, 
-		     long nflow, long nrow, paramT *params, 
-		     long *poscostptr, long *negcostptr){
+void CalcCostNonGrid(void **costs, int64_t flow, int64_t arcrow, int64_t arccol, 
+		     int64_t nflow, int64_t nrow, paramT *params, 
+		     int64_t *poscostptr, int64_t *negcostptr){
 
-  long xflow, flowmax, poscost, negcost, nflowsq, arroffset, sumsigsqinv;
-  long abscost0;
-  long *costarr;
+  int64_t xflow, flowmax, poscost, negcost, nflowsq, arroffset, sumsigsqinv;
+  int64_t abscost0;
+  int64_t *costarr;
   float c1;
 
 
   /* set up */
   flowmax=params->scndryarcflowmax;
-  costarr=((long ***)costs)[arcrow][arccol];
+  costarr=((int64_t ***)costs)[arcrow][arccol];
   arroffset=costarr[0];
   sumsigsqinv=costarr[2*flowmax+1];
 
@@ -1929,14 +1929,14 @@ void CalcCostNonGrid(void **costs, long flow, long arcrow, long arccol,
   /* scale for this flow increment and set output values */
   nflowsq=nflow*nflow;
   if(poscost>0){
-    *poscostptr=(long )ceil((float )poscost/nflowsq);
+    *poscostptr=(int64_t )ceil((float )poscost/nflowsq);
   }else{
-    *poscostptr=(long )floor((float )poscost/nflowsq);
+    *poscostptr=(int64_t )floor((float )poscost/nflowsq);
   }
   if(negcost>0){
-    *negcostptr=(long )ceil((float )negcost/nflowsq);
+    *negcostptr=(int64_t )ceil((float )negcost/nflowsq);
   }else{
-    *negcostptr=(long )floor((float )negcost/nflowsq);
+    *negcostptr=(int64_t )floor((float )negcost/nflowsq);
   }
 
 }
@@ -1946,10 +1946,10 @@ void CalcCostNonGrid(void **costs, long flow, long arcrow, long arccol,
  * ------------------------
  * Calculates topography arc cost given an array of cost data structures.
  */
-long EvalCostTopo(void **costs, short **flows, long arcrow, long arccol,
-		  long nrow, paramT *params){
+int64_t EvalCostTopo(void **costs, short **flows, int64_t arcrow, int64_t arccol,
+		  int64_t nrow, paramT *params){
 
-  long idz1, cost1, dzmax;
+  int64_t idz1, cost1, dzmax;
   costT *cost;
 
   /* get arc info */
@@ -1989,10 +1989,10 @@ long EvalCostTopo(void **costs, short **flows, long arcrow, long arccol,
  * ------------------------
  * Calculates deformation arc cost given an array of cost data structures.
  */
-long EvalCostDefo(void **costs, short **flows, long arcrow, long arccol,
-		  long nrow, paramT *params){
+int64_t EvalCostDefo(void **costs, short **flows, int64_t arcrow, int64_t arccol,
+		  int64_t nrow, paramT *params){
 
-  long idz1, cost1;
+  int64_t idz1, cost1;
   costT *cost;
 
   /* get arc info */
@@ -2018,10 +2018,10 @@ long EvalCostDefo(void **costs, short **flows, long arcrow, long arccol,
  * Calculates smooth-solution arc cost given an array of 
  * smoothcost data structures.
  */
-long EvalCostSmooth(void **costs, short **flows, long arcrow, long arccol,
-		    long nrow, paramT *params){
+int64_t EvalCostSmooth(void **costs, short **flows, int64_t arcrow, int64_t arccol,
+		    int64_t nrow, paramT *params){
 
-  long idz1;
+  int64_t idz1;
   smoothcostT *cost;
 
   /* get arc info */
@@ -2038,12 +2038,12 @@ long EvalCostSmooth(void **costs, short **flows, long arcrow, long arccol,
  * ----------------------
  * Calculates the L0 arc cost given an array of cost data structures.
  */
-long EvalCostL0(void **costs, short **flows, long arcrow, long arccol, 
-		long nrow, paramT *params){
+int64_t EvalCostL0(void **costs, short **flows, int64_t arcrow, int64_t arccol, 
+		int64_t nrow, paramT *params){
 
   /* L0-norm */
   if(flows[arcrow][arccol]){
-    return((long)((short **)costs)[arcrow][arccol]);
+    return((int64_t)((short **)costs)[arcrow][arccol]);
   }else{
     return(0);
   }
@@ -2054,8 +2054,8 @@ long EvalCostL0(void **costs, short **flows, long arcrow, long arccol,
  * ----------------------
  * Calculates the L1 arc cost given an array of cost data structures.
  */
-long EvalCostL1(void **costs, short **flows, long arcrow, long arccol, 
-		long nrow, paramT *params){
+int64_t EvalCostL1(void **costs, short **flows, int64_t arcrow, int64_t arccol, 
+		int64_t nrow, paramT *params){
 
   /* L1-norm */
   return( (((short **)costs)[arcrow][arccol]) * labs(flows[arcrow][arccol]) );
@@ -2066,8 +2066,8 @@ long EvalCostL1(void **costs, short **flows, long arcrow, long arccol,
  * ----------------------
  * Calculates the L2 arc cost given an array of cost data structures.
  */
-long EvalCostL2(void **costs, short **flows, long arcrow, long arccol, 
-		long nrow, paramT *params){
+int64_t EvalCostL2(void **costs, short **flows, int64_t arcrow, int64_t arccol, 
+		int64_t nrow, paramT *params){
 
   /* L2-norm */
   return( (((short **)costs)[arcrow][arccol]) * 
@@ -2079,8 +2079,8 @@ long EvalCostL2(void **costs, short **flows, long arcrow, long arccol,
  * ----------------------
  * Calculates the Lp arc cost given an array of cost data structures.
  */
-long EvalCostLP(void **costs, short **flows, long arcrow, long arccol, 
-		long nrow, paramT *params){
+int64_t EvalCostLP(void **costs, short **flows, int64_t arcrow, int64_t arccol, 
+		int64_t nrow, paramT *params){
 
   /* Lp-norm */
   return( (((short **)costs)[arcrow][arccol]) * 
@@ -2090,19 +2090,19 @@ long EvalCostLP(void **costs, short **flows, long arcrow, long arccol,
 
 /* function: EvalCostNonGrid()
  * ---------------------------
- * Calculates the arc cost given an array of long integer cost lookup tables.
+ * Calculates the arc cost given an array of int64_t integer cost lookup tables.
  */
-long EvalCostNonGrid(void **costs, short **flows, long arcrow, long arccol, 
-		     long nrow, paramT *params){
+int64_t EvalCostNonGrid(void **costs, short **flows, int64_t arcrow, int64_t arccol, 
+		     int64_t nrow, paramT *params){
 
-  long flow, xflow, flowmax, arroffset, sumsigsqinv;
-  long *costarr;
+  int64_t flow, xflow, flowmax, arroffset, sumsigsqinv;
+  int64_t *costarr;
   float c1;
 
   /* set up */
   flow=flows[arcrow][arccol];
   flowmax=params->scndryarcflowmax;
-  costarr=((long ***)costs)[arcrow][arccol];
+  costarr=((int64_t ***)costs)[arcrow][arccol];
   arroffset=costarr[0];
   sumsigsqinv=costarr[2*flowmax+1];
 
@@ -2136,9 +2136,9 @@ long EvalCostNonGrid(void **costs, short **flows, long arcrow, long arccol,
  * Calculates the maximum flow magnitude to allow in the initialization
  * by examining the dzmax members of arc statistical cost data structures.
  */
-void CalcInitMaxFlow(paramT *params, void **costs, long nrow, long ncol){
+void CalcInitMaxFlow(paramT *params, void **costs, int64_t nrow, int64_t ncol){
 
-  long row, col, maxcol, initmaxflow, arcmaxflow;
+  int64_t row, col, maxcol, initmaxflow, arcmaxflow;
 
   if(params->initmaxflow<=0){
     if(params->costmode==NOSTATCOSTS){
@@ -2154,7 +2154,7 @@ void CalcInitMaxFlow(paramT *params, void **costs, long nrow, long ncol){
 	  }
 	  for(col=0;col<maxcol;col++){
 	    if(((costT **)costs)[row][col].dzmax!=LARGESHORT){
-	      arcmaxflow=ceil(labs((long )((costT **)costs)[row][col].dzmax)/
+	      arcmaxflow=ceil(labs((int64_t )((costT **)costs)[row][col].dzmax)/
 			      (double )(params->nshortcycle)
 			      +params->arcmaxflowconst);
 	      if(arcmaxflow>initmaxflow){

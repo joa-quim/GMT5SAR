@@ -7,7 +7,7 @@
   No warranty.
 
 *************************************************************************/
-
+#include <stdint.h>
 #include "snaphu.h"
 
 #ifdef _WIN32
@@ -31,7 +31,7 @@ nodeT NONTREEARC[1];
 
 /* pointers to functions which calculate arc costs */
 void (*CalcCost)();
-long (*EvalCost)();
+int64_t (*EvalCost)();
 
 /* pointers to functions for tailoring network solver to specific topologies */
 nodeT *(*NeighborNode)();
@@ -50,7 +50,7 @@ int main(int argc, char **argv){
   paramT params[1];
   time_t tstart;
   double cputimestart;
-  long linelen, nlines;
+  int64_t linelen, nlines;
 
 
   /* get current wall clock and CPU time */
@@ -101,10 +101,10 @@ int main(int argc, char **argv){
  * unwrapping.
  */
 void Unwrap(infileT *infiles, outfileT *outfiles, paramT *params, 
-	    long linelen, long nlines){
+	    int64_t linelen, int64_t nlines){
 
-  long nexttilerow, nexttilecol, ntilerow, ntilecol, nthreads, nchildren;
-  long sleepinterval;
+  int64_t nexttilerow, nexttilecol, ntilerow, ntilecol, nthreads, nchildren;
+  int64_t sleepinterval;
   tileparamT tileparams[1];
   outfileT tileoutfiles[1];
   pid_t pid;
@@ -189,7 +189,7 @@ void Unwrap(infileT *infiles, outfileT *outfiles, paramT *params,
 
 	      /* set up tile parameters */
 	      pid=getpid();
-	      fprintf(sp1,"Unwrapping tile at row %ld, column %ld (pid %ld)\n", nexttilerow,nexttilecol,(long )pid);
+	      fprintf(sp1,"Unwrapping tile at row %ld, column %ld (pid %ld)\n", nexttilerow,nexttilecol,(int64_t )pid);
 	      SetupTile(nlines,linelen,params,tileparams,outfiles,tileoutfiles, nexttilerow,nexttilecol);
 	      
 	      /* reset stream pointers for logging */
@@ -233,7 +233,7 @@ void Unwrap(infileT *infiles, outfileT *outfiles, paramT *params,
 
 	    /* make sure child exited cleanly */
 	      fprintf(sp0,"Unexpected or abnormal exit of child process %ld\n"
-		      "Abort\n",(long )pid);
+		      "Abort\n",(int64_t )pid);
 	      signal(SIGTERM,SIG_IGN);
 #ifdef _WIN32
 	      abort();
@@ -289,12 +289,12 @@ void Unwrap(infileT *infiles, outfileT *outfiles, paramT *params,
  * This is the main phase unwrapping function for a single tile.
  */
 void UnwrapTile(infileT *infiles, outfileT *outfiles, paramT *params, 
-		tileparamT *tileparams,	long nlines, long linelen){
+		tileparamT *tileparams,	int64_t nlines, int64_t linelen){
 
   /* variable declarations */
-  long nrow, ncol, nnoderow, narcrow, n, ngroundarcs, iincrcostfile;
-  long nflow, ncycle, mostflow, nflowdone;
-  long candidatelistsize, candidatebagsize;
+  int64_t nrow, ncol, nnoderow, narcrow, n, ngroundarcs, iincrcostfile;
+  int64_t nflow, ncycle, mostflow, nflowdone;
+  int64_t candidatelistsize, candidatebagsize;
   short *nnodesperrow, *narcsperrow;
   short **flows, **mstcosts;
   float **wrappedphase, **unwrappedphase, **mag, **unwrappedest;

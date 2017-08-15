@@ -27,14 +27,14 @@ char    *USAGE = "Usage: \n"
 void parse_ALOS_merge(int, int, char **, char *, char *);
 void assign_output(char *,char *, char *);
 void fill_PRM(struct PRM *, FILE *);
-long read_ALOS_raw_data(FILE *, FILE *, struct PRM *, int *);
+int64_t read_ALOS_raw_data(FILE *, FILE *, struct PRM *, int *);
 int 
 main (int argc, char **argv)
 {
 char	RawOutName[128], tmp[128];
 char	PRMOutName[128];
 int	start_frame, narg;
-long	nlines1, nlines2, nlines;
+int64_t	nlines1, nlines2, nlines;
 double	overlap;
 FILE	*PRMfile1, *RAWfile1;
 FILE	*PRMfile2, *RAWfile2;
@@ -172,14 +172,14 @@ for (n = nstart; n < na; n++) {
 /*-----------------------------------------------*/
 /* read raw files								*/
 
-long read_ALOS_raw_data (FILE *imagefile, FILE *outfile, struct PRM *prm, int *start_frame) {
+int64_t read_ALOS_raw_data (FILE *imagefile, FILE *outfile, struct PRM *prm, int *start_frame) {
 
 	struct	sardata_info sdr;
 
 	char	*data;
 	int	line_prefix_size, line_data_size;
 	int	first_frame, frame=0;			/* frame counter */
-	long	n, nlines;
+	int64_t	n, nlines;
 
 	line_prefix_size = sizeof(struct sardata_info);
 	line_data_size = prm->bytes_per_line - line_prefix_size;

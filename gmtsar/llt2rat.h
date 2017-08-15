@@ -30,7 +30,7 @@ struct orbit {
 struct topo {
 	int nx;
 	int ny;
-	long n;
+	int64_t n;
 	double xmin;
 	double ymin;
 	double xinc;
