@@ -294,9 +294,10 @@ int64_t lsqlin_sov_ts(int64_t xdim, int64_t ydim, float *disp, float *vel, int64
 
         int64_t i,j,k,p,info=0;
         int64_t rank=0,nrhs=1,lda,ldb;
-        double rcond = 1e-3,pred;
-        double sumxx,sumxy,sumx,sumy;
-        float new,old;
+        //double rcond = 1e-3,pred;
+        double rcond = 1e-3;
+        double sumxx,sumxy,sumx,sumy,sumyy,aa;
+        //float new,old;
         int64_t count;
 
         lda=max(1,m);
@@ -348,11 +349,11 @@ int64_t lsqlin_sov_ts(int64_t xdim, int64_t ydim, float *disp, float *vel, int64
 				}
 
 				if (flag_dem == 1) dem[j+xdim*k]=d[n-1];
-
+/*
 				if (flag_rms == 1) {
 					new=0;
 					old=0;
-				/* check the WRMS reduction */
+				// check the WRMS reduction
                        			for (i=0;i<N;i++) {
                                			pred=0;
                                			for (p=0;p<n;p++) {
@@ -362,23 +363,38 @@ int64_t lsqlin_sov_ts(int64_t xdim, int64_t ydim, float *disp, float *vel, int64
                                			old=old+ds[i]*ds[i];
                        			}	
                        			res[j+xdim*k]=(sqrt(old)-sqrt(new))/sqrt(old);
-				}
 
-				/* fitting a straight line by least squares */
+                                        for (i=0;i<N;i++) {
+
+
+                                        }
+				}
+*/
+				// fitting a straight line by least squares
                                	sumxy=0;
                                	sumxx=0;
-				                sumx=0;
-				                sumy=0;
-                                if (count >= 2) {
+				sumx=0;
+				sumy=0;
+                                sumyy = 0;
+                                if (count > 2) {
                                	    for (i=2;i<S-2;i++) {
                                         if (atm_rms[i] != 0.0) {
-					                        sumxy=sumxy+time[i]*disp[i*xdim*ydim+j*ydim+k];
+					    sumxy=sumxy+time[i]*disp[i*xdim*ydim+j*ydim+k];
                                             sumxx=sumxx+time[i]*time[i];
                                             sumy=sumy+disp[i*xdim*ydim+j*ydim+k];
                                             sumx=sumx+time[i];
                                         }
                                	    }
                                     vel[j+xdim*k]=-79.58*wl*(count*sumxy-sumx*sumy)/(count*sumxx-sumx*sumx)*365.0;
+				    if (flag_rms == 1) {
+                                        aa = sumy/count-(count*sumxy-sumx*sumy)/(count*sumxx-sumx*sumx)*sumx/count;
+                                        for (i=2;i<S-2;i++) {
+                                            if (atm_rms[i] != 0.0) {
+                                                sumyy = sumyy+pow((disp[i*xdim*ydim+j*ydim+k]-time[i]*vel[j+xdim*k]/(-79.58*wl*365)-aa),2);
+                                            }
+                                        }
+                                        res[j+xdim*k] = sqrt(count*sumyy/((count-2)*(count*sumxx-sumx*sumx)))*(79.58*wl*365);
+                                    }
                                 }
                                 else {
                                     for (i=0;i<S;i++) {
@@ -388,6 +404,13 @@ int64_t lsqlin_sov_ts(int64_t xdim, int64_t ydim, float *disp, float *vel, int64
                                         sumx=sumx+time[i];
                                     } 
                                     vel[j+xdim*k]=-79.58*wl*(S*sumxy-sumx*sumy)/(S*sumxx-sumx*sumx)*365.0;
+				    if (flag_rms == 1) {
+                                        aa = sumy/S-(S*sumxy-sumx*sumy)/(S*sumxx-sumx*sumx)*sumx/S;
+                                        for (i=2;i<S-2;i++) {
+                                            sumyy = sumyy+pow((disp[i*xdim*ydim+j*ydim+k]-time[i]*vel[j+xdim*k]/(-79.58*wl*365)-aa),2);
+                                        }   
+                                        res[j+xdim*k] = sqrt(S*sumyy/((S-2)*(S*sumxx-sumx*sumx)))*(79.58*wl*365);
+                                    }
                                 }
 			}
 			else { 
@@ -405,7 +428,7 @@ int64_t lsqlin_sov_ts(int64_t xdim, int64_t ydim, float *disp, float *vel, int64
 
 
 
-int write_output_ts(void *API, struct GMT_GRID *Out,int64_t agc,char **agv, int64_t xdim, int64_t ydim, int64_t S, int64_t flag_rms, int64_t flag_dem, float *disp, float *vel, float *res, float *dem, float *screen, double wl, int64_t n_atm){
+int write_output_ts(void *API, struct GMT_GRID *Out,int64_t agc,char **agv, int64_t xdim, int64_t ydim, int64_t S, int64_t flag_rms, int64_t flag_dem, float *disp, float *vel, float *res, float *dem, float *screen, double wl, int64_t n_atm,int64_t *L){
 
         int64_t i,j,k;
         float *grdin, *save_grid;
@@ -421,6 +444,7 @@ int write_output_ts(void *API, struct GMT_GRID *Out,int64_t agc,char **agv, int6
                strcat(tmp1,agv[i]); 
                strcat(tmp1," ");
         }
+        strcpy(Out->header->command,"");
         if (GMT_Set_Comment (API, GMT_IS_GRID, GMT_COMMENT_IS_COMMAND, tmp1, Out)) die("could not set title","");
         
         //strcpy(Out->header->title,"displacement time series (mm)");
@@ -433,7 +457,7 @@ int write_output_ts(void *API, struct GMT_GRID *Out,int64_t agc,char **agv, int6
                                 grdin[j+k*xdim]=-79.58*wl*disp[i*xdim*ydim+j*ydim+k]; 
                       }
                 }
-                sprintf(tmp1,"%03lld",i+1);
+                sprintf(tmp1,"%07lld",L[i]);
                 strcat(outfile,tmp1);
                 strcat(outfile,".grd");
                 sprintf(tmp1,"Displacement Time Series %03lld",i+1);
@@ -478,7 +502,7 @@ int write_output_ts(void *API, struct GMT_GRID *Out,int64_t agc,char **agv, int6
 	                                grdin[j+k*xdim]=screen[i*xdim*ydim+j*ydim+k]; 
 				}
 			}
-			sprintf(tmp1,"%03lld",i+1);
+			sprintf(tmp1,"%07lld",L[i]);
 			strcat(outfile,tmp1);
 			strcat(outfile,".grd");
 			sprintf(tmp1,"Atmospheric Phase Screen %03lld",i+1);

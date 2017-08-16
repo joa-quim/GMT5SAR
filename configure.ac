@@ -17,11 +17,11 @@ dnl Run GNU autoconf to produce a configure script from this input.
 dnl ------------------------------------------------------------------
 dnl
 dnl ------------------------------------------------------------------
-dnl Since GMTSAR requires GMT5 executables we insist that the GMT5
+dnl Since GMTSAR requires GMT executables version >= 5 we insist GMT
 dnl executables must be in the current path; otherwise abort.
 dnl 
 dnl We also need to gather the following information
-dnl 1. Location of GMT5 include and library files
+dnl 1. Location of GMT include and library files
 dnl 2. Location of ORBITS directory
 dnl ------------------------------------------------------------------
 dnl
@@ -40,19 +40,17 @@ AC_CYGWIN
 AC_CANONICAL_SYSTEM
 AC_LANG_C
 AC_PROG_CC
-AC_PROG_CXX
 AC_PROG_CPP
 AC_PREFIX_DEFAULT(`pwd`)
 AC_PATH_XTRA
 dnl
 dnl ------------------------------------------------------------------
-dnl GMT5SAR-specific make macros
+dnl GMTSAR-specific make macros
 dnl ------------------------------------------------------------------
 dnl
 AC_SUBST(ORBITS_DIR)
 AC_SUBST(LALIBS)
 AC_SUBST(CFLAGS)
-AC_SUBST(CXXFLAGS)
 AC_SUBST(CPPFLAGS)
 AC_SUBST(HDF5_CPPFLAGS)
 AC_SUBST(HDF5_LDFLAGS)
@@ -70,6 +68,7 @@ AC_SUBST(SL_VERSION)
 AC_SUBST(MT)
 AC_SUBST(prefix)
 AC_SUBST(rootdir)
+AC_SUBST(bindir)
 dnl
 dnl ------------------------------------------------------------------
 dnl Special configure options for GMTSAR installation
@@ -82,8 +81,8 @@ AC_ARG_WITH(gmt_config,    [  --with-gmt-config=      Full path to gmt-config [[
 AC_ARG_ENABLE(debug,       [  --enable-debug          Compile for debugging instead of optimizing code])
 AC_ARG_ENABLE(rpath,	   [  --disable-rpath         Do not hardcode runtime library paths])
 AC_ARG_ENABLE(shared,      [  --enable-shared         Build shared (dynamic) GMTSAR libraries instead of static])
-AC_ARG_VAR(GMT_INC,Location of GMT5 headers (compile-time))
-AC_ARG_VAR(GMT_LIB,Location of GMT5 library (compile-time))
+AC_ARG_VAR(GMT_INC,Location of GMT headers (compile-time))
+AC_ARG_VAR(GMT_LIB,Location of GMT library (compile-time))
 dnl
 dnl ------------------------------------------------------------------
 dnl Check for ar, csh/bash, ld, awk, and ranlib
@@ -91,7 +90,7 @@ dnl ------------------------------------------------------------------
 dnl
 AC_CHECK_PROG(GMT_in_path, gmtvector, 1, 0)
 if test "$GMT_in_path" = "X0" ; then
-	AC_MSG_RESULT(GMT5 executables are not in your path - aborting)
+	AC_MSG_RESULT(GMT v5 or later executables are not in your path - aborting)
 	exit 1
 fi
 AC_CHECK_PROGS(PAGER, less more, cat)
@@ -206,22 +205,18 @@ dnl Set path to tiff directories with --with-tiff=include|lib
 dnl ------------------------------------------------------------------
 dnl
 AC_MSG_CHECKING(for TIFF include directory)
-if test "X$with_boost_include" = "X"; then	# Must look for it in standard places
-	if [ test -d /sw/include ]; then	# fink
-		TIFF_INC=/sw/include
-	elif [ test -d /opt/local/include ]; then	# macports
-		TIFF_INC=/opt/local/include
-	elif [ test -d /usr/local/include ]; then
-		TIFF_INC=/usr/local/include
-	elif [ test -d /usr/include ]; then	# Ubuntu
-		TIFF_INC=/usr/include
-	elif [ test -d /opt/csw/include ]; then	# Blastwave
-		TIFF_INC=/opt/csw/include
-	elif [ test -d /opt/include ]; then
-		TIFF_INC=/opt/include
-	fi
-else
-	TIFF_INC=$with_tiff_include
+if [ test -d /sw/include ]; then	# fink
+	TIFF_INC=/sw/include
+elif [ test -d /opt/local/include ]; then	# macports
+	TIFF_INC=/opt/local/include
+elif [ test -d /usr/local/include ]; then
+	TIFF_INC=/usr/local/include
+elif [ test -d /usr/include ]; then	# Ubuntu
+	TIFF_INC=/usr/include
+elif [ test -d /opt/csw/include ]; then	# Blastwave
+	TIFF_INC=/opt/csw/include
+elif [ test -d /opt/include ]; then
+	TIFF_INC=/opt/include
 fi
 AC_MSG_RESULT($TIFF_INC)
 AC_MSG_CHECKING(for TIFF library directory)
@@ -246,7 +241,7 @@ AC_MSG_RESULT($TIFF_LIB)
 dnl
 dnl
 dnl ------------------------------------------------------------------
-dnl We use gmt-config to set GMT5 paths and settings
+dnl We use gmt-config to set GMT paths and settings
 dnl ------------------------------------------------------------------
 dnl
 if test "X$with_gmt_config" != "Xno" ; then
@@ -261,7 +256,7 @@ if test -x "$GMT_CONF" && test "X$GMT_INC" = "X" && test "X$GMT_LIB" = "X" ; the
 	AC_MSG_RESULT($GMT_LIB)
 	GMT_LIB_PATH=`echo $GMT_LIB | sed 's/^-L//;s/\ .*//'`
 	rpath="$GMT_LIB_PATH"
-	AC_MSG_CHECKING(for 32/64-bit GMT5 installation)
+	AC_MSG_CHECKING(for 32/64-bit GMT installation)
 	bits=`$GMT_CONF --bits`
 	GCC_64="-m${bits}"
 	LDFLAGS="$LDFLAGS -m${bits}"
@@ -347,7 +342,7 @@ if test "X$enable_shared" = "Xyes" ; then
 		LD_OPT="-b"
 		SL=sl
 	else	# Not yet implemented
-		AC_MSG_RESULT(not supported for GMT5SAR under $os - building static libs instead)
+		AC_MSG_RESULT(not supported for GMTSAR under $os - building static libs instead)
 		enable_shared=no
 		shared_unknown=yes
 	fi
@@ -389,7 +384,7 @@ dnl ------------------------------------------------------------------
 dnl Determine CFLAGS for this platform
 dnl ------------------------------------------------------------------
 dnl
-AC_MSG_CHECKING(C compiler options for GMT5SAR)
+AC_MSG_CHECKING(C compiler options for GMTSAR)
 if test "$GCC" = "yes"; then		# GNU cc options
 	if test "$chip" = "alpha" ; then	# Alpha PC
 		CFLAGS="$CFLAGS -mieee -Wall $GCC_64"
@@ -413,14 +408,12 @@ elif test "$os" = "ULTRIX" ; then	# Dec Ultrix cc options
 	CFLAGS="$CFLAGS -Olimit 1500"
 fi
 AC_MSG_RESULT($CFLAGS)
-AC_MSG_CHECKING(C++ compiler options for GMT5SAR)
-AC_MSG_RESULT($CXXFLAGS)
 dnl
 dnl ------------------------------------------------------------------
 dnl Determine CPPFLAGS for this platform
 dnl ------------------------------------------------------------------
 dnl
-AC_MSG_CHECKING(compiler preprocessor flags for GMT5SAR)
+AC_MSG_CHECKING(compiler preprocessor flags for GMTSAR)
 if test "$os" = "AUX" ; then		# Apple A/UX cc options
 	CPPFLAGS="$CPPFLAGS -Daux"
 fi

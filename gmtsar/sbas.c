@@ -109,7 +109,7 @@ int main(int argc, char **argv) {
 	
     if (argc < 7) die("\n",USAGE);
 
-    /* Begin: Initializing new GMT5 session */
+    /* Begin: Initializing new GMT session */
     if ((API = GMT_Create_Session (argv[0], 0U, 0U, NULL)) == NULL) return EXIT_FAILURE;
 
     /* default parameters are for ALOS-1 */
@@ -396,7 +396,7 @@ init_G_ts(G,Gs,N,S,m,n,L,H,time,sf,bperp,scale);
 */
 
 
-    write_output_ts(API,Out,argc,argv,xdim,ydim,S,flag_rms,flag_dem,disp,vel,res,dem,screen,wl,n_atm);
+    write_output_ts(API,Out,argc,argv,xdim,ydim,S,flag_rms,flag_dem,disp,vel,res,dem,screen,wl,n_atm,L);
 
     /* free memory */
 
