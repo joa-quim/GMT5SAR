@@ -46,7 +46,7 @@
 
 #include "gmtsar.h"
 #include "llt2xyz.h"
-#include "orbit_ALOS.h"
+#include "orbit.h"
 
 # define R 0.61803399
 # define C 0.382
@@ -55,7 +55,7 @@
 # define TOL 3
 
 void set_prm_defaults(struct PRM *);
-void read_orb(FILE *, struct PRM *, struct ALOS_ORB *);
+void read_orb(FILE *, struct PRM *, struct SAT_ORB *);
 void hermite_c(double *, double *, double *, int, int, double, double *, int *);
 void die (char *, char *);
 void get_sio_struct(FILE *, struct PRM *);
@@ -77,10 +77,10 @@ void llt2rat_sub(char * filename, double *target_llt, double *target_rat ) {
 	int stai,endi,midi;
 	double **orb_pos;
 	struct PRM prm;	             
-	struct ALOS_ORB *orb;
+	struct SAT_ORB *orb;
 	FILE *ldrfile;
 	FILE *fprm1;
-	int calorb_alos(struct ALOS_ORB*, double **orb_pos, double ts, double t1, int nrec);
+	int calorb_alos(struct SAT_ORB*, double **orb_pos, double ts, double t1, int nrec);
 	double rsr;
 	char value[128], name[128];
 
@@ -97,7 +97,7 @@ void llt2rat_sub(char * filename, double *target_llt, double *target_rat ) {
 /*  get the orbit data */
 	ldrfile = fopen(prm.led_file,"r");
 	if (ldrfile == NULL) die("can't open ",prm.led_file);
-	orb = (struct ALOS_ORB*)malloc(sizeof(struct ALOS_ORB));
+	orb = (struct SAT_ORB*)malloc(sizeof(struct SAT_ORB));
 	read_orb(ldrfile, &prm, orb);
 	
 	/* update the rng_samp_rate in PRM file   */
@@ -258,7 +258,7 @@ double dist(double x,double y,double z,int n,double **orb_pos){
 	return (d);
 }
 
-int calorb_alos(struct ALOS_ORB *orb, double  **orb_pos, double ts, double t1, int nrec) {
+int calorb_alos(struct SAT_ORB *orb, double  **orb_pos, double ts, double t1, int nrec) {
 /* function to calculate every position in the orbit   */ 
 
 	int i,k,nval;

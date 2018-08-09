@@ -4,9 +4,12 @@
 #include "PRM.h"
 #include "sfd_complex.h"
 #include "siocomplex.h"
-#include "orbit_ALOS.h"
+#include "orbit.h"
 
-void read_orb(FILE *ldrfile, struct PRM *prm, struct ALOS_ORB *orb) {
+void read_orb(FILE *, struct PRM *, struct SAT_ORB *);
+
+void read_orb(FILE *ldrfile, struct PRM *prm, struct SAT_ORB *orb)
+        {
         int     n;
         int     nd,iy,id;
         double  isec,idsec,px,py,pz,vx,vy,vz;

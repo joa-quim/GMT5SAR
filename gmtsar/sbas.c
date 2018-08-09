@@ -36,15 +36,13 @@
  ****************************************************************************************/
 
 /* Reference: 
-P. Berardino, G. Fornaro, R. Lanari, and E. Sansosti, “A new algorithm
-for surface deformation monitoring based on small baseline differential
-SAR interferograms,” IEEE Trans. Geosci. Remote Sensing, vol. 40, pp.
-2375–2383, Nov. 2002.
+P. Berardino, G. Fornaro, R. Lanari, and E. Sansosti, “A new algorithm for surface deformation monitoring based on small baseline differential SAR interferograms,” IEEE Trans. Geosci. Remote Sensing, vol. 40, pp. 2375–2383, Nov. 2002.
 
-Schmidt, D. A., and R. Bürgmann(2003),
-Time-dependent land uplift and subsidence in the Santa Clara valley, 
-California, from a large interferometric synthetic aperture radar data set, 
-J. Geophys. Res., 108, 2416, doi:10.1029/2002JB002267, B9.
+Schmidt, D. A., and R. Bürgmann 2003, Time-dependent land uplift and subsidence in the Santa Clara valley, California, from a large interferometric synthetic aperture radar data set, J. Geophys. Res., 108, 2416, doi:10.1029/2002JB002267, B9.
+
+Tong, X. and Schmidt, D., 2016. Active movement of the Cascade landslide complex in Washington from a coherence-based InSAR time series method. Remote Sensing of Environment, 186, pp.405-415.
+
+Tymofyeyeva, E. and Fialko, Y., 2015. Mitigation of atmospheric phase delays in InSAR data, with application to the eastern California shear zone. Journal of Geophysical Research: Solid Earth, 120(8), pp.5952-5963.
 */
 
 /* Use DGELSY to solve the equations */
@@ -61,28 +59,33 @@ J. Geophys. Res., 108, 2416, doi:10.1029/2002JB002267, B9.
 # define checkpoint()
 # endif
 
-char *USAGE = " \n\nUSAGE: sbas intf.tab scene.tab N S xdim ydim [-atm ni] [-smooth sf] [-wavelength wl] [-incidence inc] [-range -rng] [-rms] [-dem]\n\n"
+char *USAGE = "USAGE: sbas intf.tab scene.tab N S xdim ydim [-atm ni] [-smooth sf] [-wavelength wl] [-incidence inc] [-range -rng] [-rms] [-dem]\n\n"
 " input: \n"
-"intf.tab		--  list of unwrapped (filtered) interferograms:\n"
+"  intf.tab             --  list of unwrapped (filtered) interferograms:\n"
 "   format:   unwrap.grd  corr.grd  ref_id  rep_id  B_perp \n"
-"scene.tab		--  list of the SAR scenes in chronological order\n"
+"  scene.tab            --  list of the SAR scenes in chronological order\n"
 "   format:   scene_id   number_of_days \n"
 "   note:     the number_of_days is relative to a reference date \n"
-"N             		--  number of the interferograms\n"
-"S             		--  number of the SAR scenes \n"
-"xdim and ydim 		--  dimension of the interferograms\n"
-"-smooth sf		--  smoothing factors, default=0 \n"
-"-atm ni		    --  number of iterations for atmospheric correction, default=0(skip atm correction) \n"
-"-wavelength wl		--  wavelength of the radar wave (m) default=0.236 \n"
-"-incidence theta 	--  incidence angle of the radar wave (degree) default=37 \n" 
-"-range rng 		--  range distance from the radar to the center of the interferogram (m) default=866000 \n" 
-"-rms 			--  output RMS of the data misfit grids (mm): rms.grd\n" 
-"-dem 			--  output DEM error (m): dem.grd \n\n" 
+"  N                    --  number of the interferograms\n"
+"  S                    --  number of the SAR scenes \n"
+"  xdim and ydim        --  dimension of the interferograms\n"
+"  -smooth sf           --  smoothing factors, default=0 \n"
+"  -atm ni              --  number of iterations for atmospheric correction, default=0(skip atm correction) \n"
+"  -wavelength wl       --  wavelength of the radar wave (m) default=0.236 \n"
+"  -incidence theta     --  incidence angle of the radar wave (degree) default=37 \n" 
+"  -range rng           --  range distance from the radar to the center of the interferogram (m) default=866000 \n" 
+"  -rms                 --  output RMS of the data misfit grids (mm): rms.grd\n" 
+"  -dem                 --  output DEM error (m): dem.grd \n\n" 
 " output: \n"
-"disp_##.grd   		--  cumulative displacement time series (mm) grids\n"
-"vel.grd 		--  mean velocity (mm/yr) grids \n\n"
+"  disp_##.grd          --  cumulative displacement time series (mm) grids\n"
+"  vel.grd              --  mean velocity (mm/yr) grids \n\n"
 " example:\n"
-"   sbas intf.tab scene.tab 88 28 700 1000 \n\n";
+"  sbas intf.tab scene.tab 88 28 700 1000 \n\n"
+"REFERENCES: \n"
+"Berardino P., G. Fornaro, R. Lanari, and E. Sansosti, “A new algorithm for surface deformation monitoring based on small baseline differential SAR interferograms,” IEEE Trans. Geosci. Remote Sensing, vol. 40, pp. 2375–2383, Nov. 2002. \n\n"
+"Schmidt, D. A., and R. Bürgmann 2003, Time-dependent land uplift and subsidence in the Santa Clara valley, California, from a large interferometric synthetic aperture radar data set, J. Geophys. Res., 108, 2416, doi:10.1029/2002JB002267, B9. \n\n"
+"Tong, X. and Schmidt, D., 2016. Active movement of the Cascade landslide complex in Washington from a coherence-based InSAR time series method. Remote Sensing of Environment, 186, pp.405-415. \n\n"
+"Tymofyeyeva, E. and Fialko, Y., 2015. Mitigation of atmospheric phase delays in InSAR data, with application to the eastern California shear zone. Journal of Geophysical Research: Solid Earth, 120(8), pp.5952-5963.\n";
 
 int main(int argc, char **argv) {
 
@@ -148,19 +151,17 @@ int main(int argc, char **argv) {
 
     // initialization 
     init_array_ts(G,Gs,res,dem,disp,n,m,xdim,ydim,N,S);
+
      
     // reading in the table files 
     read_table_data_ts(API,infile,datefile,gfile,cfile,H,bperp,flag,var,phi,S,N,xdim,ydim,&Out,L,time);
 
+    printf("%.6f %.6f %.6f %.6f\n",sf,scale,time[0],bperp[0]);
         
-init_array_ts(G,Gs,res,dem,disp,n,m,xdim,ydim,N,S);
-init_G_ts(G,Gs,N,S,m,n,L,H,time,sf,bperp,scale);
-
     if (n_atm == 0) {
         atm_rms = (double *)malloc(S*sizeof(double));
         for (i=0;i<S;i++) atm_rms[i] = 0.0; 
 
-        init_array_ts(G,Gs,res,dem,disp,n,m,xdim,ydim,N,S);
         init_G_ts(G,Gs,N,S,m,n,L,H,time,sf,bperp,scale);
         for (i=0;i<m*n;i++) A[i]=G[i];
         for(i=0;i<xdim*ydim*S;i++) disp[i]=0.0;
@@ -186,10 +187,8 @@ init_G_ts(G,Gs,N,S,m,n,L,H,time,sf,bperp,scale);
         }
  
     // get the hit matrix which records the pairs processed
-        //for (i=0;i<N;i++) fprintf(stderr,"%lld %lld \n",H[i*2],H[i*2+1]);
         for (i=0;i<S*S;i++) hit[i] = 0;
         fprintf(stderr,"\n\n\nHit Matrix:\n");
-        //for (i=0;i<S;i++) fprintf(stderr,"%lld\n",L[i]);
         for (i=0;i<N;i++) {
                 for (j=0;j<S;j++) {
                         if (H[i*2] == L[j]) k1 = j;
@@ -292,79 +291,7 @@ init_G_ts(G,Gs,N,S,m,n,L,H,time,sf,bperp,scale);
         }
 
 
-        // compute time series after 1st correction
-/*
-        //sf = 250.0;
-        sf = 200.0;
-        init_G_ts(G,Gs,N,S,m,n,L,H,time,sf,bperp,scale);
-        for (i=0;i<m*n;i++) A[i]=G[i];
-
-        for(i=0;i<xdim*ydim*S;i++) disp[i]=0.0;
-        lsqlin_sov_ts(xdim,ydim,disp,vel,flag,d,ds,time,G,Gs,A,var,tmp_phi,N,S,m,n,work,lwork,flag_dem,dem,flag_rms,res,jpvt,wl,atm_rms);
-        
-        for (i=0;i<xdim*ydim*N;i++) tmp_phi[i] = phi[i];
-        remove_ts(tmp_phi,disp,xdim,ydim,N,S,H,L);
-        
-        for (i=0;i<S;i++) {
-                connect(L,H,time,hit,mark,N,S,atm_rank[i],1);
-                sum_intfs(tmp_phi,mark,tmp_screen,xdim,ydim,N);
-                atm_rms[atm_rank[i]] = compute_noise(tmp_screen,xdim,ydim);
-                for (j=0;j<xdim*ydim;j++) screen[atm_rank[i]*xdim*ydim+j] = tmp_screen[j];
-                connect(L,H,time,hit,mark,N,S,atm_rank[i],0);
-                apply_screen(tmp_screen,tmp_phi,xdim,ydim,N,mark);
-        }
-        rank_double(atm_rms,atm_rank,S);
-        for (i=0;i<S;i++) fprintf(stderr,"atm_noise(NO.%lld) = %lf\n ",atm_rank[i],atm_rms[atm_rank[i]]); 
-        fprintf(stderr,"\n\n");
-
-
-
-        // start agian with aps correction
-        for (i=0;i<xdim*ydim*N;i++) tmp_phi[i] = phi[i];
-        for (i=0;i<S;i++) {
-                connect(L,H,time,hit,mark,N,S,i,0);
-                for (j=0;j<xdim*ydim;j++) tmp_screen[j] = screen[i*xdim*ydim+j];
-                apply_screen(tmp_screen,tmp_phi,xdim,ydim,N,mark);
-        }
-
-        // compute time series after 2nd correction
-        //sf = 50.0;
-        sf = 50.0;
-        init_G_ts(G,Gs,N,S,m,n,L,H,time,sf,bperp,scale);
-        for (i=0;i<m*n;i++) A[i]=G[i];
-
-        for(i=0;i<xdim*ydim*S;i++) disp[i]=0.0;
-        lsqlin_sov_ts(xdim,ydim,disp,vel,flag,d,ds,time,G,Gs,A,var,tmp_phi,N,S,m,n,work,lwork,flag_dem,dem,flag_rms,res,jpvt,wl,atm_rms);
-
-        for (i=0;i<xdim*ydim*N;i++) tmp_phi[i] = phi[i];
-        remove_ts(tmp_phi,disp,xdim,ydim,N,S,H,L);
-
-        for (i=0;i<S;i++) {
-                connect(L,H,time,hit,mark,N,S,atm_rank[i],1);
-                sum_intfs(tmp_phi,mark,tmp_screen,xdim,ydim,N);
-                atm_rms[atm_rank[i]] = compute_noise(tmp_screen,xdim,ydim);
-                for (j=0;j<xdim*ydim;j++) screen[atm_rank[i]*xdim*ydim+j] = tmp_screen[j];
-                connect(L,H,time,hit,mark,N,S,atm_rank[i],0);
-                apply_screen(tmp_screen,tmp_phi,xdim,ydim,N,mark);
-        }
-        rank_double(atm_rms,atm_rank,S);
-        for (i=0;i<S;i++) fprintf(stderr,"atm_noise(NO.%lld) = %lf\n ",atm_rank[i],atm_rms[atm_rank[i]]); 
-        fprintf(stderr,"\n\n");
-
-
-
-        // start agian with aps correction
-        for (i=0;i<xdim*ydim*N;i++) tmp_phi[i] = phi[i];
-        for (i=0;i<S;i++) {
-                connect(L,H,time,hit,mark,N,S,i,0);
-                for (j=0;j<xdim*ydim;j++) tmp_screen[j] = screen[i*xdim*ydim+j];
-                apply_screen(tmp_screen,tmp_phi,xdim,ydim,N,mark);
-        }
-*/
-        // compute time series after 3rd correction
-
-
-
+        // lastly compute time-series
         sf = sfs[n_atm];
         fprintf(stderr,"Setting smoothing parameter to %f...\n",sf);
         init_array_ts(G,Gs,res,dem,disp,n,m,xdim,ydim,N,S);
@@ -375,34 +302,14 @@ init_G_ts(G,Gs,N,S,m,n,L,H,time,sf,bperp,scale);
 
     }
 
-        
 
-/*
-        // remove the atmospheric screen from the data
-        for (i=0;i<S;i++) {
-                for (j=0;j<xdim*ydim;j++) tmp_screen[j] = screen[i*xdim*ydim+j];
-                apply_screen(tmp_screen,tmp_phi,xdim,ydim,N,mark);
-        }
-        init_array_ts(G,Gs,res,dem,disp,n,m,xdim,ydim,N,S);
-        init_G_ts(G,Gs,N,S,m,n,L,H,time,sf,bperp,scale);
-        for (i=0;i<m*n;i++) A[i]=G[i];
-        // recompute the time series with tons of smoothing
-        lsqlin_sov_ts(xdim,ydim,disp,vel,flag,d,ds,time,G,Gs,A,var,tmp_phi,N,S,m,n,work,lwork,flag_dem,dem,flag_rms,res,jpvt,wl);
-        // remove the very smooth deformation signal from the data
-        for (i=0;i<xdim*ydim*N;i++) tmp_phi[i] = phi[i];
-        remove_ts(tmp_phi,disp,xdim,ydim,N,S,H,L);        
-        // compute atmospheric phase screen and the noise rms, this time, follow the noise rms order and update the phase during computation
-        
-*/
-
-
+    // write output
     write_output_ts(API,Out,argc,argv,xdim,ydim,S,flag_rms,flag_dem,disp,vel,res,dem,screen,wl,n_atm,L);
 
     /* free memory */
 
     free_memory_ts(N,phi,var,gfile,cfile,disp,G,A,Gs,H,d,ds,L,res,vel,time,flag,bperp,dem,work,jpvt,hit);
 
-//    free(atm_rms);
  
     if (n_atm != 0) {
         free(mark);
@@ -410,6 +317,7 @@ init_G_ts(G,Gs,N,S,m,n,L,H,time,sf,bperp,scale);
         free(tmp_screen);
         free(atm_rank);
         free(tmp_phi);
+        free(atm_rms);
     }
 
     fclose(infile);
@@ -418,36 +326,6 @@ init_G_ts(G,Gs,N,S,m,n,L,H,time,sf,bperp,scale);
     if (GMT_Destroy_Session (API)) return EXIT_FAILURE;     /* Remove the GMT machinery */
 
     return(EXIT_SUCCESS);
-
-
-
-
-
-
-
-
-
-	/* fill the G matrix */
-//        init_G_ts(G,Gs,N,S,m,n,L,H,time,sf,bperp,scale);
-
-        /* save G matrix to A as it will get destroyed*/
-//        for (i=0;i<m*n;i++) A[i]=G[i];
-
-        /* loop over xdim by ydim pixel */
-//        lsqlin_sov_ts(xdim,ydim,disp,vel,flag,d,ds,time,G,Gs,A,var,phi,N,S,m,n,work,lwork,flag_dem,dem,flag_rms,res,jpvt,wl);
-
-	/* write output */
-//        write_output_ts(API,Out,argc,argv,xdim,ydim,S,flag_rms,flag_dem,disp,vel,res,dem,screen,wl);
-
-        /* free memory */
-//        free_memory_ts(N,phi,var,gfile,cfile,disp,G,A,Gs,H,d,ds,L,res,vel,time,flag,bperp,dem,work,jpvt,hit);
-
-//	fclose(infile);
-//	fclose(datefile);
-	
-//	if (GMT_Destroy_Session (API)) return EXIT_FAILURE;	/* Remove the GMT machinery */
-
-//	return(EXIT_SUCCESS);
 
 }
 

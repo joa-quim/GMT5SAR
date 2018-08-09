@@ -8,9 +8,9 @@ unset noclobber
   if ($#argv < 2) then
 errormessage:
     echo ""
-    echo "snaphu.csh [GMTSAR] - Unwrap the phase"
+    echo "snaphu_interp.csh [GMTSAR] - Unwrap the phase with nearest neighbor interpolating low coherence and blank pixels"
     echo " "
-    echo "Usage: snaphu.csh correlation_threshold maximum_discontinuity [<rng0>/<rngf>/<azi0>/<azif>]"
+    echo "Usage: snaphu_interp.csh correlation_threshold maximum_discontinuity [<rng0>/<rngf>/<azi0>/<azif>]"
     echo ""
     echo "       correlation is reset to zero when < threshold"
     echo "       maximum_discontinuity enables phase jumps for earthquake ruptures, etc."
@@ -20,9 +20,16 @@ errormessage:
     echo ""
     echo "Reference:"
     echo "Chen C. W. and H. A. Zebker, Network approaches to two-dimensional phase unwrapping: intractability and two new algorithms, Journal of the Optical Society of America A, vol. 17, pp. 401-414 (2000)."
+    echo "Agram, P. S., & Zebker, H. A. (2009). Sparse two-dimensional phase unwrapping using regular-grid methods. IEEE Geoscience and Remote Sensing Letters, 6(2), 327-331."
     exit 1
   endif
 #
+if ( -f ~/.quiet ) then
+    set V = ""
+else
+	set V = "-V"
+endif
+
 # prepare the files adding the correlation mask
 #
 if ($#argv == 3 ) then
@@ -43,7 +50,7 @@ if (-e landmask_ra.grd) then
   else 
     gmt grdsample landmask_ra.grd `gmt grdinfo -I phase_patch.grd` -Glandmask_ra_patch.grd
   endif
-  gmt grdmath phase_patch.grd landmask_ra_patch.grd MUL = phase_patch.grd -V
+  gmt grdmath phase_patch.grd landmask_ra_patch.grd MUL = phase_patch.grd $V
 endif
 #
 # user defined mask 
@@ -54,19 +61,22 @@ if (-e mask_def.grd) then
   else
     cp mask_def.grd mask_def_patch.grd
   endif
-  gmt grdmath corr_patch.grd mask_def_patch.grd MUL = corr_patch.grd -V
+  gmt grdmath corr_patch.grd mask_def_patch.grd MUL = corr_patch.grd $V
 endif
 
 #
 # interpolate, in case there is a big vacant area, do not go too far
 #
-nearest_grid phase_patch.grd tmp.grd 300
-mv tmp.grd phase_patch.grd
 
 gmt grdmath corr_patch.grd $1 GE 0 NAN mask_patch.grd MUL = mask2_patch.grd
 gmt grdmath corr_patch.grd 0. XOR 1. MIN  = corr_patch.grd
 gmt grdmath mask2_patch.grd corr_patch.grd MUL = corr_tmp.grd 
-gmt grd2xyz phase_patch.grd -ZTLf -do0 > phase.in
+gmt grdmath mask2_patch.grd phase_patch.grd MUL = phase_tmp.grd
+
+nearest_grid phase_tmp.grd tmp.grd 300
+mv tmp.grd phase_tmp.grd
+
+gmt grd2xyz phase_tmp.grd -ZTLf -do0 > phase.in
 gmt grd2xyz corr_tmp.grd -ZTLf  -do0 > corr.in
 #
 # run snaphu
@@ -89,22 +99,22 @@ gmt grdmath tmp.grd mask2_patch.grd MUL = tmp.grd
 #
 # detrend the unwrapped if DEFOMAX = 0 for interseismic
 #
-if ($2 == 0) then
-  gmt grdtrend tmp.grd -N3r -Dunwrap.grd
-else
+#if ($2 == 0) then
+#  gmt grdtrend tmp.grd -N3r -Dunwrap.grd
+#else
   mv tmp.grd unwrap.grd
-endif
+#endif
 #
 # landmask
 if (-e landmask_ra.grd) then
-  gmt grdmath unwrap.grd landmask_ra_patch.grd MUL = tmp.grd -V
+  gmt grdmath unwrap.grd landmask_ra_patch.grd MUL = tmp.grd $V
   mv tmp.grd unwrap.grd
 endif
 #
 # user defined mask
 #
 if (-e mask_def.grd) then
-  gmt grdmath unwrap.grd mask_def_patch.grd MUL = tmp.grd -V
+  gmt grdmath unwrap.grd mask_def_patch.grd MUL = tmp.grd $V
   mv tmp.grd unwrap.grd
 endif
 #
@@ -118,18 +128,19 @@ set std = `echo $tmp | awk '{printf("%5.1f", $13)}'`
 gmt makecpt -Cseis -I -Z -T"$limitL"/"$limitU"/1 -D > unwrap.cpt
 set boundR = `gmt grdinfo unwrap.grd -C | awk '{print ($3-$2)/4}'`
 set boundA = `gmt grdinfo unwrap.grd -C | awk '{print ($5-$4)/4}'`
-gmt grdimage unwrap.grd -Iunwrap_grad.grd -Cunwrap.cpt -JX6.5i -B"$boundR":Range:/"$boundA":Azimuth:WSen -X1.3i -Y3i -P -K > unwrap.ps
-gmt psscale -Dx3.3/-1.5+w5/0.2+h+e -Cunwrap.cpt -B"$std":"unwrapped phase, rad": -O >> unwrap.ps
+gmt grdimage unwrap.grd -Iunwrap_grad.grd -Cunwrap.cpt -JX6.5i -Bxaf+lRange -Byaf+lAzimuth -BWSen -X1.3i -Y3i -P -K > unwrap.ps
+gmt psscale -Runwrap.grd -J -DJTC+w5/0.2+h+e -Cunwrap.cpt -Bxaf+l"Unwrapped phase" -By+lrad -O >> unwrap.ps
+gmt psconvert -Tf -P -Z unwrap.ps
+echo "Unwrapped phase map: unwrap.pdf"
 #
 # clean up
 #
-rm tmp.grd corr_tmp.grd unwrap.out tmp2.grd unwrap_grad.grd 
-rm phase.in corr.in 
-mv phase_patch.grd phasefilt_interp.grd
+rm -f tmp.grd corr_tmp.grd unwrap.out tmp2.grd unwrap_grad.grd phase_tmp.grd
+rm -f phase.in corr.in 
+mv -f phase_patch.grd phasefilt_interp.grd
 #
 #   cleanup more
 #
-rm wrap.grd mask_patch.grd mask3.grd mask3.out
-mv corr_patch.grd corr_cut.grd
+rm -f wrap.grd mask_patch.grd mask3.grd mask3.out
+mv -f corr_patch.grd corr_cut.grd
 #
-

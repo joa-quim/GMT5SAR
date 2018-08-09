@@ -140,8 +140,8 @@ int allocate_memory_ts(int64_t **jpvt,double **work,double **d,double **ds,float
         if ((*cfile = Malloc(char *,N)) == NULL) die("memory allocation!","cfile");
         p1 = *gfile; p2 = *cfile;
 	for (i=0;i<N;i++) {
-		if ((p1[i] = Malloc(char,36)) == NULL) die("memory allocation!","gfile[i]");
-		if ((p2[i] = Malloc(char,36)) == NULL) die("memory allocation!","cfile[i]");
+		if ((p1[i] = Malloc(char,256)) == NULL) die("memory allocation!","gfile[i]");
+		if ((p2[i] = Malloc(char,256)) == NULL) die("memory allocation!","cfile[i]");
 	}
         if ((*L = Malloc(int64_t,S)) == NULL) die("memory allocation!","L");
         if ((*time = Malloc(double, S)) == NULL) die("memory allocation!","time");
@@ -339,6 +339,15 @@ int64_t lsqlin_sov_ts(int64_t xdim, int64_t ydim, float *disp, float *vel, int64
 					}
 					else if (rank<n) { 
 						printf("matrix is rank-deficient: %lld\n\n", rank);
+                        if (rank == 0){
+                        printf("WARNING: rank is zero. Check scene.tab and intf.tab for possible duplicates.\n\n");
+                        for (i=0;i<N;i++) {
+                            for (p=0;p<S-1;p++) {
+                                printf("%.2f ",G[i+S*p]);
+                            }
+                            printf("\n");
+                        }
+                        }
 					}
 				}
                         	for (i=0;i<S;i++) { 

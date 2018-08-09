@@ -9,6 +9,7 @@
 #define ODR	2	/* orbit information from Delft */
 #define DOR	3	/* orbit information from Doris */
 
+/*
 struct ORB_XYZ {
 	double pt;
 	double px;
@@ -17,7 +18,8 @@ struct ORB_XYZ {
 	double vx;
 	double vy;
 	double vz;
-	};
+};
+*/
 
 struct ALOS_ORB {
 	int	itype;

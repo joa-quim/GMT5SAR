@@ -14,7 +14,7 @@ struct ORB_XYZ {
 	double vx;
 	double vy;
 	double vz;
-	};
+};
 
 struct SAT_ORB {
 	int	itype;

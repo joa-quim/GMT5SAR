@@ -47,7 +47,7 @@
 ****************************************************************************/
 
 #include "gmtsar.h"
-#include "orbit_ALOS.h"
+#include "orbit.h"
 #include "llt2xyz.h"
 
 # define R 0.61803399
@@ -68,51 +68,50 @@ char    *USAGE = " \n Usage: "
 
 int npad = 8000;
 
-/* int parse_ALOS_llt2rat(char **, char *);    */
-EXTERN_MSC void read_orb(FILE *, struct PRM *, struct ALOS_ORB *);
+EXTERN_MSC void read_orb(FILE *, struct PRM *, struct SAT_ORB *);
 EXTERN_MSC void set_prm_defaults(struct PRM *);
 EXTERN_MSC void hermite_c(double *, double *, double *, int , int , double , double *, int *);
 EXTERN_MSC void set_prm_defaults(struct PRM *);
-EXTERN_MSC void interpolate_ALOS_orbit_slow(struct ALOS_ORB *orb, double time, double *, double *, double *, int *);
+EXTERN_MSC void interpolate_SAT_orbit_slow(struct SAT_ORB *orb, double time, double *, double *, double *, int *);
 EXTERN_MSC void polyfit(double *, double *, double *, int *, int *);
 
 int main (int argc, char **argv) {
 
     FILE  *fprm1 = NULL;
 	int otype;
-    double rln,rlt,rht,dr,t1,t11,t2,tm;
-    double ts,rng0, thet, relp, telp;
+        double rln,rlt,rht,dr,t1,t11,t2,tm;
+        double ts,rng0;
 	double xp[3];
 	double xt[3];
 	double rp[3];
 	double dd[5];  /* dummy for output  double precision */
 	float ds[5];   /* dummy for output  single precision */
-    double r0,rf,a0,af;
-    double rad=PI/180.;
+        double r0,rf,a0,af;
 	double fll,rdd,daa,drr,dopc;
-	double dt,dtt,xs,ys,zs;
-	double time[20],rng[20],d[3];  /* arrays used for polynomial refinement of min range */
-	int ir, k, ntt=10, nc=3;           /* size of arrays used for polynomial refinement */
-	int j,nrec,precise = 0;
-	int goldop();
-	int stai,endi,midi;
-	double **orb_pos = NULL;
+        double dt,dtt,xs,ys,zs;
+        double time[20],rng[20],d[3];  /* arrays used for polynomial refinement of min range */
+        int ir, k, ntt=10, nc=3;       /* size of arrays used for polynomial refinement */
+        int j,nrec,precise = 0;
+        int goldop();
+        int stai,endi,midi;
+        double **orb_pos = NULL;
 	struct PRM prm;
-	struct ALOS_ORB *orb = NULL;
+	struct SAT_ORB *orb = NULL;
 	char name[128], value[128];
 	double rsr;
 	FILE *ldrfile = NULL;
-    int calorb_alos(struct ALOS_ORB*, double **orb_pos, double ts, double t1, int nrec);
+        int calorb_alos(struct SAT_ORB*, double **orb_pos, double ts, double t1, int nrec);
 
 /* Make sure usage is correct and files can be opened  */
+
 	if (argc < 3 || argc > 4) {
 	  fprintf (stderr,"%s\n", USAGE);
-	  exit(-1);
+	  exit(-1); 
 	}
-
         precise = atoi(argv[2]);
 
 /* otype:    1 -- ascii; 2 -- single precision binary; 3 -- double precision binary    */
+
 	otype=1;
 	if (argc == 4) {
 		if (!strcmp(argv[3],"-bos"))
@@ -131,10 +130,12 @@ int main (int argc, char **argv) {
 	}
 
 /*  open and read the parameter file */
+
         if ((fprm1 = fopen(argv[1], "r")) == NULL) { 
           fprintf (stderr, "couldn't open master.PRM \n");
 	  fprintf (stderr,"%s\n", USAGE);
           exit (-1); }	
+
 /* initialize the prm file   */
 	
 	set_prm_defaults(&prm);
@@ -145,18 +146,19 @@ int main (int argc, char **argv) {
 /*  get the orbit data */
 	ldrfile = fopen(prm.led_file,"rb");
         if (ldrfile == NULL) die("can't open ",prm.led_file);
-	orb = (struct ALOS_ORB*)malloc(sizeof(struct ALOS_ORB));
+	orb = (struct SAT_ORB*)malloc(sizeof(struct SAT_ORB));
 	read_orb(ldrfile, &prm, orb);
 
 /* update the rng_samp_rate in PRM file   */
+
         if ((fprm1 = fopen(argv[1], "r")) == NULL) {
-         fprintf (stderr, "couldn't open master.PRM \n");
-         exit (-1);
-         }
+          fprintf (stderr, "couldn't open master.PRM \n");
+          exit (-1); 
+	}
         while(fscanf(fprm1,"%s = %s \n",name,value) != EOF){
         if (strcmp(name, "rng_samp_rate") == 0) {   
-        get_double(name,"rng_samp_rate", value, &rsr);
-          }
+          get_double(name,"rng_samp_rate", value, &rsr);
+        }
         }
         prm.fs=rsr;
         dr = 0.5*SOL/prm.fs;
@@ -184,19 +186,18 @@ int main (int argc, char **argv) {
         }
         nrec=(int)((t2-t1)/ts);
 
-/* allocate memory for the orbit postion into a 2-dimensional array. It's about 
-   nrec+-npad * 4 * 4bytes = 320 KB   
-   the first "4" means space and time dimension : t, x, y, z         */
-        
-        /* allocate storage for an array of pointers  */
+/* allocate storage for an array of pointers  */
+
         orb_pos = malloc(4*sizeof(double *));
         
-        /* for each pointer, allocate storage for an array of floats  */
+/* for each pointer, allocate storage for an array of floats  */
+
         for(j=0; j<4; j++) {
           orb_pos[j] = malloc((nrec+2*npad) * sizeof(double));
         }
 
 /* read in the postion of the orbit */
+
        (void)calorb_alos(orb, orb_pos, ts, t1, nrec);
         
 /* read the llt points and convert to xyz.  */
@@ -211,15 +212,7 @@ int main (int argc, char **argv) {
 
 /* compute the topography due to the difference between the local radius and center radius */
 
-            thet = rlt * rad;
-            if(prm.rc > 6350000. && prm.ra > 6350000. && prm.RE > 6350000.) {
-		relp=1./sqrt((cos(thet)/prm.ra)*(cos(thet)/prm.ra)+(sin(thet)/prm.rc)*(sin(thet)/prm.rc));
-		telp=relp-prm.RE;
-            }
-            else {
-		telp=0.;
- 	    }
-            rp[2]=rht + telp;
+        rp[2] = sqrt(xp[0]*xp[0]+xp[1]*xp[1]+xp[2]*xp[2]) - prm.RE;
 
 /* minimum for each point */
 
@@ -236,7 +229,7 @@ int main (int argc, char **argv) {
             	for (k=0; k<ntt; k++){
                     time[k] = dt*(k - ntt/2 + .5);
                     t11 = tm+time[k];
-                    interpolate_ALOS_orbit_slow(orb, t11, &xs, &ys, &zs, &ir);
+                    interpolate_SAT_orbit_slow(orb, t11, &xs, &ys, &zs, &ir);
                     rng[k] = sqrt((xp[0]-xs)*(xp[0]-xs) + (xp[1]-ys)*(xp[1]-ys) + (xp[2]-zs)*(xp[2]-zs)) - rng0;
             	}
 
@@ -244,7 +237,7 @@ int main (int argc, char **argv) {
             	polyfit(time,rng,d,&ntt,&nc);
                 dtt = -d[1]/(2.*d[2]);
              	tm=tm+dtt;
-             	interpolate_ALOS_orbit_slow(orb, tm, &xs, &ys, &zs, &ir);
+             	interpolate_SAT_orbit_slow(orb, tm, &xs, &ys, &zs, &ir);
              	rng0 = sqrt((xp[0]-xs)*(xp[0]-xs) + (xp[1]-ys)*(xp[1]-ys) + (xp[2]-zs)*(xp[2]-zs));
 
            }
@@ -275,7 +268,7 @@ int main (int argc, char **argv) {
              if((xt[0] < r0 || xt[0] > rf || xt[1] < a0 || xt[1] > af) && (otype > 1)) continue; 
 
 	   if (otype == 1) {
-	     fprintf(stdout,"%f %f %f %f %f \n",xt[0],xt[1],rp[2],rp[1],rp[0]);
+	     fprintf(stdout,"%.9f %.9f %.9f %.9f %.9f \n",xt[0],xt[1],rp[2],rp[1],rp[0]);
 	   }
 	   else if (otype == 2 ) { 
 	     ds[0]=(float)xt[0];
@@ -365,7 +358,7 @@ return (d);
 }
 
 
-int calorb_alos(struct ALOS_ORB *orb, double  **orb_pos, double ts, double t1, int nrec)
+int calorb_alos(struct SAT_ORB *orb, double  **orb_pos, double ts, double t1, int nrec)
 /* function to calculate every position in the orbit   */ 
 
 {

@@ -13,19 +13,19 @@
 #include <math.h>
 #include <stdlib.h>
 #include "lib_functions.h"
-#include "orbit_ALOS.h"
+#include "orbit.h"
 #define FACTOR 1000000
 
-EXTERN_MSC void interpolate_ALOS_orbit_slow(struct ALOS_ORB *, double, double *, double *, double *, int *);
-EXTERN_MSC void interpolate_ALOS_orbit(struct ALOS_ORB *, double *, double *, double *, double , double *, double *, double *, int *);
+EXTERN_MSC void interpolate_SAT_orbit_slow(struct SAT_ORB *, double, double *, double *, double *, int *);
+EXTERN_MSC void interpolate_SAT_orbit(struct SAT_ORB *, double *, double *, double *, double , double *, double *, double *, int *);
 void hermite_c(double *, double *, double *, int, int, double, double *, int *);
 
 /*---------------------------------------------------------------*/
 /* from David Sandwell's code */
-void interpolate_ALOS_orbit_slow(struct ALOS_ORB *orb, double time, double *x, double *y, double *z, int *ir) {
-int	k;
-double	pt0;
-double *p, *pt, *pv;
+void interpolate_SAT_orbit_slow(struct SAT_ORB *orb, double time, double *x, double *y, double *z, int *ir) {
+	int	k;
+	double	pt0;
+	double *p, *pt, *pv;
 
 	p = (double *) malloc(orb->nd*sizeof(double));
 	pv = (double *) malloc(orb->nd*sizeof(double));
@@ -35,18 +35,18 @@ double *p, *pt, *pv;
 	pt0 = (24.0*60.0*60.0)*orb->id + orb->sec;
 	for (k=0; k<orb->nd; k++) pt[k] = pt0 + k*orb->dsec;
 
-	interpolate_ALOS_orbit(orb, pt, p, pv, time, x, y, z, ir);
+	interpolate_SAT_orbit(orb, pt, p, pv, time, x, y, z, ir);
 
 	free((double *) p);
 	free((double *) pt);
 	free((double *) pv);
 }
 /*---------------------------------------------------------------*/
-void interpolate_ALOS_orbit(struct ALOS_ORB *orb, double *pt, double *p, double *pv, double time, double *x, double *y, double *z, int *ir) {
-/* ir; 			return code 		*/
-/* time;		seconds since Jan 1 	*/
-/* x, y, z;		position		*/
-int	k, nval, nd;
+void interpolate_SAT_orbit(struct SAT_ORB *orb, double *pt, double *p, double *pv, double time, double *x, double *y, double *z, int *ir) {
+	/* ir; 			return code 		*/
+	/* time;		seconds since Jan 1 	*/
+	/* x, y, z;		position		*/
+	int	k, nval, nd;
 
 	nval = 6; /* number of points to use in interpolation */
 	nd = orb->nd;

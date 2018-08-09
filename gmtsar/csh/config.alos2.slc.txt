@@ -73,7 +73,7 @@ switch_master = 0
 
 # filters 
 # look at the filter/ folder to choose other filters
-filter1 = gauss_tsx_100m
+filter_wavelength = 200
 
 # decimation of images 
 # decimation control the size of the amplitude and phase images. It is either 1 or 2.
@@ -90,6 +90,11 @@ dec_factor = 2
 # correlation threshold for snaphu.csh (0~1)
 # set it to be 0 to skip unwrapping.
 threshold_snaphu = 0
+
+# interpolate masked or low coherence pixels with their nearest neighbors, 1 means interpolate, 
+# others or blank means using original phase, see snaphu.csh and snaphu_interp.csh for details
+# this could be very slow in case a large blank area exist
+near_interp = 1
 
 # region to unwrap in radar coordinates (leave it blank if unwrap the whole region)
 #  example format 500/10800/500/27200

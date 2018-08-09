@@ -1,5 +1,5 @@
 #
-#	$Id: CMakeLists.txt 376 2016-08-13 23:02:36Z fwobbe $
+#	$Id: CMakeLists.txt 570 2018-07-27 00:25:30Z sandwell $
 #
 
 set (GMTSAR_LINK_LIBS ${GMT_LIBRARY} ${TIFF_LIBRARY} ${LAPACK_LIB} ${GETOPT_LIB} ${MMAP_LIB})
@@ -18,7 +18,7 @@ add_library (gmtsar aastretch.c acpatch.c calc_dop.c conv2d.c do_freq_xcorr.c
 	polyfit.c print_results.c radopp.c read_orb.c read_xcorr_data.c
 	SAT_llt2rat_sub.c rmpatch.c rng_cmp.c rng_ref.c set_prm_defaults.c shift.c
 	sio_struct.c siocomplex.c spline.c trans_col.c utils.c utils_complex.c
-	write_orb.c sbas_utils.c gmtsar.h lib_functions.h llt2xyz.h orbit_ALOS.h
+	write_orb.c sbas_utils.c gmtsar.h lib_functions.h llt2xyz.h orbit.h
 	sarleader_ALOS.h sarleader_fdr.h sfd_complex.h siocomplex.h soi.h xcorr.h)
 target_link_libraries (gmtsar ${GMTSAR_LINK_LIBS})
 
@@ -27,7 +27,7 @@ set (GMTSAR_LINK_LIBS ${GMTSAR_LINK_LIBS} gmtsar)
 add_executable (bperp bperp.c gmtsar.h)
 target_link_libraries (bperp ${GMTSAR_LINK_LIBS})
 
-add_executable (calc_dop_orb calc_dop_orb.c gmtsar.h orbit_ALOS.h)
+add_executable (calc_dop_orb calc_dop_orb.c gmtsar.h orbit.h)
 target_link_libraries (calc_dop_orb ${GMTSAR_LINK_LIBS})
 
 add_executable (conv conv.c gmtsar.h)
@@ -36,7 +36,7 @@ target_link_libraries (conv ${GMTSAR_LINK_LIBS})
 add_executable (esarp esarp.c soi.h gmtsar.h)
 target_link_libraries (esarp ${GMTSAR_LINK_LIBS})
 
-add_executable (extend_orbit extend_orbit.c gmtsar.h orbit_ALOS.h lib_functions.h)
+add_executable (extend_orbit extend_orbit.c gmtsar.h orbit.h lib_functions.h)
 target_link_libraries (extend_orbit ${GMTSAR_LINK_LIBS})
 
 add_executable (make_gaussian_filter make_gaussian_filter.c PRM.h lib_functions.h)
@@ -57,13 +57,13 @@ target_link_libraries (phasefilt ${GMTSAR_LINK_LIBS})
 add_executable (resamp resamp.c gmtsar.h lib_functions.h)
 target_link_libraries (resamp ${GMTSAR_LINK_LIBS})
 
-add_executable (SAT_baseline SAT_baseline.c gmtsar.h orbit_ALOS.h)
+add_executable (SAT_baseline SAT_baseline.c gmtsar.h orbit.h)
 target_link_libraries (SAT_baseline ${GMTSAR_LINK_LIBS})
 
-add_executable (SAT_llt2rat SAT_llt2rat.c gmtsar.h orbit_ALOS.h llt2xyz.h)
+add_executable (SAT_llt2rat SAT_llt2rat.c gmtsar.h orbit.h llt2xyz.h)
 target_link_libraries (SAT_llt2rat ${GMTSAR_LINK_LIBS})
 
-add_executable (SAT_look SAT_look.c gmtsar.h orbit_ALOS.h llt2xyz.h)
+add_executable (SAT_look SAT_look.c gmtsar.h orbit.h llt2xyz.h)
 target_link_libraries (SAT_look ${GMTSAR_LINK_LIBS})
 
 add_executable (sbas sbas.c gmtsar.h sbas.h)
@@ -78,6 +78,22 @@ install (TARGETS gmtsar bperp calc_dop_orb conv esarp extend_orbit make_gaussian
 	COMPONENT Runtime
 	LIBRARY DESTINATION lib
 	COMPONENT Runtime
+	RUNTIME DESTINATION bin
+	COMPONENT Runtime)
+
+install (PROGRAMS csh/align.csh csh/align_ALOS2_SCAN.csh csh/align_ALOS_SLC.csh csh/align_batch.csh csh/align_batch_ALOS2_SCAN.csh
+	csh/align_batch_ALOS_SLC.csh csh/align_tops.csh csh/align_tops_6par.csh csh/align_tops_esd.csh csh/baseline_table.csh
+	csh/cleanup.csh csh/create_frame_tops.csh csh/dem2topo_ra.csh csh/dem2topo_ra_ALOS2.csh csh/detrend_before_unwrap.csh
+	csh/filter.csh csh/fitoffset.csh csh/geocode.csh csh/gmtsar.csh csh/gmtsar_sharedir.csh csh/grd2geotiff.csh csh/grd2kml.csh csh/intf.csh
+	csh/intf_batch.csh csh/intf_batch_ALOS2_SCAN.csh csh/intf_tops.csh csh/landmask.csh csh/landmask_ALOS2.csh csh/m2s.csh
+	csh/make_a_offset.csh csh/make_dem.csh csh/make_los_ascii.csh csh/make_profile.csh csh/merge_batch.csh
+	csh/merge_unwrap_geocode_tops.csh csh/p2p_ALOS.csh csh/p2p_ALOS2_SCAN_SLC.csh csh/p2p_ALOS2_SLC.csh csh/p2p_ALOS_SLC.csh
+	csh/p2p_CSK.csh csh/p2p_CSK_SLC.csh csh/p2p_ENVI.csh csh/p2p_ENVI_SLC.csh csh/p2p_ERS.csh csh/p2p_RS2_SLC.csh
+	csh/p2p_SAT_SLC.csh csh/p2p_TSX_SLC.csh csh/pre_proc.csh csh/pre_proc_batch.csh
+	csh/pre_proc_batch_ALOS2_SCAN.csh csh/pre_proc_batch_ALOS_SLC.csh csh/pre_proc_init.csh csh/preproc_batch_tops.csh
+	csh/preproc_batch_tops_esd.csh csh/proj_ll2ra.csh csh/proj_ll2ra_ascii.csh csh/proj_model.csh csh/proj_ra2ll.csh
+	csh/proj_ra2ll_ascii.csh csh/sarp.csh csh/slc2amp.csh csh/snaphu.csh csh/snaphu_interp.csh csh/stack.csh csh/stack_corr.csh 
+	csh/update_PRM.csh csh/select_pairs.csh
 	RUNTIME DESTINATION bin
 	COMPONENT Runtime)
 

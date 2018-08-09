@@ -46,28 +46,27 @@ void swap_ALOS_data_info(struct sardata_info *);
 void get_files(struct PRM *, FILE **, FILE **, char *, char *, int);
 
 int ledflag;
-int main (int argc, char **argv) 
-{
-FILE	*imagefile, *ldrfile;
-FILE	*rawfile[11], *prmfile[11];
-char	prmfilename[128];
-int	nPRF;
-int64_t	byte_offset;
-struct 	PRM prm;
-struct 	ALOS_ORB orb;
-/*char   	date[8];*/
+int main (int argc, char **argv) {
+	FILE	*imagefile, *ldrfile;
+	FILE	*rawfile[11], *prmfile[11];
+	char	prmfilename[128];
+	int	nPRF;
+	int64_t	byte_offset;
+	struct 	PRM prm;
+	struct 	ALOS_ORB orb;
+	/*char   	date[8];*/
 
 	if (argc < 3) die (USAGE,"");
 
 	/* set flags  */
 	roi = debug = verbose = swap = quiet_flag = 0;
-        slc_fact = 0.01;
-        tbias = 0.0;
-        rbias = 0.0;
-        prefix_off = 132;
+    slc_fact = 0.01;
+    tbias = 0.0;
+    rbias = 0.0;
+    prefix_off = 132;
 
-        /* default is to use the new LED orbit */
-        ledflag = 1;
+    /* default is to use the new LED orbit */
+    ledflag = 1;
 
 	nPRF = 0;
 
@@ -77,15 +76,15 @@ struct 	ALOS_ORB orb;
 	/* read command line */
 	parse_ALOS_commands(argc, argv, USAGE, &prm);
 
-        /* shift the start time if this is ALOS1 */
-        if(prefix_off == 0) tbias = tbias - 0.0020835;
+    /* shift the start time if this is ALOS1 */
+    if(prefix_off == 0) tbias = tbias - 0.0020835;
 
 	if (verbose) print_ALOS_defaults(&prm);
 	if (is_big_endian_() == -1) {swap = 1;fprintf(stderr,".... swapping bytes\n");} else {swap = 0;} 
 
 	/* IMG and LED files should exist already */
-	if ((imagefile = fopen(argv[1], "r")) == NULL) die ("couldn't open Level 1.1 IMG file \n",argv[1]);
-	if ((ldrfile = fopen(argv[2], "r")) == NULL) die ("couldn't open LED file \n",argv[2]); 
+	if ((imagefile = fopen(argv[1], "rb")) == NULL) die ("couldn't open Level 1.1 IMG file \n",argv[1]);
+	if ((ldrfile = fopen(argv[2], "rb")) == NULL) die ("couldn't open LED file \n",argv[2]); 
 
 	/* if it exists, copy to prm structure */
 	strcpy(prm.led_file,argv[2]);
@@ -97,8 +96,8 @@ struct 	ALOS_ORB orb;
 	read_ALOS_sarleader(ldrfile, &prm, &orb);
 
 // AUGUST 2016
-       /* write out orbit params in generic LED format */
-       if (ledflag) write_ALOS_LED(&orb, &prm, argv[1]);
+    /* write out orbit params in generic LED format */
+    if (ledflag) write_ALOS_LED(&orb, &prm, argv[1]);
 // AUGUST 2016
 
 	/* read Level 1.1 file;  put info into prm; convert to *.SLC format 		*/
@@ -113,17 +112,16 @@ struct 	ALOS_ORB orb;
 		if (nPRF > 0 ) {
 			if (verbose) fprintf(stderr,"creating multiple files due to PRF change (*.%d) \n",nPRF+1);
 			get_files(&prm, &rawfile[nPRF], &prmfile[nPRF], prmfilename, argv[1], nPRF);
-			}
+		}
 
 		/* set the chirp extension to 500 if FBD fs = 16000000 */
-        	if (prm.fs < 17000000.) {
+    	if (prm.fs < 17000000.) {
 			prm.chirp_ext = 500;
 			prm.chirp_slope =  -5.18519e+11;
- 	                prm.SLC_scale = I2SCALE;  /* set dfact */
-
+            prm.SLC_scale = I2SCALE;  /* set dfact */
 		} else {
 			prm.chirp_slope = -1.03704e+12;
- 	                prm.SLC_scale = I2SCALE * 2;
+	        prm.SLC_scale = I2SCALE * 2;
 		}
 
 		/* read_ALOS_data returns 0 if all data file is read;
@@ -139,14 +137,14 @@ struct 	ALOS_ORB orb;
 		/* set parameters for integer SLC */
 
 		/* write ascii output, SIO format */
-                prm.near_range = prm.near_range + rbias;
+        prm.near_range = prm.near_range + rbias;
 
-                /* if this is ALOS-2 data after 2014 set the Dopplers to zero */
-                if(prm.SC_clock_start/1000. > 2014.) {
-                   prm.fd1 = 0.;
-                   prm.fdd1 = 0.;
-                   prm.fddd1 = 0.;
-                }
+        /* if this is ALOS-2 data after 2014 set the Dopplers to zero */
+        if(prm.SC_clock_start/1000. > 2014.) {
+            prm.fd1 = 0.;
+            prm.fdd1 = 0.;
+            prm.fddd1 = 0.;
+        }
 		put_sio_struct(prm, prmfile[nPRF]);
 
 		/* write roi_pac output 
@@ -158,13 +156,13 @@ struct 	ALOS_ORB orb;
 			}*/
 
 		nPRF++;
-		}
+	}
 
 	return(EXIT_SUCCESS);
 }
+
 /*------------------------------------------------------*/
-void get_files(struct PRM *prm, FILE **rawfile, FILE **prmfile, char *prmfilename, char *name, int n)
-{
+void get_files(struct PRM *prm, FILE **rawfile, FILE **prmfile, char *prmfilename, char *name, int n) {
 	/* name and open output file for raw data (but input for later processing)      */
 	/* if more than 1 set of output files, append an integer (beginning with 2)     */
 
@@ -179,9 +177,9 @@ void get_files(struct PRM *prm, FILE **rawfile, FILE **prmfile, char *prmfilenam
 	strcpy(prm->dtype, "a");
 
 	/* now open the files */
-	if ((*rawfile = fopen(prm->input_file,"w")) == NULL) die("can't open ",prm->input_file);
+	if ((*rawfile = fopen(prm->input_file,"wb")) == NULL) die("can't open ",prm->input_file);
 
-	if ((*prmfile = fopen(prmfilename, "w")) == NULL) die ("couldn't open output PRM file \n",prmfilename);
+	if ((*prmfile = fopen(prmfilename, "wb")) == NULL) die ("couldn't open output PRM file \n",prmfilename);
 
 }
 /*------------------------------------------------------*/

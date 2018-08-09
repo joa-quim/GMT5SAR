@@ -13,7 +13,7 @@
  ********************************************************************************/
 
 #include "gmtsar.h"
-#include "orbit_ALOS.h"
+#include "orbit.h"
 
 char    *USAGE = "Usage: (two modes)\n"
 "mode 1:\n\n"
@@ -40,13 +40,13 @@ EXTERN_MSC void get_sign(struct PRM, double, double, double, double, int *);
 EXTERN_MSC void write_bperp(struct PRM, char *);
 EXTERN_MSC void baseline_parse_command_line(char **, int *, int *);
 EXTERN_MSC void read_input_file(char *, int, char **);
-EXTERN_MSC void baseline(struct PRM *, struct ALOS_ORB *, int, int, char **, double);
-EXTERN_MSC void read_all_ldr(struct PRM *, struct ALOS_ORB *, int);
-EXTERN_MSC void read_orb(FILE *, struct PRM *, struct ALOS_ORB *);
+EXTERN_MSC void baseline(struct PRM *, struct SAT_ORB *, int, int, char **, double);
+EXTERN_MSC void read_all_ldr(struct PRM *, struct SAT_ORB *, int);
+EXTERN_MSC void read_orb(FILE *, struct PRM *, struct SAT_ORB *);
 EXTERN_MSC void llt2rat_sub(char * , double *, double * );
-EXTERN_MSC void interpolate_ALOS_orbit_slow(struct ALOS_ORB *orb, double time, double *, double *, double *, int *);
-EXTERN_MSC void interpolate_ALOS_orbit(struct ALOS_ORB *, double *, double *, double *, double , double *, double *, double *, int *);
-EXTERN_MSC void calc_height_velocity(struct ALOS_ORB *, struct PRM *, double, double, double *, double *, double *, double *, double *);
+EXTERN_MSC void interpolate_SAT_orbit_slow(struct SAT_ORB *orb, double time, double *, double *, double *, int *);
+EXTERN_MSC void interpolate_SAT_orbit(struct SAT_ORB *, double *, double *, double *, double , double *, double *, double *, int *);
+EXTERN_MSC void calc_height_velocity(struct SAT_ORB *, struct PRM *, double, double, double *, double *, double *, double *, double *);
 void polyfit(double *, double *, double *, int *, int *);
 
 int main (int argc, char **argv) {
@@ -55,7 +55,7 @@ int	input_flag, nfiles;
 double	fs0=0.;
 
 struct PRM *r;			/* reference orbit is 0; repeats are > 0*/
-struct ALOS_ORB *orb;		/* reference orbit is 0; repeats are > 0*/
+struct SAT_ORB *orb;		/* reference orbit is 0; repeats are > 0*/
 char	**filename;
 FILE	*prmfile;
 
@@ -90,16 +90,15 @@ FILE	*prmfile;
 		}
 
 		printf("SC_identity = %d \n",r[0].SC_identity);
-		orb = malloc(nfiles*sizeof(struct ALOS_ORB));
+		orb = malloc(nfiles*sizeof(struct SAT_ORB));
 		read_all_ldr(r, orb, nfiles);
 		baseline(r, orb, nfiles, input_flag,filename,fs0);
-
 
 	return(EXIT_SUCCESS);
 }
 /*---------------------------------------------------------------------------*/
 /* Get time info and find the orbit */
-void read_all_ldr(struct PRM *r, struct ALOS_ORB *orb, int nfiles)
+void read_all_ldr(struct PRM *r, struct SAT_ORB *orb, int nfiles)
         {
         int     i;
         FILE    *ldrfile;
@@ -118,7 +117,7 @@ void read_all_ldr(struct PRM *r, struct ALOS_ORB *orb, int nfiles)
         }
 
 /*---------------------------------------------------------------------------*/
-void baseline(struct PRM *r, struct ALOS_ORB *orb, int nfiles, int input_flag, char **filename,double fs0)
+void baseline(struct PRM *r, struct SAT_ORB *orb, int nfiles, int input_flag, char **filename,double fs0)
 	{
 
 	int	ii, nd, ir;
@@ -126,11 +125,10 @@ void baseline(struct PRM *r, struct ALOS_ORB *orb, int nfiles, int input_flag, c
 	double	dr, dt, ds;
 	double  bv1, bv2, bv3, bh1, bh2, bh3;
 	double  t11, t12, t21, t22, t23;
-    double  x11, y11, z11, x12, y12, z12, x13, y13, z13;
-    double  x21, y21, z21, x22, y22, z22, x23, y23, z23;
-    double  ru1, ru2, ru3, xu1, yu1, zu1, xu2, yu2, zu2, xu3, yu3, zu3;
+	double  x11, y11, z11, x12, y12, z12, x13, y13, z13;
+	double  x21, y21, z21, x22, y22, z22, x23, y23, z23;
+	double  ru1, ru2, ru3, xu1, yu1, zu1, xu2, yu2, zu2, xu3, yu3, zu3;
 	double	ts, xs, ys, zs;
-	/* double  rr1, rr2; */    /* near range from reference and repeat orbits */
 	double	b1, b2, b3, bpara, bperp;
 	double	*pt, *p, *pv, pt0;
 	double height, re_c, vg, vtot, rdot;
@@ -173,14 +171,12 @@ void baseline(struct PRM *r, struct ALOS_ORB *orb, int nfiles, int input_flag, c
 
 		get_seconds(r[ii], &t21, &t22);
 		t23 = (t21 + t22)/2.;
-		/* rr2 = r[ii].near_range; */
-
 		pt0 = (24.0*60.0*60.0)*orb[ii].id + orb[ii].sec;
 		for (k=0; k<nd; k++) pt[k] = pt0 + k*orb[ii].dsec; 
-
 		verbose = 0;
-		/* interpolate_ALOS_orbit assumes p, pt, and pv ate allocated and pt assigned */
-		interpolate_ALOS_orbit(&orb[ii], pt, p, pv, t21, &x21, &y21, &z21, &ir);
+
+	/* interpolate_SAT_orbit assumes p, pt, and pv ate allocated and pt assigned */
+		interpolate_SAT_orbit(&orb[ii], pt, p, pv, t21, &x21, &y21, &z21, &ir);
 
         /* look at other orbit information and recalculate the height using the ashift */
         calc_height_velocity(&orb[ii], &r[ii], t22, t22, &height, &re_c, &vg, &vtot, &rdot);
@@ -190,11 +186,8 @@ void baseline(struct PRM *r, struct ALOS_ORB *orb, int nfiles, int input_flag, c
         calc_height_velocity(&orb[ii], &r[ii], t21, t21, &height, &re_c, &vg, &vtot, &rdot);
         r[ii].ht_start = height+re_c-r[ii].RE;
 
-		/* fd_orbit = -2.0*rdot/r[ii].lambda; */
-
-		interpolate_ALOS_orbit(&orb[ii], pt, p, pv, t22, &x22, &y22, &z22, &ir);
-
-		interpolate_ALOS_orbit(&orb[ii], pt, p, pv, t23, &x23, &y23, &z23, &ir);
+		interpolate_SAT_orbit(&orb[ii], pt, p, pv, t22, &x22, &y22, &z22, &ir);
+		interpolate_SAT_orbit(&orb[ii], pt, p, pv, t23, &x23, &y23, &z23, &ir);
 
 		/* loop over reference orbit 				*/
 		/* add 2 scene lengths (ns2) for buffer at each end 	*/
@@ -214,7 +207,7 @@ void baseline(struct PRM *r, struct ALOS_ORB *orb, int nfiles, int input_flag, c
                 /* roughly compute baseline */
 		for (k = -ns2; k<ns + ns2; k++){
 			ts = t11 + k*dt;
-			interpolate_ALOS_orbit(&orb[0], pt, p, pv, ts, &xs, &ys, &zs, &ir);
+			interpolate_SAT_orbit(&orb[0], pt, p, pv, ts, &xs, &ys, &zs, &ir);
 
 			ds = find_dist(xs, ys, zs, x21, y21, z21);
 			if (b1 < 0.0 || ds < b1) endpoint_distance(k, ds, xs, ys, zs, &b1, &x11, &y11, &z11, &m1); 
@@ -235,13 +228,13 @@ void baseline(struct PRM *r, struct ALOS_ORB *orb, int nfiles, int input_flag, c
             ddt = 0.01/ntt;
             for (k=0;k<ntt;k++) {
                 time[k] = (k-ntt/2+0.5)*ddt;
-                interpolate_ALOS_orbit_slow(&orb[0], t11+time[k]+m1*dt, &xs, &ys, &zs, &ir);
+                interpolate_SAT_orbit_slow(&orb[0], t11+time[k]+m1*dt, &xs, &ys, &zs, &ir);
                 bs[k] = find_dist(xs,ys,zs,x21,y21,z21);
                 bs[k] = bs[k]*bs[k];
             }
             polyfit(time,bs,d3,&ntt,&nc);
             ts = t11+m1*dt-d3[1]/(2.0*d3[2]);
-            interpolate_ALOS_orbit_slow(&orb[0], ts, &xs, &ys, &zs, &ir);
+            interpolate_SAT_orbit_slow(&orb[0], ts, &xs, &ys, &zs, &ir);
             x11 = xs; y11 = ys; z11 = zs;
             b1 = sqrt(d3[0]-d3[1]*d3[1]/4.0/d3[2]);
         
@@ -250,25 +243,25 @@ void baseline(struct PRM *r, struct ALOS_ORB *orb, int nfiles, int input_flag, c
         
             for (k=0;k<ntt;k++) {
                 time[k] = (k-ntt/2+0.5)*ddt;
-                interpolate_ALOS_orbit_slow(&orb[0], t11+time[k]+m2*dt, &xs, &ys, &zs, &ir);
+                interpolate_SAT_orbit_slow(&orb[0], t11+time[k]+m2*dt, &xs, &ys, &zs, &ir);
                 bs[k] = find_dist(xs,ys,zs,x22,y22,z22);
                 bs[k] = bs[k]*bs[k];
             }   
             polyfit(time,bs,d3,&ntt,&nc);
             ts = t11+m2*dt-d3[1]/(2.0*d3[2]);
-            interpolate_ALOS_orbit_slow(&orb[0], ts, &xs, &ys, &zs, &ir);
+            interpolate_SAT_orbit_slow(&orb[0], ts, &xs, &ys, &zs, &ir);
             x12 = xs; y12 = ys; z12 = zs;
             b2 = sqrt(d3[0]-d3[1]*d3[1]/4.0/d3[2]);
 
             for (k=0;k<ntt;k++) {
                 time[k] = (k-ntt/2+0.5)*ddt;
-                interpolate_ALOS_orbit_slow(&orb[0], t11+time[k]+m3*dt, &xs, &ys, &zs, &ir);
+                interpolate_SAT_orbit_slow(&orb[0], t11+time[k]+m3*dt, &xs, &ys, &zs, &ir);
                 bs[k] = find_dist(xs,ys,zs,x23,y23,z23);
                 bs[k] = bs[k]*bs[k];
             }   
             polyfit(time,bs,d3,&ntt,&nc);
             ts = t11+m3*dt-d3[1]/(2.0*d3[2]);
-            interpolate_ALOS_orbit_slow(&orb[0], ts, &xs, &ys, &zs, &ir);
+            interpolate_SAT_orbit_slow(&orb[0], ts, &xs, &ys, &zs, &ir);
             x13 = xs; y13 = ys; z13 = zs;
             b3 = sqrt(d3[0]-d3[1]*d3[1]/4.0/d3[2]);
 
@@ -340,7 +333,7 @@ void baseline(struct PRM *r, struct ALOS_ORB *orb, int nfiles, int input_flag, c
         pt0 = (24.0*60.0*60.0)*orb[0].id + orb[0].sec;
         for (k=0; k<nd; k++) pt[k] = pt0 + k*orb[0].dsec;
         t_sta=t11+2.0;
-        interpolate_ALOS_orbit(&orb[0], pt, p, pv, t_sta, &x_sta, &y_sta, &z_sta, &ir);
+        interpolate_SAT_orbit(&orb[0], pt, p, pv, t_sta, &x_sta, &y_sta, &z_sta, &ir);
 
 		re=r[0].RE;
 		far_range = r[0].near_range + dr*r[0].num_rng_bins;
@@ -368,7 +361,7 @@ void baseline(struct PRM *r, struct ALOS_ORB *orb, int nfiles, int input_flag, c
 		pt0 = (24.0*60.0*60.0)*orb[0].id + orb[0].sec;
                 for (k=0; k<nd; k++) pt[k] = pt0 + k*orb[0].dsec;
 		t_vel=t11+2.1;	
-		interpolate_ALOS_orbit(&orb[0], pt, p, pv, t_vel, &x_vel, &y_vel, &z_vel, &ir);	
+		interpolate_SAT_orbit(&orb[0], pt, p, pv, t_vel, &x_vel, &y_vel, &z_vel, &ir);	
 		
 		find_unit_vectors(x_vel-x_sta,y_vel-y_sta,z_vel-z_sta,&ru4, &xu4, &yu4, &zu4);
 		o1x[0]=xu4;

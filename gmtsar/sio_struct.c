@@ -120,6 +120,7 @@ void null_sio_struct(struct PRM *p)
 	p->alpha_end = NULL_DOUBLE;
 	p->bpara = NULL_DOUBLE;			
 	p->bperp = NULL_DOUBLE;		
+	p->SLC_scale = NULL_DOUBLE;
 };
 /*--------------------------------------------------------------------*/
 /*
@@ -130,14 +131,17 @@ void null_sio_struct(struct PRM *p)
 /*--------------------------------------------------------------------*/
 
 void get_sio_struct(FILE *fh, struct PRM *s) {
-	char 	name[128], value[128];
+	char name[128], value[128], equal[128];
+	char str[1024];
 
 	if (debug) {
 		fprintf(stderr,"get_sio_struct:\n");
 		fprintf(stderr,"PRMname   (PRM value)     interpreted value\n");
 	}
 
-	while(fscanf(fh,"%s = %s \n",name,value) != EOF){
+	while(fgets(str,1024,fh)!= NULL) {
+	value[0] = '\0';
+	sscanf(str,"%s %s %s",name,equal,value);
 
 	/* strings */
 	if (strcmp(name,"input_file") == 0) get_string(name, "input_file", value, s->input_file);
@@ -217,6 +221,7 @@ void get_sio_struct(FILE *fh, struct PRM *s) {
 	if (strcmp(name, "alpha_start") == 0) get_double(name,"alpha_start", value, &s->alpha_start);
 	if (strcmp(name, "alpha_center") == 0) get_double(name,"alpha_center", value, &s->alpha_center);
 	if (strcmp(name, "alpha_end") == 0) get_double(name,"alpha_end", value, &s->alpha_end);
+	if (strcmp(name, "SLC_scale") == 0) get_double(name,"SLC_scale", value, &s->SLC_scale);
 
 	}
 }
@@ -286,8 +291,8 @@ void put_sio_struct(struct PRM prm, FILE *OUTFILE)
 	if (strncmp(prm.led_file,NULL_CHAR,8) != 0) fprintf(OUTFILE,"led_file		= %s \n",prm.led_file);
 
 	/* from read_ALOS_ldrfile */
-	if (strncmp(prm.orbdir,NULL_CHAR,8) != 0) fprintf(OUTFILE,"orbdir	= %.1s \n",prm.orbdir);
-	if (strncmp(prm.lookdir,NULL_CHAR,8) != 0) fprintf(OUTFILE,"lookdir	= %.1s \n",prm.lookdir);
+	if (strncmp(prm.orbdir,NULL_CHAR,8) != 0) fprintf(OUTFILE,"orbdir	= %s \n",prm.orbdir);
+	if (strncmp(prm.lookdir,NULL_CHAR,8) != 0) fprintf(OUTFILE,"lookdir	= %s \n",prm.lookdir);
 	if (prm.lambda != NULL_DOUBLE) fprintf(OUTFILE,"radar_wavelength	= %lg \n",prm.lambda);
 	if (prm.chirp_slope != NULL_DOUBLE) fprintf(OUTFILE,"chirp_slope	= %lg \n",prm.chirp_slope);
 	if (prm.fs != NULL_DOUBLE) fprintf(OUTFILE,"rng_samp_rate		= %.6f \n",prm.fs);
@@ -323,6 +328,7 @@ void put_sio_struct(struct PRM prm, FILE *OUTFILE)
 	/* from sarp */
 	if (strncmp(prm.SLC_file,NULL_CHAR,8) !=0)  fprintf(OUTFILE, "SLC_file               = %s \n",prm.SLC_file);
 	if (strncmp(prm.dtype,NULL_CHAR,8) != 0) fprintf(OUTFILE,"dtype			= %.1s \n",prm.dtype);
+	if (prm.SLC_scale != NULL_DOUBLE) fprintf(OUTFILE, "SLC_scale               = %lf \n",prm.SLC_scale);
 
 }
 /***************************************************************************/

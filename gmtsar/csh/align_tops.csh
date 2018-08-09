@@ -2,7 +2,7 @@
 #       $Id$
 # Xiaohua Xu and David Sandwell Dec 23 2015
 #
-#  script to align S1A TOPS mode data 
+#  script to align S1 TOPS mode data 
 #
 #  1) Make PRM and LED files for both master and slave.
 #
@@ -22,7 +22,7 @@ if ($#argv < 5) then
  echo " "
  echo "Example: align_tops.csh s1a-iw3-slc-vv-20150526t014937-20150526t015002-006086-007e23-003 S1A_OPER_AUX_POEORB_OPOD_20150615T155109_V20150525T225944_20150527T005944.EOF.txt s1a-iw3-slc-vv-20150607t014937-20150607t015003-006261-00832e-006 S1A_OPER_AUX_POEORB_OPOD_20150627T155155_V20150606T225944_20150608T005944.EOF.txt dem.grd "
  echo " "
- echo "Output: S1A20150526_F3.PRM S1A20150526_F3.LED S1A20150526_F3.SLC S1A20150607_F3.PRM S1A20150607_F3.LED S1A20150607_F3.SLC "
+ echo "Output: S1_20150526_F3.PRM S1_20150526_F3.LED S1_20150526_F3.SLC S1_20150607_F3.PRM S1_20150607_F3.LED S1_20150607_F3.SLC "
  echo " "
  exit 1
 endif 
@@ -56,8 +56,8 @@ set mtiff = ` echo $1.tiff `
 set mxml = ` echo $1.xml `
 set stiff = ` echo $3.tiff `
 set sxml = ` echo $3.xml `
-set mpre = ` echo $1 | awk '{ print "S1A"substr($1,16,8)"_"substr($1,25,6)"_F"substr($1,7,1)}'`
-set spre = ` echo $3 | awk '{ print "S1A"substr($1,16,8)"_"substr($1,25,6)"_F"substr($1,7,1)}'`
+set mpre = ` echo $1 | awk '{ print "S1_"substr($1,16,8)"_"substr($1,25,6)"_F"substr($1,7,1)}'`
+set spre = ` echo $3 | awk '{ print "S1_"substr($1,16,8)"_"substr($1,25,6)"_F"substr($1,7,1)}'`
 echo $mpre
 echo $spre
 #
@@ -108,13 +108,13 @@ else
   cp $mpre".PRM" tmp.PRM
   set prf = `grep PRF tmp.PRM | awk '{print $3}'`
   set ttmp = `grep clock_start tmp.PRM | grep -v SC_clock_start | awk '{print $3}' | awk '{printf ("%.12f",$1 - '$tmp_da'/'$prf'/86400.0)}'`
-  update_PRM.csh tmp.PRM clock_start $ttmp
+  update_PRM tmp.PRM clock_start $ttmp
   set ttmp = `grep clock_stop tmp.PRM | grep -v SC_clock_stop | awk '{print $3}' | awk '{printf ("%.12f",$1 - '$tmp_da'/'$prf'/86400.0)}'`
-  update_PRM.csh tmp.PRM clock_stop $ttmp
+  update_PRM tmp.PRM clock_stop $ttmp
   set ttmp = `grep SC_clock_start tmp.PRM | awk '{print $3}' | awk '{printf ("%.12f",$1 - '$tmp_da'/'$prf'/86400.0)}'`
-  update_PRM.csh tmp.PRM SC_clock_start $ttmp
+  update_PRM tmp.PRM SC_clock_start $ttmp
   set ttmp = `grep SC_clock_stop tmp.PRM | awk '{print $3}' | awk '{printf ("%.12f",$1 - '$tmp_da'/'$prf'/86400.0)}'`
-  update_PRM.csh tmp.PRM SC_clock_stop $ttmp
+  update_PRM tmp.PRM SC_clock_stop $ttmp
 #
 #  restore the modified lines 
 #
@@ -171,9 +171,9 @@ make_s1a_tops $sxml $stiff $spre 1 r.grd a.grd
 #
 cp $spre".PRM" $spre".PRM0"
 if ($tmp_da > -1000 && $tmp_da < 1000) then
-  update_PRM.csh $spre".PRM" ashift 0
+  update_PRM $spre".PRM" ashift 0
 else
-  update_PRM.csh $spre".PRM" ashift $tmp_da
+  update_PRM $spre".PRM" ashift $tmp_da
   echo "Restoring $tmp_da lines with resamp..."
 endif
 resamp $mpre".PRM" $spre".PRM" $spre".PRMresamp" $spre".SLCresamp" 1

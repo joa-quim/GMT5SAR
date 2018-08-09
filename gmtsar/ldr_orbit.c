@@ -16,15 +16,14 @@
  * *****************************************************************************/
 
 #include "gmtsar.h"
-#include "orbit_ALOS.h"
+#include "orbit.h"
 #define FACTOR 1000000
-
-EXTERN_MSC void calc_height_velocity(struct ALOS_ORB *, struct PRM *, double, double, double *, double *, double *, double *, double *);
-void interpolate_ALOS_orbit_slow(struct ALOS_ORB *orb, double time, double *, double *, double *, int *);
+EXTERN_MSC void calc_height_velocity(struct SAT_ORB *, struct PRM *, double, double, double *, double *, double *, double *, double *);
+EXTERN_MSC void interpolate_SAT_orbit_slow(struct SAT_ORB *orb, double time, double *, double *, double *, int *);
 void polyfit(double *, double *, double *, int *, int *);
 void cross3(double *, double *, double *);
 
-void ldr_orbit(struct ALOS_ORB *orb, struct PRM *prm) {
+void ldr_orbit(struct SAT_ORB *orb, struct PRM *prm) {
 	double	t1, t2;
 	double  re, height, vg;
 	double  re_c, re_start, re_end, vg_start, vg_end, vtot, rdot;
@@ -66,7 +65,7 @@ void ldr_orbit(struct ALOS_ORB *orb, struct PRM *prm) {
 }
 /*---------------------------------------------------------------*/
 /* from David Sandwell's code  */
-void calc_height_velocity(struct ALOS_ORB *orb, struct PRM *prm, double t1, double t2,double *height, double *re2, double *vg, double *vtot, double *rdot) {
+void calc_height_velocity(struct SAT_ORB *orb, struct PRM *prm, double t1, double t2,double *height, double *re2, double *vg, double *vtot, double *rdot) {
 
 	int	k, ir, nt, nc=3;
 	double	xe, ye, ze;
@@ -99,9 +98,9 @@ void calc_height_velocity(struct ALOS_ORB *orb, struct PRM *prm, double t1, doub
 
 	/* interpolate orbit 				*/
 	/* _slow does memory allocation each time 	*/
-	interpolate_ALOS_orbit_slow(orb, t0, &xs, &ys, &zs, &ir);
-	interpolate_ALOS_orbit_slow(orb, t1, &x1, &y1, &z1, &ir);
-	interpolate_ALOS_orbit_slow(orb, t2, &x2, &y2, &z2, &ir);
+	interpolate_SAT_orbit_slow(orb, t0, &xs, &ys, &zs, &ir);
+	interpolate_SAT_orbit_slow(orb, t1, &x1, &y1, &z1, &ir);
+	interpolate_SAT_orbit_slow(orb, t2, &x2, &y2, &z2, &ir);
 
 	rs = sqrt(xs*xs + ys*ys + zs*zs);
 
@@ -164,7 +163,7 @@ void calc_height_velocity(struct ALOS_ORB *orb, struct PRM *prm, double t1, doub
 	for (k=0; k<nt; k++){
 		time[k] = dt*(k - nt/2);
 		t1 = t0+time[k];
-		interpolate_ALOS_orbit_slow(orb, t1, &xs, &ys, &zs, &ir);
+		interpolate_SAT_orbit_slow(orb, t1, &xs, &ys, &zs, &ir);
 		rng[k] = sqrt((xe-xs)*(xe-xs) + (ye-ys)*(ye-ys) + (ze-zs)*(ze-zs)) - ro;
 		}
 

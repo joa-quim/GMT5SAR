@@ -1,4 +1,4 @@
-#/bin/csh -f
+#!/bin/csh -f
 #       $Id$
 #
 #
@@ -51,9 +51,9 @@
     set fs2 = `grep first_sample $prm2 | awk '{print $3}'`
     cp $prm tmp.PRM
     if ($fs2 > $fs1) then
-      update_PRM.csh tmp.PRM first_sample $fs2
+      update_PRM tmp.PRM first_sample $fs2
     endif
-    update_PRM.csh tmp.PRM rshift $rshift
+    update_PRM tmp.PRM rshift $rshift
     cd $now_dir
 
     echo $pth"tmp.PRM:"$pth"phasefilt.grd" >> tmp_phaselist
@@ -78,7 +78,12 @@
     set led = `grep led_file $pth$stem".PRM" | awk '{print $3}'`
     cp $pth$led .
     echo "Recomputing the projection LUT..."
+  # Need to compute the geocoding matrix with supermaster.PRM with rshift set to 0
+    set rshift = `grep rshift $stem".PRM" | tail -1 | awk '{print $3}'`
+    update_PRM $stem".PRM" rshift 0
     gmt grd2xyz --FORMAT_FLOAT_OUT=%lf dem.grd -s | SAT_llt2rat $stem".PRM" 1 -bod > trans.dat
+  # Set rshift back for other usage
+    update_PRM $stem".PRM" rshift $rshift
   endif
 
   # Read in parameters
@@ -87,6 +92,7 @@
   set region_cut = `grep region_cut $2 | awk '{print $3}'`
   set switch_land = `grep switch_land $2 | awk '{print $3}'`
   set defomax = `grep defomax $2 | awk '{print $3}'`
+  set near_interp = `grep near_interp $2 | awk '{print $3}'`
 
   # Unwrapping
   if ($region_cut == "") then
@@ -102,7 +108,11 @@
     echo ""
     echo "SNAPHU.CSH - START"
     echo "threshold_snaphu: $threshold_snaphu"
-    snaphu.csh $threshold_snaphu $defomax $region_cut
+    if ($near_interp == 1) then
+      snaphu_interp.csh $threshold_snaphu $defomax $region_cut
+    else
+      snaphu.csh $threshold_snaphu $defomax $region_cut
+    endif
     echo "SNAPHU.CSH - END"
   else
     echo ""
@@ -118,7 +128,7 @@
     echo "GEOCODE-START"
     proj_ra2ll.csh trans.dat phasefilt.grd phasefilt_ll.grd
     proj_ra2ll.csh trans.dat corr.grd corr_ll.grd
-    gmt makecpt -T-3.15/3.15/0.05 -Z > phase.cpt
+    gmt makecpt -Crainbow -T-3.15/3.15/0.05 -Z > phase.cpt
     set BT = `gmt grdinfo -C corr.grd | awk '{print $7}'`
     gmt makecpt -Cgray -T0/$BT/0.05 -Z > corr.cpt
     grd2kml.csh phasefilt_ll phase.cpt

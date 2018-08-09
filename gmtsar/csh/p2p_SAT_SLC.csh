@@ -76,6 +76,7 @@ unset noclobber
   set region_cut = `grep region_cut $3 | awk '{print $3}'`
   set switch_land = `grep switch_land $3 | awk '{print $3}'`
   set defomax = `grep defomax $3 | awk '{print $3}'`
+  set near_interp = `grep near_interp $3 | awk '{print $3}'`
 
 #
 # read file names of raw data
@@ -127,13 +128,13 @@ unset noclobber
     @ m_lines  = `grep num_lines ../raw/$master.PRM | awk '{printf("%d",int($3))}' `
     @ s_lines  = `grep num_lines ../raw/$slave.PRM | awk '{printf("%d",int($3))}' `
     if($s_lines <  $m_lines) then
-      update_PRM.csh $master.PRM num_lines $s_lines
-      update_PRM.csh $master.PRM num_valid_az $s_lines
-      update_PRM.csh $master.PRM nrows $s_lines
+      update_PRM $master.PRM num_lines $s_lines
+      update_PRM $master.PRM num_valid_az $s_lines
+      update_PRM $master.PRM nrows $s_lines
     else
-      update_PRM.csh $slave.PRM num_lines $m_lines
-      update_PRM.csh $slave.PRM num_valid_az $m_lines
-      update_PRM.csh $slave.PRM nrows $m_lines
+      update_PRM $slave.PRM num_lines $m_lines
+      update_PRM $slave.PRM num_valid_az $m_lines
+      update_PRM $slave.PRM nrows $m_lines
     endif
 #
 #   calculate SC_vel and SC_height
@@ -328,7 +329,11 @@ unset noclobber
       echo "SNAPHU.CSH - START"
       echo "threshold_snaphu: $threshold_snaphu"
       
-      snaphu.csh $threshold_snaphu $defomax $region_cut
+      if ($near_interp == 1) then
+        snaphu_interp.csh $threshold_snaphu $defomax $region_cut
+      else
+        snaphu.csh $threshold_snaphu $defomax $region_cut
+      endif
 
       echo "SNAPHU.CSH - END"
       cd ../..

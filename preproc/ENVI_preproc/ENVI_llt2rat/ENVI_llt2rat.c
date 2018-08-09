@@ -48,7 +48,7 @@
 #include "image_sio.h"
 #include "lib_functions.h"
 #include "llt2xyz.h"
-#include "orbit_ALOS.h"
+#include "orbit.h"
 
 # define R 0.61803399
 # define C 0.382

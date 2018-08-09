@@ -23,7 +23,9 @@ unset noclobber
     exit 1
   endif
   set SAT = $1
-  if( ($SAT != ENVI) && ($SAT != ERS) && ($SAT != SAT)) then
+  if ($SAT == "CSK_RAW") set SAT = `echo "SAT"`
+
+  if (($SAT != ENVI) && ($SAT != ERS) && ($SAT != SAT) && ($SAT != ALOS)) then
     echo ""
     echo " SAT must be ERS, ENVI, or generic SAT"
     echo ""
@@ -37,7 +39,7 @@ unset noclobber
     echo "focussing master"
     sarp.csh $2.PRM 
   else
-    update_PRM.csh $2.PRM SLC_file $2.SLC
+    update_PRM $2.PRM SLC_file $2.SLC
   endif
 #
 # focus the slave image
@@ -66,19 +68,19 @@ unset noclobber
 #   use the PRF of the supermaster in the surrogate master
 #
     set PRF = `grep PRF $4.PRM | awk '{print $3}'`
-    update_PRM.csh $2.PRM PRM $PRF
+    update_PRM $2.PRM PRF $PRF
   else
     set RSHIFT = `$1_baseline $2.PRM $3.PRM | grep rshift | awk '{print $3}'`
     set ASHIFT = `$1_baseline $2.PRM $3.PRM | grep ashift | awk '{print $3}'`
   endif
-  update_PRM.csh $3.PRM rshift $RSHIFT
-  update_PRM.csh $3.PRM ashift $ASHIFT
+  update_PRM $3.PRM rshift $RSHIFT
+  update_PRM $3.PRM ashift $ASHIFT
   echo "align.csh"
   echo "correlate master and slave to find offset parameters"
   if( $SAT == "ERS") then
-    xcorr $2.PRM $3.PRM -xsearch 128 -ysearch 128
+    xcorr $2.PRM $3.PRM -xsearch 128 -ysearch 128 -nx 20 -ny 50
   else
-    xcorr $2.PRM $3.PRM -xsearch 64 -ysearch 64
+    xcorr $2.PRM $3.PRM -xsearch 128 -ysearch 256 -nx 20 -ny 50
   endif
 #
   mv $3.SLC $3.SLC0

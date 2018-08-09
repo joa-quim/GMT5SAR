@@ -1,7 +1,7 @@
 #include "image_sio.h"
 #include "lib_functions.h"
 #include "siocomplex.h"
-#include "orbit_ALOS.h"
+#include "orbit.h"
 
 EXTERN_MSC void read_ENVI_orb(FILE *, struct PRM *, struct ALOS_ORB *);
 

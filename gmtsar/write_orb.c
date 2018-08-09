@@ -1,8 +1,10 @@
 #include <stdlib.h>
 #include "lib_functions.h"
-#include "orbit_ALOS.h"
+#include "orbit.h"
 
-void write_orb(FILE *ldrfile, struct ALOS_ORB *orb) {
+void write_orb(FILE *, struct SAT_ORB *);
+
+void write_orb(FILE *ldrfile, struct SAT_ORB *orb) {
         int     n;
         int     nd,iy,id;
         double  isec,idsec,pt,px,py,pz,vx,vy,vz;
@@ -26,5 +28,4 @@ void write_orb(FILE *ldrfile, struct ALOS_ORB *orb) {
                 vz = orb->points[n].vz;
 	fprintf(ldrfile,"%d %d %lf %lf %lf %lf %lf %lf %lf \n",iy,id,pt,px,py,pz,vx,vy,vz);
         }
-
 }

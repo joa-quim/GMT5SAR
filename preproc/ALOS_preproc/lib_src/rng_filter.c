@@ -15,8 +15,7 @@
 #include "lib_functions.h"
 #include "siocomplex.h"
 
-
-void rng_filter(fcomplex *cin, int nffti, fcomplex *cout) {
+void rng_filter (fcomplex *cin, int nffti, fcomplex *cout) {
 	int i, dir, nf, nt;
         nf = .70*nffti/2;
         nt = nffti-1;
