@@ -66,7 +66,7 @@ FILE *read_PRM_file(char *prmfilename, char *input_file_name, struct PRM p, int 
 	void change_name(char * );
 
 	if (verbose) fprintf(stderr," reading PRM file %s\n",prmfilename);
-	if ((f_input_prm = fopen(prmfilename,"rb")) == NULL) die("Can't open input header",prmfilename);
+	if ((f_input_prm = fopen(prmfilename,"r")) == NULL) die("Can't open input header",prmfilename);
 	get_sio_struct(f_input_prm, &p);
 	strcpy(input_file_name, p.SLC_file); 
 	format_flag = 2;
@@ -101,9 +101,9 @@ int read_SLC_int(short *ci2, int xdim, FILE *f_input, int yarr, float *buffer, d
 	/* read i2 complex and calculate amplitude */
 	/* use square of amplitude to match gips ihconv */
 	for (i = 0; i < ibuff; i++) {
-		fread(ci2, 2*sizeof(short), xdim, f_input);
+		fread(ci2, 2 * sizeof(short), xdim, f_input);
 		for (j = 0; j < xdim; j++)
-			buffer[j+xdim*(i+yarr)] = (float) (df2*ci2[2*j]*ci2[2*j] + df2*ci2[2*j+1]*ci2[2*j+1]);
+			buffer[j + xdim*(i + yarr)] = (float)(df2*ci2[2 * j] * ci2[2 * j] + df2*ci2[2 * j + 1] * ci2[2 * j + 1]);
 	}
 
 	return(EXIT_SUCCESS);
@@ -238,7 +238,8 @@ int main(int argc, char **argv) {
 	nbuff = xdim * ibuff;
 
 	if ((filter = (float *) malloc(sizeof(float) * narr)) == NULL) die("memory allocation","");
-	if ((buffer = (float *) malloc(2 * sizeof(float) * nbuff)) == NULL) die("memory allocation","");
+	//if ((buffer = (float *)malloc(2 * sizeof(float) * nbuff)) == NULL) die("memory allocation", "");
+	if ((buffer = (float *)calloc(2 * nbuff, sizeof(float))) == NULL) die("memory allocation", "");
 
 	if (format_flag == 1) if (( indat = (float *) malloc(4*xdim)) == NULL) die("memory allocation",""); 
 	if (format_flag == 2) if (( cindat = (short *) malloc(4*xdim)) == NULL) die("memory allocation",""); 
@@ -298,16 +299,17 @@ int main(int argc, char **argv) {
 
 		/* now do the 2d convolution */
 		for (jc = 0; jc < xdim; jc = jc+jdec) {
+//if (ic1 == 504 && jc == 9070)
+	//jout = jout;
 			conv2d (buffer, &ylen, &xdim, filter, &yarr, &xarr, &filtdat, &ic1, &jc, &rnorm);
 			/* use a zero or null value if there is not enough data in the filter */
-			Out->data[left_node+jout] = 0.0f;
+			//Out->data[left_node+jout] = 0.0f;
 			if (norm > 0 ) {
 				if (fabs(rnorm) > (0.01*rnormax)) Out->data[left_node+jout] = filtdat/rnorm;
 			}
 			else { 
 				if (fabs(rnorm) < 0.0001*anormax) Out->data[left_node+jout] = filtdat; 
 			}
-
 			jout++;
 
 		} /* end of jc loop */
