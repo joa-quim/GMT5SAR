@@ -110,7 +110,11 @@
 #define MAXRES               SCHAR_MAX
 #define MINRES               SCHAR_MIN
 #define PROBCOSTP            (-16)
+#ifdef _WIN32
+#define NULLFILE             "NUL"
+#else
 #define NULLFILE             "/dev/null"
+#endif
 #define DEF_ERRORSTREAM      stderr
 #define DEF_OUTPUTSTREAM     stdout
 #define DEF_VERBOSESTREAM    NULL

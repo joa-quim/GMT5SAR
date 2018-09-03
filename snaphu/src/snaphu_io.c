@@ -1748,7 +1748,7 @@ int64_t GetNLines(infileT *infiles, int64_t linelen){
   int64_t filesize, datasize;
 
   /* get size of input file in rows and columns */
-  if((fp=fopen(infiles->infile,"r"))==NULL){
+  if((fp=fopen(infiles->infile,"rb"))==NULL){
     fprintf(sp0,"can't open file %s\n",infiles->infile);
     exit(ABNORMAL_EXIT);
   }
@@ -1806,7 +1806,7 @@ FILE *OpenOutputFile(char *outfile, char *realoutfile){
   char path[MAXSTRLEN], basename[MAXSTRLEN], dumpfile[MAXSTRLEN];
   FILE *fp;
 
-  if((fp=fopen(outfile,"w"))==NULL){
+  if((fp=fopen(outfile,"wb"))==NULL){
 
     /* if we can't write to the out file, get the file name from the path */
     /* and dump to the default path */
@@ -1814,12 +1814,10 @@ FILE *OpenOutputFile(char *outfile, char *realoutfile){
     StrNCopy(dumpfile,DUMP_PATH,MAXSTRLEN);
     strcat(dumpfile,basename);
     if((fp=fopen(dumpfile,"w"))!=NULL){
-      fprintf(sp0,"WARNING: Can't write to file %s.  Dumping to file %s\n",
-	     outfile,dumpfile);
+      fprintf(sp0,"WARNING: Can't write to file %s.  Dumping to file %s\n", outfile,dumpfile);
       StrNCopy(realoutfile,dumpfile,MAXSTRLEN);
     }else{
-      fprintf(sp0,"Unable to write to file %s or dump to file %s\nAbort\n",
-	     outfile,dumpfile);
+      fprintf(sp0,"Unable to write to file %s or dump to file %s\nAbort\n", outfile,dumpfile);
       exit(ABNORMAL_EXIT);
     }
   }else{
@@ -2360,7 +2358,7 @@ void ReadAltLineFile(float ***mag, float ***phase, char *alfile,
   int64_t filesize,row,nrow,ncol,padlen;
 
   /* open the file */
-  if((fp=fopen(alfile,"r"))==NULL){
+  if((fp=fopen(alfile,"rb"))==NULL){
     fprintf(sp0,"Can't open file %s\nAbort\n",alfile);
     exit(ABNORMAL_EXIT);
   }
@@ -2421,7 +2419,7 @@ void ReadAltLineFilePhase(float ***phase, char *alfile,
   int64_t filesize,row,nrow,ncol,padlen;
 
   /* open the file */
-  if((fp=fopen(alfile,"r"))==NULL){
+  if((fp=fopen(alfile,"rb"))==NULL){
     fprintf(sp0,"Can't open file %s\nAbort\n",alfile);
     exit(ABNORMAL_EXIT);
   }
@@ -2474,7 +2472,7 @@ void ReadComplexFile(float ***mag, float ***phase, char *rifile,
   float *inpline;
 
   /* open the file */
-  if((fp=fopen(rifile,"r"))==NULL){
+  if((fp=fopen(rifile,"rb"))==NULL){
     fprintf(sp0,"Can't open file %s\nAbort\n",rifile);
     exit(ABNORMAL_EXIT);
   }
@@ -2540,7 +2538,7 @@ void Read2DArray(void ***arr, char *infile, int64_t linelen, int64_t nlines,
   int64_t filesize,row,nrow,ncol,padlen;
 
   /* open the file */
-  if((fp=fopen(infile,"r"))==NULL){
+  if((fp=fopen(infile,"rb"))==NULL){
     fprintf(sp0,"Can't open file %s\nAbort\n",infile);
     exit(ABNORMAL_EXIT);
   }
@@ -2593,7 +2591,7 @@ void ReadAltSampFile(float ***arr1, float ***arr2, char *infile,
   float *inpline;
 
   /* open the file */
-  if((fp=fopen(infile,"r"))==NULL){
+  if((fp=fopen(infile,"rb"))==NULL){
     fprintf(sp0,"Can't open file %s\nAbort\n",infile);
     exit(ABNORMAL_EXIT);
   }
@@ -2654,7 +2652,7 @@ void Read2DRowColFile(void ***arr, char *filename, int64_t linelen, int64_t nlin
   int64_t row, nel, nrow, ncol, padlen, filelen;
  
   /* open the file */
-  if((fp=fopen(filename,"r"))==NULL){
+  if((fp=fopen(filename,"rb"))==NULL){
     fprintf(sp0,"Can't open file %s\nAbort\n",filename);
     exit(ABNORMAL_EXIT);
   }
@@ -2718,7 +2716,7 @@ void Read2DRowColFileRows(void ***arr, char *filename, int64_t linelen,
   int64_t row, nel, nrow, ncol, padlen, filelen;
  
   /* open the file */
-  if((fp=fopen(filename,"r"))==NULL){
+  if((fp=fopen(filename,"rb"))==NULL){
     fprintf(sp0,"Can't open file %s\nAbort\n",filename);
     exit(ABNORMAL_EXIT);
   }
