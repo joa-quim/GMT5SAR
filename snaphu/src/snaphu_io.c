@@ -473,7 +473,7 @@ void CheckParams(infileT *infiles, outfileT *outfiles,
 
   /* make sure output file is writable (try opening in append mode) */
   /* file will be opened in write mode later, clobbering existing file */
-  if((fp=fopen(outfiles->outfile,"a"))==NULL){
+  if((fp=fopen(outfiles->outfile,"ab"))==NULL){
     fprintf(sp0,"file %s is not writable\n",outfiles->outfile);
     exit(ABNORMAL_EXIT);
   }else{
@@ -958,7 +958,7 @@ void ReadConfigFile(char *conffile, infileT *infiles, outfileT *outfiles,
 
   /* open input config file */
   if(strlen(conffile)){
-    if((fp=fopen(conffile,"r"))==NULL){
+    if((fp=fopen(conffile,"rt"))==NULL){
 
       /* abort if we were given a non-zero length name that is unreadable */
       fprintf(sp0,"unable to read configuration file %s\n",conffile);
