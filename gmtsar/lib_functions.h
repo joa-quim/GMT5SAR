@@ -96,7 +96,7 @@ EXTERN_MSC void write_orb(FILE *, struct ALOS_ORB *);
 EXTERN_MSC void set_prm_defaults(struct PRM *prm);
 EXTERN_MSC void hermite_c(double *x, double *y, double *z, int nmax, int nval, double xp, double *yp, int *ir);
 EXTERN_MSC void polyfit(double *T, double *Y, double *C, int *Mp, int *Np);
-EXTERN_MSC void ldr_orbit(struct ALOS_ORB *, struct PRM *);
+EXTERN_MSC void ldr_orbit(struct SATS_ORB *, struct PRM *);
 EXTERN_MSC void calc_dop(struct PRM *);
 EXTERN_MSC void conv2d (float *rdat, int *ni, int *nj, float *filt, int *nif, int *njf, float *fdat, int *ic, int *jc, float *rnorm);
 
